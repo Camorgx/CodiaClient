@@ -66,9 +66,13 @@ class query:
                 if eid:
                     res = get_data(eid = eid, pid = pid)
                     res = {x['key']: x['value'] for x in res[0]['submission']['reports']}
-                    score = res['score'].split('/')
-                    if score[0] == score[1]: self.show_msg({'score': res['score'], 'time elapsed': res['time elapsed'], 'memory consumed': res['memory consumed']})
-                    else: self.show_msg(res)
+                    try:
+                        score = res['score'].split('/')
+                    except:
+                        self.show_msg(res)
+                    else:
+                        if score[0] == score[1]: self.show_msg({'score': res['score'], 'time elapsed': res['time elapsed'], 'memory consumed': res['memory consumed']})
+                        else: self.show_msg(res)
                 else: report("No eid specified.", 1)
             elif conf[0] in ['sp', 'showp', 'showpack']:
                 if pid:
@@ -95,9 +99,13 @@ class query:
                 if eid:
                     res = get_data(eid = eid, pid = pid, codecnt = conf[1])
                     res = {x['key']: x['value'] for x in res[0]['submission']['reports']}
-                    score = res['score'].split('/')
-                    if score[0] == score[1]: self.show_msg({'score': res['score'], 'time elapsed': res['time elapsed'], 'memory consumed': res['memory consumed']})
-                    else: self.show_msg(res)
+                    try:
+                        score = res['score'].split('/')
+                    except:
+                        self.show_msg(res)
+                    else:
+                        if score[0] == score[1]: self.show_msg({'score': res['score'], 'time elapsed': res['time elapsed'], 'memory consumed': res['memory consumed']})
+                        else: self.show_msg(res)
                 else: report("No eid specified.", 1)
             elif conf[0] in ['gp', 'getp', 'getpack']:
                 res = get_pack(lastcnt = conf[1])

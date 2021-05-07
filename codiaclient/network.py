@@ -1,5 +1,5 @@
 from .report import report
-from .utils import graphql_query_encode as qryenc, passwd_hash, cookie_encrypt, cookie_decrypt
+from .utils import passwd_hash, cookie_encrypt, cookie_decrypt
 from .cachectrl import variables as cache_var, cache_username_passwd_cookie as cache
 from requests import post
 import json
@@ -88,7 +88,11 @@ def client_login(username, password, cookie = None):
 
 def logined():
     headers = coding_base_headers.copy()
-    data = qryenc('''{"operationName":null,"variables":{ },"query":"{
+    data = json.dumps({
+        "operationName": None,
+        "variables": {},
+        "query": r'''
+{
     me {
         id
         login
@@ -98,7 +102,8 @@ def logined():
         verified
         __typename
     }
-}"}''').format()
+}''',
+    })
     headers['content-length'] = str(len(data))
     res = json.loads(post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5).text)
     if 'errors' in res: return False
@@ -131,8 +136,14 @@ def get_exercise(eid, pid, lang, feedback = None):
 
 def get_pack(lastcnt: int = 8):
     headers = coding_base_headers.copy()
-    data = qryenc('''{"operationName":"publicExercisePacks","variables":{ },"query":"query publicExercisePacks($before: String) {
-    publicExercisePacks(last: {}, before: $before) {
+    data = json.dumps({
+        "operationName": "publicExercisePacks",
+        "variables": {
+            'lastcnt': lastcnt
+        },
+        "query": r'''
+query publicExercisePacks($lastcnt: Int!, $before: String) {
+    publicExercisePacks(last: $lastcnt, before: $before) {
         nodes {
             id
             name
@@ -146,15 +157,21 @@ def get_pack(lastcnt: int = 8):
             }
         }
     }
-}"}''').format(lastcnt)
+}'''
+    })
     headers['content-length'] = str(len(data))
     res = post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
     return json.loads(res.text)['data']['publicExercisePacks']['nodes']
 
 def show_pack(pid):
     headers = coding_base_headers.copy()
-    data_pid = pid
-    data = qryenc('''{"operationName":"pack","variables":{"pid":"{}"},"query":"query pack($pid: ID!) {
+    data = json.dumps({
+        "operationName": "pack",
+        "variables": {
+            "pid": pid
+        },
+        "query": r'''
+query pack($pid: ID!) {
     node(id: $pid) {
         id
         ... on ExercisePack {
@@ -173,14 +190,21 @@ def show_pack(pid):
             }
         }
     }
-}"}''').format(data_pid)
+}'''})
     headers['content-length'] = str(len(data))
     res = post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
     return json.loads(res.text)['data']['node']
 
 def _login(username, passwd):
     headers = login_base_headers.copy()
-    data = qryenc('''{"operationName":"login","variables":{"username":"{}","password":"{}"},"query":"mutation login($username: String!, $password: String!) {
+    data = json.dumps({
+        "operationName": "login",
+        "variables": {
+            "username": username,
+            "password": passwd
+        },
+        "query": r'''
+mutation login($username: String!, $password: String!) {
     login(login: $username, password: $password) {
         user {
             id
@@ -193,7 +217,8 @@ def _login(username, passwd):
         }
         __typename
     }
-}"}''').format(username, passwd)
+}'''})
+    
     headers['content-length'] = str(len(data))
     res = post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
     from re import search
@@ -205,41 +230,63 @@ def _login(username, passwd):
 
 def _submit_from_pack(eid, pid, lang, solutioncode):
     headers = coding_base_headers.copy()
-    data_eid = eid
-    data_lang = lang
-    data_pid = pid
-    data_solution = solutioncode.replace('\\',r'\\').replace('\t', r'\t').replace('\n',r'\n').replace('\"',r'\"')
-    data = qryenc('''{"operationName":null,"variables":{"eid":"{}","pid":"{}","lang":"{}","sol":"{}","a":{"editStat":[]}},"query":"mutation ($eid: ID!, $pid: ID, $lang: Language!, $sol: String!, $a: JSONObject) {
-    submit(eid: $eid, pid: $pid, solution: {lang: $lang, asset: {content: $sol}}, additionalInfo: $a) {
+    data = json.dumps({
+        "operationName": None,
+        "variables": {
+            "eid": eid,
+            "pid": pid,
+            "lang": lang,
+            "sol": solutioncode,
+            "a": {
+                "editStat": []
+            }
+        },
+        "query": r'''
+mutation ($eid: ID!, $pid: ID, $lang: Language!, $sol: String!, $a: JSONObject) {
+    submit(eid: $eid, pid: $pid, solution: {lang: $lang, asset: {content: $sol} }, additionalInfo: $a) {
         token
         __typename
     }
-}"}''').format(data_eid, data_pid, data_lang, data_solution)
+}'''})
     headers['content-length'] = str(len(data))
     return post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
 
 def _submit_not_from_pack(eid, lang, solutioncode):
     headers = coding_base_headers.copy()
-    data_eid = eid
-    data_lang = lang
-    data_solution = solutioncode.replace('\\',r'\\').replace('\t', r'\t').replace('\n',r'\n').replace('\"',r'\"')
-    data = qryenc('''{"operationName":null,"variables":{"eid":"{}","lang":"{}","sol":"{}","a":{"editStat":[]}},"query":"mutation ($eid: ID!, $pid: ID, $lang: Language!, $sol: String!, $a: JSONObject) {
-    submit(eid: $eid, pid: $pid, solution: {lang: $lang, asset: {content: $sol}}, additionalInfo: $a) {
+    data = json.dumps({
+        "operationName":None,
+        "variables": {
+            "eid": eid,
+            "lang": lang,
+            "sol": solutioncode,
+            "a": {
+                "editStat": []
+            }
+        },
+        "query": r'''
+mutation ($eid: ID!, $pid: ID, $lang: Language!, $sol: String!, $a: JSONObject) {
+    submit(eid: $eid, pid: $pid, solution: {lang: $lang, asset: {content: $sol} }, additionalInfo: $a) {
         token
         __typename
     }
-}"}''').format(data_eid, data_lang, data_solution)
+}'''})
     headers['content-length'] = str(len(data))
     return post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
 
 def _get_data_not_from_pack(eid, codecnt: int = 1):
     headers = coding_base_headers.copy()
-    data_eid = eid
-    data = qryenc('''{"operationName":"codingExercise","variables":{"eid":"{}"},"query":"query codingExercise($eid: ID!) {
+    data = json.dumps({
+        "operationName": "codingExercise",
+        "variables": {
+            "eid": eid,
+            "codecnt": codecnt
+        },
+        "query": '''
+query codingExercise($eid: ID!, $codecnt: Int!) {
     node(id: $eid) {
         ... on CodingExercise {
             viewerStatus {
-                exerciseStatuses(last: {}) {
+                exerciseStatuses(last: $codecnt) {
                     nodes {
                         ... on CodingExerciseStatus {
                             id
@@ -261,16 +308,22 @@ def _get_data_not_from_pack(eid, codecnt: int = 1):
             }
         }
     }
-}"}''').format(data_eid, codecnt)
+}'''})
     headers['content-length'] = str(len(data))
     res = post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
     return json.loads(res.text)['data']['node']['viewerStatus']['exerciseStatuses']['nodes']
 
 def _get_data_from_pack(eid, pid, codecnt: int = 1):
     headers = coding_base_headers.copy()
-    data_eid = eid
-    data_pid = pid
-    data = qryenc('''{"operationName":"codingExercise","variables":{"eid":"{}","pid":"{}"},"query":"query codingExercise($eid: ID!, $pid: ID) {
+    data = json.dumps({
+        "operationName": "codingExercise",
+        "variables": {
+            "eid": eid,
+            "pid": pid,
+            "codecnt": codecnt
+        },
+        "query": '''
+query codingExercise($eid: ID!, $pid: ID, $codecnt: Int!) {
     node(id: $pid) {
         ... on ExercisePack {
             id
@@ -281,7 +334,7 @@ def _get_data_from_pack(eid, pid, codecnt: int = 1):
                 viewerStatus {
                     passedCount
                     totalCount
-                    exerciseStatuses(last: {}) {
+                    exerciseStatuses(last: $codecnt) {
                         nodes {
                             ... on CodingExerciseStatus {
                                 id
@@ -294,39 +347,31 @@ def _get_data_from_pack(eid, pid, codecnt: int = 1):
                                     }
                                 }
                                 solution {
-                                lang 
-                                asset { content }
+                                    lang 
+                                    asset { content }
+                                }
                             }
                         }
                     }
                 }
             }
         }
-        viewerStatus {
-            lastSession {
-                id
-                codingExercises {
-                    edges {
-                        userStatus {
-                            passedCount
-                            totalCount
-                        }
-                        node { id }
-                    }
-                }
-            }
-        }
     }
-}"}''').format(data_eid, data_pid, codecnt)
+}'''})
     headers['content-length'] = str(len(data))
     res = post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
     return json.loads(res.text)['data']['node']['codingExercise']['viewerStatus']['exerciseStatuses']['nodes']
 
 def _get_exercise_not_from_pack(eid, lang, feedback = None):
     headers = coding_base_headers.copy()
-    data_eid = eid
-    data_lang = lang
-    data = qryenc('''{"operationName":"codingExercise","variables":{"eid":"{}","lang":"{}"},"query":"query codingExercise($eid: ID!, $lang: Language!) {
+    data = json.dumps({
+        "operationName": "codingExercise",
+        "variables": {
+            "eid": eid,
+            "lang": lang
+        },
+        "query": '''
+query codingExercise($eid: ID!, $lang: Language!) {
     exercise: node(id: $eid) {
         ... on CodingExercise {
             id
@@ -348,7 +393,7 @@ def _get_exercise_not_from_pack(eid, lang, feedback = None):
             }
         }
     }
-}"}''').format(data_eid, data_lang)
+}'''})
     headers['content-length'] = str(len(data))
     res = post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
     if feedback == 'Response': return res
@@ -375,10 +420,15 @@ def _get_exercise_not_from_pack(eid, lang, feedback = None):
 
 def _get_exercise_from_pack(eid, pid, lang, feedback = None):
     headers = coding_base_headers.copy()
-    data_eid = eid
-    data_pid = pid
-    data_lang = lang
-    data = qryenc('''{"operationName":"codingExercise","variables":{"eid":"{}","pid":"{}","lang":"{}"},"query":"query codingExercise($eid: ID!, $pid: ID, $lang: Language!) {
+    data = json.dumps({
+        "operationName": "codingExercise",
+        "variables": {
+            "eid": eid,
+            "pid": pid,
+            "lang": lang
+        },
+        "query": '''
+query codingExercise($eid: ID!, $pid: ID, $lang: Language!) {
     pack: node(id: $pid) {
         ... on ExercisePack {
             id
@@ -403,7 +453,7 @@ def _get_exercise_from_pack(eid, pid, lang, feedback = None):
             }
         }
     }
-}"}''').format(data_eid, data_pid, data_lang)
+}'''})
     headers['content-length'] = str(len(data))
     res = post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
     if feedback == 'Response': return res
