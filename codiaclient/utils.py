@@ -11,10 +11,6 @@ def passwd_hash(passwd):
         report("Password hashing failed, which may cause the plaintext to be cached.", 1)
         return passwd
 
-def graphql_query_encode(str):
-    return str.replace(r'{', r'{{').replace(r'}', r'}}').replace(r'{{}}', r'{}').replace('    ', '  ').replace('\n', r'\n')
-
-
 import base64
 from Crypto.Cipher import AES
 
