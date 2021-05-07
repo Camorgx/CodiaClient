@@ -89,15 +89,15 @@ def client_login(username, password, cookie = None):
 def logined():
     headers = coding_base_headers.copy()
     data = qryenc('''{"operationName":null,"variables":{ },"query":"{
-  me {
-    id
-    login
-    displayName
-    avatarUrl
-    defaultEmail
-    verified
-    __typename
-  }
+    me {
+        id
+        login
+        displayName
+        avatarUrl
+        defaultEmail
+        verified
+        __typename
+    }
 }"}''').format()
     headers['content-length'] = str(len(data))
     res = json.loads(post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5).text)
@@ -124,10 +124,6 @@ def submit(eid, pid, lang, solutioncode):
 def get_data(eid, pid, codecnt: int = 1):
     if pid: return _get_data_from_pack(eid, pid, codecnt)
     else: return _get_data_not_from_pack(eid, codecnt)
-
-# def __get_data(eid, pid, codecnt: int = 1):
-#     if pid: return ___get_data_from_pack(eid, pid, codecnt)
-#     else: return ___get_data_not_from_pack(eid, codecnt)
 
 def get_exercise(eid, pid, lang, feedback = None):
     if pid: return _get_exercise_from_pack(eid, pid, lang, feedback)
@@ -163,9 +159,7 @@ def show_pack(pid):
         id
         ... on ExercisePack {
             name
-            description {
-                content
-            }
+            description { content }
             time
             start
             due
@@ -259,9 +253,7 @@ def _get_data_not_from_pack(eid, codecnt: int = 1):
                             }
                             solution {
                                 lang 
-                                asset {
-                                    content
-                                }
+                                asset { content }
                             } 
                         }
                     }
@@ -278,111 +270,85 @@ def _get_data_from_pack(eid, pid, codecnt: int = 1):
     headers = coding_base_headers.copy()
     data_eid = eid
     data_pid = pid
-    data = '{{\"operationName\":\"codingExercise\",\"variables\":{{\"eid\":\"{}\",\"pid\":\"{}\"}},\"query\":\"query codingExercise($eid: ID!, $pid: ID) {{\\n node(id: $pid) {{\\n ... on ExercisePack {{\\n id\\n codingExercise(id: $eid) {{\\n id\\n title\\n tags\\n viewerStatus {{\\n passedCount\\n totalCount\\n exerciseStatuses(last: {}) {{\\n nodes {{\\n ... on CodingExerciseStatus {{\\n id\\n scoreRate\\n submission {{\\n id\\n reports {{\\n key\\n value\\n }}\\n}}\\n solution {{\\n lang \\n asset {{content}}}}\\n}}\\n}}\\n}}\\n}}\\n}}\\n viewerStatus {{\\n lastSession {{\\n id\\n codingExercises {{\\n edges {{\\n userStatus {{\\n passedCount\\n totalCount\\n }}\\n node {{\\n id\\n}}\\n}}\\n}}\\n}}\\n}}\\n}}\\n}}\\n}}\\n\"}}'.format(data_eid, data_pid, codecnt)
+    data = qryenc('''{"operationName":"codingExercise","variables":{"eid":"{}","pid":"{}"},"query":"query codingExercise($eid: ID!, $pid: ID) {
+    node(id: $pid) {
+        ... on ExercisePack {
+            id
+            codingExercise(id: $eid) {
+                id
+                title
+                tags
+                viewerStatus {
+                    passedCount
+                    totalCount
+                    exerciseStatuses(last: {}) {
+                        nodes {
+                            ... on CodingExerciseStatus {
+                                id
+                                scoreRate
+                                submission {
+                                    id
+                                    reports {
+                                        key
+                                        value
+                                    }
+                                }
+                                solution {
+                                lang 
+                                asset { content }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        viewerStatus {
+            lastSession {
+                id
+                codingExercises {
+                    edges {
+                        userStatus {
+                            passedCount
+                            totalCount
+                        }
+                        node { id }
+                    }
+                }
+            }
+        }
+    }
+}"}''').format(data_eid, data_pid, codecnt)
     headers['content-length'] = str(len(data))
     res = post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
     return json.loads(res.text)['data']['node']['codingExercise']['viewerStatus']['exerciseStatuses']['nodes']
-
-# def ___get_data_not_from_pack(eid, codecnt: int = 1):
-#     headers = coding_base_headers.copy()
-#     data_eid = eid
-#     data = qryenc('''{"operationName":"codingExercise","variables":{"eid":"{}"},"query":"query codingExercise($eid: ID!) {
-#     node(id: $eid) {
-#         ... on CodingExercise {
-#             viewerStatus {
-#                 passedCount
-#                 totalCount
-#                 exerciseStatuses(last: {}) {
-#                     nodes {
-#                         ... on CodingExerciseStatus {
-#                             id
-#                             scoreRate
-#                             submission {
-#                                 id
-#                                 reports {
-#                                     key
-#                                     value
-#                                 }
-#                             }
-#                             solution {
-#                                 lang 
-#                                 asset {
-#                                     content
-#                                 }
-#                             } 
-#                         }
-#                     }
-#                 }
-#             }
-#         }
-#     }
-# }"}''').format(data_eid, codecnt)
-#     headers['content-length'] = str(len(data))
-#     return post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
-
-# def ___get_data_from_pack(eid, pid, codecnt: int = 1):
-#     headers = coding_base_headers.copy()
-#     data_eid = eid
-#     data_pid = pid
-#     data = qryenc('''{"operationName":"codingExercise","variables":{"eid":"{}","pid":"{}"},"query":"query codingExercise($eid: ID!, $pid: ID) {
-#     node(id: $pid) {
-#         ... on ExercisePack {
-#             id
-#             codingExercise(id: $eid) {
-#                 id
-#                 title
-#                 tags
-#                 viewerStatus {
-#                     passedCount
-#                     totalCount
-#                     exerciseStatuses(last: {}) {
-#                         nodes {
-#                             ... on CodingExerciseStatus {
-#                                 id
-#                                 scoreRate
-#                                 submission {
-#                                     id
-#                                     reports {
-#                                         key
-#                                         value
-#                                     }
-#                                 }
-#                                 solution {
-#                                     lang 
-#                                     asset {content}
-#                                 }
-#                             }
-#                         }
-#                     }
-#                 }
-#             }
-#             viewerStatus {
-#                 lastSession {
-#                     id
-#                     codingExercises {
-#                         edges {
-#                             userStatus {
-#                                 passedCount
-#                                 totalCount
-#                             }
-#                             node {
-#                                 id
-#                             }
-#                         }
-#                     }
-#                 }
-#             }
-#         }
-#     } 
-# }"}''').format(data_eid, data_pid, codecnt)
-#     headers['content-length'] = str(len(data))
-#     return post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
 
 def _get_exercise_not_from_pack(eid, lang, feedback = None):
     headers = coding_base_headers.copy()
     data_eid = eid
     data_lang = lang
-    data = '{{\"operationName\":\"codingExercise\",\"variables\":{{\"eid\":\"{}\",\"lang\":\"{}\",\"fromPack\":false}},\"query\":\"query codingExercise($eid: ID!, $pid: ID, $fromPack: Boolean!, $lang: Language!) {{\\n  exercise: node(id: $eid) @skip(if: $fromPack) {{\\n    ... on CodingExercise {{\\n      id\\n      title\\n      tags\\n      description {{\\n        content\\n        __typename\\n      }}\\n      shortDesc\\n      inputDescription {{\\n        content\\n        __typename\\n      }}\\n      outputDescription {{\\n        content\\n        __typename\\n      }}\\n      sampleData {{\\n        id\\n        input {{\\n          content\\n          __typename\\n        }}\\n        output {{\\n          content\\n          __typename\\n        }}\\n        explanation {{\\n          content\\n          __typename\\n        }}\\n        __typename\\n      }}\\n      supportedLanguages\\n      note(lang: $lang) {{\\n        url\\n        content\\n        __typename\\n      }}\\n      codeSnippet(lang: $lang) {{\\n        url\\n        content\\n        __typename\\n      }}\\n      createdAt\\n      updatedAt\\n      owner {{\\n        id\\n        login\\n        displayName\\n        __typename\\n      }}\\n      __typename\\n    }}\\n    __typename\\n  }}\\n  pack: node(id: $pid) @include(if: $fromPack) {{\\n    ... on ExercisePack {{\\n      id\\n      codingExercise(id: $eid) {{\\n        id\\n        title\\n        tags\\n        description {{\\n          content\\n          __typename\\n        }}\\n        shortDesc\\n        inputDescription {{\\n          content\\n          __typename\\n        }}\\n        outputDescription {{\\n          content\\n          __typename\\n        }}\\n        sampleData {{\\n          id\\n          input {{\\n            content\\n            __typename\\n          }}\\n          output {{\\n            content\\n            __typename\\n          }}\\n          explanation {{\\n            content\\n            __typename\\n          }}\\n          __typename\\n        }}\\n        supportedLanguages\\n        note(lang: $lang) {{\\n          url\\n          content\\n          __typename\\n        }}\\n        codeSnippet(lang: $lang) {{\\n          url\\n          content\\n          __typename\\n        }}\\n        createdAt\\n        updatedAt\\n        owner {{\\n          id\\n          login\\n          displayName\\n          __typename\\n        }}\\n        __typename\\n      }}\\n      __typename\\n    }}\\n    __typename\\n  }}\\n}}\\n\"}}'.format(data_eid, data_lang)
+    data = qryenc('''{"operationName":"codingExercise","variables":{"eid":"{}","lang":"{}"},"query":"query codingExercise($eid: ID!, $lang: Language!) {
+    exercise: node(id: $eid) {
+        ... on CodingExercise {
+            id
+            title
+            tags
+            description { content }
+            inputDescription { content }
+            outputDescription { content }
+            sampleData {
+                id
+                input { content }
+                output { content }
+                explanation { content }
+            }
+            supportedLanguages
+            note(lang: $lang) {
+                url
+                content
+            }
+        }
+    }
+}"}''').format(data_eid, data_lang)
     headers['content-length'] = str(len(data))
     res = post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
     if feedback == 'Response': return res
@@ -412,7 +378,32 @@ def _get_exercise_from_pack(eid, pid, lang, feedback = None):
     data_eid = eid
     data_pid = pid
     data_lang = lang
-    data = '{{\"operationName\":\"codingExercise\",\"variables\":{{\"eid\":\"{}\",\"pid\":\"{}\",\"lang\":\"{}\",\"fromPack\":true}},\"query\":\"query codingExercise($eid: ID!, $pid: ID, $fromPack: Boolean!, $lang: Language!) {{\\n  exercise: node(id: $eid) @skip(if: $fromPack) {{\\n    ... on CodingExercise {{\\n      id\\n      title\\n      tags\\n      description {{\\n        content\\n        __typename\\n      }}\\n      shortDesc\\n      inputDescription {{\\n        content\\n        __typename\\n      }}\\n      outputDescription {{\\n        content\\n        __typename\\n      }}\\n      sampleData {{\\n        id\\n        input {{\\n          content\\n          __typename\\n        }}\\n        output {{\\n          content\\n          __typename\\n        }}\\n        explanation {{\\n          content\\n          __typename\\n        }}\\n        __typename\\n      }}\\n      supportedLanguages\\n      note(lang: $lang) {{\\n        url\\n        content\\n        __typename\\n      }}\\n      codeSnippet(lang: $lang) {{\\n        url\\n        content\\n        __typename\\n      }}\\n      createdAt\\n      updatedAt\\n      owner {{\\n        id\\n        login\\n        displayName\\n        __typename\\n      }}\\n      __typename\\n    }}\\n    __typename\\n  }}\\n  pack: node(id: $pid) @include(if: $fromPack) {{\\n    ... on ExercisePack {{\\n      id\\n      codingExercise(id: $eid) {{\\n        id\\n        title\\n        tags\\n        description {{\\n          content\\n          __typename\\n        }}\\n        shortDesc\\n        inputDescription {{\\n          content\\n          __typename\\n        }}\\n        outputDescription {{\\n          content\\n          __typename\\n        }}\\n        sampleData {{\\n          id\\n          input {{\\n            content\\n            __typename\\n          }}\\n          output {{\\n            content\\n            __typename\\n          }}\\n          explanation {{\\n            content\\n            __typename\\n          }}\\n          __typename\\n        }}\\n        supportedLanguages\\n        note(lang: $lang) {{\\n          url\\n          content\\n          __typename\\n        }}\\n        codeSnippet(lang: $lang) {{\\n          url\\n          content\\n          __typename\\n        }}\\n        createdAt\\n        updatedAt\\n        owner {{\\n          id\\n          login\\n          displayName\\n          __typename\\n        }}\\n        __typename\\n      }}\\n      __typename\\n    }}\\n    __typename\\n  }}\\n}}\\n\"}}'.format(data_eid, data_pid, data_lang)
+    data = qryenc('''{"operationName":"codingExercise","variables":{"eid":"{}","pid":"{}","lang":"{}"},"query":"query codingExercise($eid: ID!, $pid: ID, $lang: Language!) {
+    pack: node(id: $pid) {
+        ... on ExercisePack {
+            id
+            codingExercise(id: $eid) {
+                id
+                title
+                tags
+                description { content }
+                inputDescription { content }
+                outputDescription { content }
+                sampleData {
+                    id
+                    input { content }
+                    output { content }
+                    explanation { content }
+                }
+                supportedLanguages
+                note(lang: $lang) {
+                    url
+                    content
+                }
+            }
+        }
+    }
+}"}''').format(data_eid, data_pid, data_lang)
     headers['content-length'] = str(len(data))
     res = post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
     if feedback == 'Response': return res
