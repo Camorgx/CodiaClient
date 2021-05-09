@@ -13,7 +13,7 @@ coding_base_headers = {
     'content-type': 'application/json',
     'origin': 'https://code.bdaa.pro',
     'pragma': 'no-cache',
-    'referer': 'https://code.bdaa.pro/exercise/ck6su6crv001947mgwgyw1vpl/coding',
+    'referer': 'https://code.bdaa.pro',
     'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="90", "Microsoft Edge";v="90"',
     'sec-ch-ua-mobile': '?0',
     'sec-fetch-dest': 'empty',
@@ -35,10 +35,7 @@ login_base_headers = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36 Edg/90.0.818.46',
 }
 
-def client_login(username, password, cookie = None):
-    if not username and not cookie:
-        report('No username or cookie specified.', 3)
-
+def client_login(username, password = None, cookie = None):
     if username and not cookie and not password:
         import getpass
         try: password = getpass.getpass('Enter password:')
@@ -48,15 +45,15 @@ def client_login(username, password, cookie = None):
         if cookie:
             report("Using the input cookie.")
             coding_base_headers['cookie'] = cookie
-            if logined():
-                report('Login succeeded.')
+            displayName = logined()
+            if displayName:
+                report('Login succeeded.({})'.format(displayName))
                 if cache_var['cacheOn']:
                     if username in cache_var['logindic']:
                         report('We have cached your cookie. Do you want to cover it? [Y/n]', end = '')
                         choice = input()
                         if choice == 'n' or choice == 'N': pass
-                        elif choice == 'y' or choice == 'Y':
-                            cache(username, password, cookie)
+                        elif choice == 'y' or choice == 'Y': cache(username, password, cookie)
                         else:
                             report('Received bad parameter, executing the default operation.', 1)
                             cache(username, password, cookie)
@@ -66,7 +63,8 @@ def client_login(username, password, cookie = None):
                 if cache_var['cacheOn'] and username in cache_var['logindic'] and cache_var['logindic'][username]['passwd'] == passwd_hash(password):
                     coding_base_headers['cookie'] = cookie_decrypt(cache_var['logindic'][username]['cookie'], password)
                     report("Using cached cookie.")
-                    if logined(): report('Login succeeded.')
+                    displayName = logined()
+                    if displayName: report('Login succeeded.({})'.format(displayName))
                     else:
                         report('Invalid cached cookie.', 1)
                         login(username, password)
@@ -75,7 +73,8 @@ def client_login(username, password, cookie = None):
             if cache_var['cacheOn'] and username in cache_var['logindic'] and cache_var['logindic'][username]['passwd'] == passwd_hash(password):
                 coding_base_headers['cookie'] = cookie_decrypt(cache_var['logindic'][username]['cookie'], password)
                 report("Using cached cookie.")
-                if logined(): report("Login succeeded.")
+                displayName = logined()
+                if displayName: report("Login succeeded.({})".format(displayName))
                 else:
                     report('Invalid cached cookie.', 1)
                     login(username, password)
@@ -83,8 +82,10 @@ def client_login(username, password, cookie = None):
     elif cookie:
         report("Using the input cookie.")
         coding_base_headers['cookie'] = cookie
-        if logined(): report('Login succeeded.')
+        displayName = logined()
+        if displayName: report('Login succeeded.({})'.format(displayName))
         else: report('Invalid cookie input.', 3)
+    else: report('No username or cookie specified.', 3)
 
 def logined():
     headers = coding_base_headers.copy()
@@ -100,12 +101,20 @@ def logined():
         avatarUrl
         defaultEmail
         verified
-        __typename
     }
 }''',
     })
     headers['content-length'] = str(len(data))
-    res = json.loads(post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5).text)
+    try: res = json.loads(post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5).text)
+    except requests.exceptions.ConnectTimeout:
+        report('Connect timeout.', 1)
+        return False
+    except requests.exceptions.ConnectionError:
+        report('Connection error.', 1)
+        return False
+    except exceptions as e:
+        report(e, 1)
+        return False
     if 'errors' in res: return False
     else:
         try: return res['data']['me']['displayName']
@@ -113,12 +122,12 @@ def logined():
 
 def login(username, passwd):
     report('Try login.')
-    _login(username, passwd)
-    if not logined():
+    res = _login(username, passwd)
+    if not res:
         report('Login failed.', 3)
         return False
     else:
-        report('Login succeeded.')
+        report('Login succeeded.({})'.format(res['displayName']))
         if cache_var['cacheOn']: cache(username, passwd, coding_base_headers['cookie'])
         return True
 
@@ -213,20 +222,32 @@ mutation login($username: String!, $password: String!) {
             avatarUrl
             defaultEmail
             verified
-            __typename
         }
-        __typename
     }
 }'''})
     
     headers['content-length'] = str(len(data))
-    res = post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
-    from re import search
-    try:
-        coding_base_headers['cookie'] = search(r'token=(.*?);', res.headers['Set-Cookie']).group().replace(';', '')
-        return res
-    except:
+    try: res = post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
+    except requests.exceptions.ConnectTimeout:
+        report('Connect timeout.', 1)
         return False
+    except requests.exceptions.ConnectionError:
+        report('Connection error.', 1)
+        return False
+    except Exceptions as e:
+        report(e, 1)
+        return False
+    res_data = json.loads(res.text)
+    if 'errors' in res_data:
+        report("_login: " + res_data['errors'][0]['message'], 1)
+        return False
+    else:
+        from re import search
+        try: coding_base_headers['cookie'] = search(r'token=(.*?);', res.headers['Set-Cookie']).group().replace(';', '')
+        except:
+            report('Unknown login error.', 1)
+            return False
+    return res_data['data']['login']['user']
 
 def _submit_from_pack(eid, pid, lang, solutioncode):
     headers = coding_base_headers.copy()
@@ -245,7 +266,6 @@ def _submit_from_pack(eid, pid, lang, solutioncode):
 mutation ($eid: ID!, $pid: ID, $lang: Language!, $sol: String!, $a: JSONObject) {
     submit(eid: $eid, pid: $pid, solution: {lang: $lang, asset: {content: $sol} }, additionalInfo: $a) {
         token
-        __typename
     }
 }'''})
     headers['content-length'] = str(len(data))
@@ -267,7 +287,6 @@ def _submit_not_from_pack(eid, lang, solutioncode):
 mutation ($eid: ID!, $pid: ID, $lang: Language!, $sol: String!, $a: JSONObject) {
     submit(eid: $eid, pid: $pid, solution: {lang: $lang, asset: {content: $sol} }, additionalInfo: $a) {
         token
-        __typename
     }
 }'''})
     headers['content-length'] = str(len(data))
