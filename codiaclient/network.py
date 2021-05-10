@@ -1,7 +1,6 @@
 from .report import report
 from .utils import passwd_hash, cookie_encrypt, cookie_decrypt
 from .cachectrl import variables as cache_var, cache_username_passwd_cookie as cache
-from requests import post
 import json
 
 url = 'https://code.bdaa.pro/graphql/'
@@ -34,6 +33,24 @@ login_base_headers = {
     'sec-fetch-site': 'same-origin',
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36 Edg/90.0.818.46',
 }
+def post(url, headers, data, timeout = 5):
+    if type(data) == str: data = data.encode('utf-8')
+    if type(data) != bytes:
+        report('Datatype error.', 1)
+        return False
+    import requests
+    try: res = requests.post(url = url, headers = headers, data = data, timeout = timeout)
+    except requests.exceptions.ConnectTimeout:
+        report('Connect timeout.', 1)
+        return False
+    except requests.exceptions.ConnectionError:
+        report('Connection error.', 1)
+        return False
+    except exceptions as e:
+        report(e, 1)
+        return False
+    else: return res
+
 
 def client_login(username, password = None, cookie = None):
     if username and not cookie and not password:
@@ -105,20 +122,11 @@ def logined():
 }''',
     })
     headers['content-length'] = str(len(data))
-    try: res = json.loads(post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5).text)
-    except requests.exceptions.ConnectTimeout:
-        report('Connect timeout.', 1)
-        return False
-    except requests.exceptions.ConnectionError:
-        report('Connection error.', 1)
-        return False
-    except exceptions as e:
-        report(e, 1)
-        return False
+    res = post(url = url, headers = headers, data = data)
+    if not res: return False
+    res = json.loads(res.text)
     if 'errors' in res: return False
-    else:
-        try: return res['data']['me']['displayName']
-        except: return True
+    else: return res['data']['me']['displayName']
 
 def login(username, passwd):
     report('Try login.')
@@ -169,7 +177,8 @@ query publicExercisePacks($lastcnt: Int!, $before: String) {
 }'''
     })
     headers['content-length'] = str(len(data))
-    res = post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
+    res = post(url = url, headers = headers, data = data)
+    if not res: return False
     return json.loads(res.text)['data']['publicExercisePacks']['nodes']
 
 def show_pack(pid):
@@ -201,7 +210,8 @@ query pack($pid: ID!) {
     }
 }'''})
     headers['content-length'] = str(len(data))
-    res = post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
+    res = post(url = url, headers = headers, data = data)
+    if not res: return False
     return json.loads(res.text)['data']['node']
 
 def _login(username, passwd):
@@ -227,16 +237,8 @@ mutation login($username: String!, $password: String!) {
 }'''})
     
     headers['content-length'] = str(len(data))
-    try: res = post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
-    except requests.exceptions.ConnectTimeout:
-        report('Connect timeout.', 1)
-        return False
-    except requests.exceptions.ConnectionError:
-        report('Connection error.', 1)
-        return False
-    except Exceptions as e:
-        report(e, 1)
-        return False
+    res = post(url = url, headers = headers, data = data)
+    if not res: return False
     res_data = json.loads(res.text)
     if 'errors' in res_data:
         report("_login: " + res_data['errors'][0]['message'], 1)
@@ -269,7 +271,7 @@ mutation ($eid: ID!, $pid: ID, $lang: Language!, $sol: String!, $a: JSONObject) 
     }
 }'''})
     headers['content-length'] = str(len(data))
-    return post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
+    return post(url = url, headers = headers, data = data)
 
 def _submit_not_from_pack(eid, lang, solutioncode):
     headers = coding_base_headers.copy()
@@ -290,7 +292,7 @@ mutation ($eid: ID!, $pid: ID, $lang: Language!, $sol: String!, $a: JSONObject) 
     }
 }'''})
     headers['content-length'] = str(len(data))
-    return post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
+    return post(url = url, headers = headers, data = data)
 
 def _get_data_not_from_pack(eid, codecnt: int = 1):
     headers = coding_base_headers.copy()
@@ -329,7 +331,8 @@ query codingExercise($eid: ID!, $codecnt: Int!) {
     }
 }'''})
     headers['content-length'] = str(len(data))
-    res = post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
+    res = post(url = url, headers = headers, data = data)
+    if not res: return False
     return json.loads(res.text)['data']['node']['viewerStatus']['exerciseStatuses']['nodes']
 
 def _get_data_from_pack(eid, pid, codecnt: int = 1):
@@ -378,7 +381,8 @@ query codingExercise($eid: ID!, $pid: ID, $codecnt: Int!) {
     }
 }'''})
     headers['content-length'] = str(len(data))
-    res = post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
+    res = post(url = url, headers = headers, data = data)
+    if not res: return False
     return json.loads(res.text)['data']['node']['codingExercise']['viewerStatus']['exerciseStatuses']['nodes']
 
 def _get_exercise_not_from_pack(eid, lang, feedback = None):
@@ -414,7 +418,8 @@ query codingExercise($eid: ID!, $lang: Language!) {
     }
 }'''})
     headers['content-length'] = str(len(data))
-    res = post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
+    res = post(url = url, headers = headers, data = data)
+    if not res: return False
     if feedback == 'Response': return res
     if feedback == 'json' or feedback == 'str': return res.text
     if feedback == 'dict': return json.loads(res.text)
@@ -474,7 +479,8 @@ query codingExercise($eid: ID!, $pid: ID, $lang: Language!) {
     }
 }'''})
     headers['content-length'] = str(len(data))
-    res = post(url = url, headers = headers, data = data.encode('utf-8'), timeout = 5)
+    res = post(url = url, headers = headers, data = data)
+    if not res: return False
     if feedback == 'Response': return res
     if feedback == 'json' or feedback == 'str': return res.text
     if feedback == 'dict': return json.loads(res.text)
