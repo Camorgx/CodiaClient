@@ -46,7 +46,7 @@ def post(url, headers, data, timeout = 5):
     except requests.exceptions.ConnectionError:
         report('Connection error.', 1)
         return False
-    except exceptions as e:
+    except Exception as e:
         report(e, 1)
         return False
     else: return res
@@ -57,6 +57,7 @@ def client_login(username, password = None, cookie = None):
         import getpass
         try: password = getpass.getpass('Enter password:')
         except KeyboardInterrupt: exit()
+        if not password: report('Empty password.', 3)
 
     if username and password:
         if cookie:
@@ -241,7 +242,7 @@ mutation login($username: String!, $password: String!) {
     if not res: return False
     res_data = json.loads(res.text)
     if 'errors' in res_data:
-        report("_login: " + res_data['errors'][0]['message'], 1)
+        report("_login: " + res_data['errors'][0]['message'] + '.', 1)
         return False
     else:
         from re import search
