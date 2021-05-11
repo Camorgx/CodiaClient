@@ -1,13 +1,19 @@
 如果想要了解客户端的用法，可以用`run.py -h`来获得*命令帮助*，登录后可以在窗口输入`help`获得*查询帮助*.
 
 # 输出信息解释
+
 客户端的输出信息分为四种，错误级别从低到高分别为`Info`, `Warning`, `Error`, `Fatal`.
-`Info`指程序正常运行中产生的消息，
-`Warning`指可能导致程序结束/出错的警告消息，
-`Error`指不影响程序整体运行的错误消息，
-`Fatal`指严重出错导致程序无法进行的错误消息。
+
+`Info`指程序正常运行中产生的消息;
+
+`Warning`指可能导致程序结束/出错的警告消息;
+
+`Error`指不影响程序整体运行的错误消息;
+
+`Fatal`指严重出错导致程序无法进行的错误消息.
 
 ## 常见错误/警告信息
+
 |错误/警告信息|解释|
 |-------------------------------|---------------------|
 |`Fatal: No username or cookie specified.`|用户名未输入|
@@ -83,9 +89,12 @@
 题目`pid`与`eid`可以通过客户端查询，或者在网页端访问的链接中获得.
 
 网页链接中，`/pack/`后面的字符串为`pid`，`/exercise/`后面的字符串为`eid`，如果没有`pack`字段，则不需要指定`pid`.
+
 例如在`https://code.bdaa.pro/pack/cknyss3ge11084950tq960zopuwh/exercise/cknyjlcnf106869311nwaa5l3blo/coding`中，
-`cknyss3ge11084950tq960zopuwh`为`pid`，
-`cknyjlcnf106869311nwaa5l3blo`为`eid`.
+
+`cknyss3ge11084950tq960zopuwh` 为 `pid`，
+
+`cknyjlcnf106869311nwaa5l3blo` 为 `eid`.
 
 2. 获取代码；
 
