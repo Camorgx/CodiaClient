@@ -34,6 +34,7 @@ login_base_headers = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36 Edg/90.0.818.46',
 }
 def post(url, headers, data, timeout = 5):
+    headers['content-length'] = str(len(data))
     if type(data) == str: data = data.encode('utf-8')
     if type(data) != bytes:
         report('Datatype error.', 1)
@@ -122,7 +123,6 @@ def logined():
     }
 }''',
     })
-    headers['content-length'] = str(len(data))
     res = post(url = url, headers = headers, data = data)
     if not res: return False
     res = json.loads(res.text)
@@ -177,7 +177,6 @@ query publicExercisePacks($lastcnt: Int!, $before: String) {
     }
 }'''
     })
-    headers['content-length'] = str(len(data))
     res = post(url = url, headers = headers, data = data)
     if not res: return False
     return json.loads(res.text)['data']['publicExercisePacks']['nodes']
@@ -210,7 +209,6 @@ query pack($pid: ID!) {
         }
     }
 }'''})
-    headers['content-length'] = str(len(data))
     res = post(url = url, headers = headers, data = data)
     if not res: return False
     return json.loads(res.text)['data']['node']
@@ -237,7 +235,6 @@ mutation login($username: String!, $password: String!) {
     }
 }'''})
     
-    headers['content-length'] = str(len(data))
     res = post(url = url, headers = headers, data = data)
     if not res: return False
     res_data = json.loads(res.text)
@@ -271,7 +268,6 @@ mutation ($eid: ID!, $pid: ID, $lang: Language!, $sol: String!, $a: JSONObject) 
         token
     }
 }'''})
-    headers['content-length'] = str(len(data))
     return post(url = url, headers = headers, data = data)
 
 def _submit_not_from_pack(eid, lang, solutioncode):
@@ -292,7 +288,6 @@ mutation ($eid: ID!, $pid: ID, $lang: Language!, $sol: String!, $a: JSONObject) 
         token
     }
 }'''})
-    headers['content-length'] = str(len(data))
     return post(url = url, headers = headers, data = data)
 
 def _get_data_not_from_pack(eid, codecnt: int = 1):
@@ -331,7 +326,6 @@ query codingExercise($eid: ID!, $codecnt: Int!) {
         }
     }
 }'''})
-    headers['content-length'] = str(len(data))
     res = post(url = url, headers = headers, data = data)
     if not res: return False
     return json.loads(res.text)['data']['node']['viewerStatus']['exerciseStatuses']['nodes']
@@ -381,12 +375,11 @@ query codingExercise($eid: ID!, $pid: ID, $codecnt: Int!) {
         }
     }
 }'''})
-    headers['content-length'] = str(len(data))
     res = post(url = url, headers = headers, data = data)
     if not res: return False
     return json.loads(res.text)['data']['node']['codingExercise']['viewerStatus']['exerciseStatuses']['nodes']
 
-def _get_exercise_not_from_pack(eid, lang, feedback = None):
+def _get_exercise_not_from_pack(eid, lang, feedback = 'dict'):
     headers = coding_base_headers.copy()
     data = json.dumps({
         "operationName": "codingExercise",
@@ -418,30 +411,31 @@ query codingExercise($eid: ID!, $lang: Language!) {
         }
     }
 }'''})
-    headers['content-length'] = str(len(data))
     res = post(url = url, headers = headers, data = data)
     if not res: return False
     if feedback == 'Response': return res
-    if feedback == 'json' or feedback == 'str': return res.text
-    if feedback == 'dict': return json.loads(res.text)
     res = json.loads(res.text)['data']['exercise']
-    print('title:', res['title'])
-    print('tags:', res['tags'])
-    print('description-content:', res['description']['content'].replace("\n\n", '\n'))
-    print('inputDescription-content:', res['inputDescription']['content'])
-    print('outputDescription-content:', res['outputDescription']['content'])
-    print('')
-    cnt_sampleData = 0
+    ret = {}
+    ret['title'] = res['title']
+    ret['tags'] = res['tags']
+    ret['description-content'] = res['description']['content'].replace("\n\n", '\n')
+    ret['inputDescription-content'] = res['inputDescription']['content']
+    ret['outputDescription-content'] = res['outputDescription']['content']
+    ret['sampleData'] = []
     for x in res['sampleData']:
-        print('sampleData#{}:'.format(cnt_sampleData))
-        cnt_sampleData += 1
-        print('input:', x['input']['content'])
-        print('output:', x['output']['content'])
-        try: print('explanation:', x['explanation']['content'])
-        except: pass
-        print('')
-    print('supportedLanguages:', res['supportedLanguages'])
-    print('note:', res['note'])
+        toappend = {}
+        if x['input'] != None: toappend['input'] = x['input']['content']
+        else: toappend['input'] = None
+        if x['output'] != None: toappend['output'] = x['output']['content']
+        else: toappend['output'] = None
+        if x['explanation'] != None: toappend['explanation'] = x['explanation']['content']
+        else: toappend['explanation'] = None
+        ret['sampleData'].append(toappend)
+    ret['supportedLanguages'] = res['supportedLanguages']
+    ret['note'] = res['note']
+    if feedback == 'dict': return ret
+    elif feedback == 'json' or feedback == 'str': return json.dumps(ret)
+    else: return None
 
 def _get_exercise_from_pack(eid, pid, lang, feedback = 'dict'):
     headers = coding_base_headers.copy()
@@ -479,7 +473,6 @@ query codingExercise($eid: ID!, $pid: ID, $lang: Language!) {
         }
     }
 }'''})
-    headers['content-length'] = str(len(data))
     res = post(url = url, headers = headers, data = data)
     if not res: return False
     if feedback == 'Response': return res
@@ -494,8 +487,11 @@ query codingExercise($eid: ID!, $pid: ID, $lang: Language!) {
     for x in res['sampleData']:
         toappend = {}
         if x['input'] != None: toappend['input'] = x['input']['content']
+        else: toappend['input'] = None
         if x['output'] != None: toappend['output'] = x['output']['content']
+        else: toappend['output'] = None
         if x['explanation'] != None: toappend['explanation'] = x['explanation']['content']
+        else: toappend['explanation'] = None
         ret['sampleData'].append(toappend)
     ret['supportedLanguages'] = res['supportedLanguages']
     ret['note'] = res['note']
