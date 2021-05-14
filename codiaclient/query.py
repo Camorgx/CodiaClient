@@ -53,12 +53,14 @@ class query:
                     "solutioncode": solutioncode
                 }))
             elif conf[0] in ['ge', 'getex', 'getexercise']:
-                if eid: get_exercise(eid = eid, pid = pid, lang = lang)
+                if eid:
+                    res = get_exercise(eid = eid, pid = pid, lang = lang, feedback = 'json')
+                    self.show_msg(res)
                 else: report("No eid specified.", 1)
             elif conf[0] in ['gc', 'getc', 'getcode']:
                 if eid:
                     res = get_data(eid = eid, pid = pid)
-                    self.show_msg(res[0]['solution']['asset']['content'])
+                    self.show_msg(json.dumps(res[0]['solution']['asset']['content']))
                 else: report("No eid specified.", 1)
             elif conf[0] in ['submit']:
                 if eid: res = submit(eid = eid, pid = pid, lang = lang, solutioncode = solutioncode)

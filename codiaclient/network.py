@@ -148,7 +148,7 @@ def get_data(eid, pid, codecnt: int = 1):
     if pid: return _get_data_from_pack(eid, pid, codecnt)
     else: return _get_data_not_from_pack(eid, codecnt)
 
-def get_exercise(eid, pid, lang, feedback = None):
+def get_exercise(eid, pid, lang, feedback = 'dict'):
     if pid: return _get_exercise_from_pack(eid, pid, lang, feedback)
     else: return _get_exercise_not_from_pack(eid, lang, feedback)
 
@@ -443,7 +443,7 @@ query codingExercise($eid: ID!, $lang: Language!) {
     print('supportedLanguages:', res['supportedLanguages'])
     print('note:', res['note'])
 
-def _get_exercise_from_pack(eid, pid, lang, feedback = None):
+def _get_exercise_from_pack(eid, pid, lang, feedback = 'dict'):
     headers = coding_base_headers.copy()
     data = json.dumps({
         "operationName": "codingExercise",
@@ -483,8 +483,6 @@ query codingExercise($eid: ID!, $pid: ID, $lang: Language!) {
     res = post(url = url, headers = headers, data = data)
     if not res: return False
     if feedback == 'Response': return res
-    if feedback == 'json' or feedback == 'str': return res.text
-    if feedback == 'dict': return json.loads(res.text)
     res = json.loads(res.text)['data']['pack']['codingExercise']
     ret = {}
     ret['title'] = res['title']
@@ -492,14 +490,15 @@ query codingExercise($eid: ID!, $pid: ID, $lang: Language!) {
     ret['description-content'] = res['description']['content'].replace("\n\n", '\n')
     ret['inputDescription-content'] = res['inputDescription']['content']
     ret['outputDescription-content'] = res['outputDescription']['content']
-    cnt_sampleData = 0
+    ret['sampleData'] = []
     for x in res['sampleData']:
-        print('sampleData#{}:'.format(cnt_sampleData))
-        cnt_sampleData += 1
-        print('input:', x['input']['content'])
-        print('output:', x['output']['content'])
-        try: print('explanation:', x['explanation']['content'])
-        except: pass
-        print('')
-    print('supportedLanguages:', res['supportedLanguages'])
-    print('note:', res['note'])
+        toappend = {}
+        if x['input'] != None: toappend['input'] = x['input']['content']
+        if x['output'] != None: toappend['output'] = x['output']['content']
+        if x['explanation'] != None: toappend['explanation'] = x['explanation']['content']
+        ret['sampleData'].append(toappend)
+    ret['supportedLanguages'] = res['supportedLanguages']
+    ret['note'] = res['note']
+    if feedback == 'dict': return ret
+    elif feedback == 'json' or feedback == 'str': return json.dumps(ret)
+    else: return None
