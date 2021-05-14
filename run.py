@@ -18,5 +18,5 @@ if __name__ == "__main__":
     if args.query_string: print(cc.query(args.query_string.split()), end = '')
     else:
         while True:
-            try: print(cc.query(input().split()), end = '')
+            try: print(str(cc.query(input().split())).encode('utf-8').decode('unicode-escape'), end = '')
             except (KeyboardInterrupt, EOFError): break
