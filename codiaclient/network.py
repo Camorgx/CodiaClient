@@ -486,12 +486,12 @@ query codingExercise($eid: ID!, $pid: ID, $lang: Language!) {
     if feedback == 'json' or feedback == 'str': return res.text
     if feedback == 'dict': return json.loads(res.text)
     res = json.loads(res.text)['data']['pack']['codingExercise']
-    print('title:', res['title'])
-    print('tags:', res['tags'])
-    print('description-content:', res['description']['content'].replace("\n\n", '\n'))
-    print('inputDescription-content:', res['inputDescription']['content'])
-    print('outputDescription-content:', res['outputDescription']['content'])
-    print('')
+    ret = {}
+    ret['title'] = res['title']
+    ret['tags'] = res['tags']
+    ret['description-content'] = res['description']['content'].replace("\n\n", '\n')
+    ret['inputDescription-content'] = res['inputDescription']['content']
+    ret['outputDescription-content'] = res['outputDescription']['content']
     cnt_sampleData = 0
     for x in res['sampleData']:
         print('sampleData#{}:'.format(cnt_sampleData))

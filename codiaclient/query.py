@@ -1,6 +1,7 @@
 from .network import get_exercise, get_data, submit, get_pack, show_pack
 from .report import report
 import requests
+import json
 
 variables = {
     'pid': None,
@@ -44,11 +45,13 @@ class query:
             elif conf[0] in ['l', 'lang']: variables['lang'] = None
             elif conf[0] in ['sc', 'solutioncode']: variables['solutioncode'] = None
             elif conf[0] in ['show']:
-                self.show_msg("{}: {}".format("logined as", username))
-                self.show_msg("{}: {}".format("pid", pid))
-                self.show_msg("{}: {}".format("eid", eid))
-                self.show_msg("{}: {}".format("lang", lang))
-                self.show_msg("{}: {}".format("solutioncode", solutioncode))
+                self.show_msg(json.dumps({
+                    "username": username,
+                    "pid": pid,
+                    "eid": eid,
+                    "lang": lang,
+                    "solutioncode": solutioncode
+                }))
             elif conf[0] in ['ge', 'getex', 'getexercise']:
                 if eid: get_exercise(eid = eid, pid = pid, lang = lang)
                 else: report("No eid specified.", 1)
@@ -62,18 +65,16 @@ class query:
                 else: report("No eid specified.", 1)
             elif conf[0] in ['gp', 'getp', 'getpack']:
                 res = get_pack()
-                self.show_msg('\n'.join([str(x) for x in res]))
+                self.show_msg(res)
             elif conf[0] in ['gr', 'getr', 'getres', 'getreport', 'getreports']:
                 if eid:
                     res = get_data(eid = eid, pid = pid)
                     res = {x['key']: x['value'] for x in res[0]['submission']['reports']}
-                    try:
-                        score = res['score'].split('/')
-                    except:
-                        self.show_msg(res)
+                    try: score = res['score'].split('/')
+                    except: self.show_msg(json.dumps(res))
                     else:
-                        if score[0] == score[1]: self.show_msg({'score': res['score'], 'time elapsed': res['time elapsed'], 'memory consumed': res['memory consumed']})
-                        else: self.show_msg(res)
+                        if score[0] == score[1]: self.show_msg(json.dumps({'score': res['score'], 'time elapsed': res['time elapsed'], 'memory consumed': res['memory consumed']}))
+                        else: self.show_msg(json.dumps(res))
                 else: report("No eid specified.", 1)
             elif conf[0] in ['sp', 'showp', 'showpack']:
                 if pid:
@@ -89,7 +90,7 @@ class query:
             elif conf[0] in ['o', 'open']:
                 with open(conf[1], encoding = 'utf-8') as f: variables['solutioncode'] = f.read()
             elif conf[0] in ['show']:
-                try: self.show_msg("{}: {}".format(conf[1], eval(conf[1])))
+                try: self.show_msg({conf[1]: eval(conf[1])})
                 except Exception as e: report(e.__repr__(), 1)
             elif conf[0] in ['gc', 'getc', 'getcode']:
                 if eid:
@@ -109,8 +110,11 @@ class query:
                         else: self.show_msg(res)
                 else: report("No eid specified.", 1)
             elif conf[0] in ['gp', 'getp', 'getpack']:
-                res = get_pack(lastcnt = conf[1])
-                self.show_msg('\n'.join([str(x) for x in res]))
+                try: res = get_pack(lastcnt = int(conf[1]))
+                except ValueError: report('Invalid input: type(lastcnt) should be int.', 1)
+                else:
+                    if res == None: report('Invalid input: lastcnt.', 1)
+                    else: self.show_msg(res)
             else: report('Invalid input.', 1)
 
         elif len(conf) == 3:
