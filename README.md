@@ -4,37 +4,37 @@
 
 客户端的输出信息分为四种，错误级别从低到高分别为`Info`, `Warning`, `Error`, `Fatal`.
 
-`Info`指程序正常运行中产生的信息;
+`Info`指程序正常运行中产生的消息;
 
-`Warning`指可能导致程序结束/出错的警告信息;
+`Warning`指可能导致程序结束/出错的警告消息;
 
-`Error`指不影响程序整体运行的错误信息;
+`Error`指不影响程序整体运行的错误消息;
 
-`Fatal`指严重出错导致程序无法进行的错误信息.
+`Fatal`指严重出错导致程序无法进行的错误消息.
 
-## 常见错误/警告信息
-
-|错误/警告信息                                    |解释|
-|------------------------------------------------|-----|
-|`Fatal: No username or cookie specified.`       |用户名未输入|
-|`Fatal: Empty password.`                        |密码未输入|
-|`Fatal: Login failed.`                          |登陆失败|
-|`Fatal: Invalid cookie input.`                  |cookie不合法|
+|常见错误/警告信息|解释|
+|-------------------------------|---------------------|
+|`Fatal: No username or cookie specified.`|用户名未输入|
+|`Fatal: Empty password.`|密码未输入|
+|`Fatal: Login failed.`|登陆失败|
+|`Fatal: Invalid cookie input.`|`cookie`不合法|
 |`Warning: _login: invalid username or password.`|用户名不存在或密码错误|
-|`Warning: Connect timeout.`                     |网络连接超时|
-|`Warning: Connection error.`                    |网络连接错误|
+|`Warning: Connect timeout.`|网络连接超时|
+|`Warning: Connection error.`|网络连接错误|
+|`Warning: No pid specified.`|未指定题包`pid`|
+|`Warning: No eid specified.`|未指定题目`eid`|
 
 # 常用功能
 
 ## 登录
 
-按照正确格式输入账号密码，格式可以是
+按照正确格式输入账号密码，格式可以是 ：
 
-`run.py -u USERNAME --passwd PASSWORD`（可能会显示密码）;
+`run.py -u USERNAME --passwd PASSWORD`（可能会显示密码）
 
 或
 
-`run.py -u USERNAME`后依据提示输入密码（不会显示密码）.
+`run.py -u USERNAME`后依据提示输入密码（不会显示密码）
 
 如果网络畅通并且账号验证成功，客户端会提示`Info: Login succeeded.(DisplayName)`，其中`DisplayName`是你的昵称。这表示你已经登录成功。
 
@@ -46,6 +46,8 @@
 
 在这里可以看到题包标题和`pid`等信息.
 
+你也可以采用`getpack N`的形式来获取最近的`N`个题包，默认为8.
+
 ### 获取题包信息（需先指定题包）
 
 `showpack` 或 `sp`（返回类型为`json`）.
@@ -53,6 +55,8 @@
 在这里可以看到题包的一些信息，包括题包起止时间、题目标题和`eid`等信息.
 
 ## 指定题包/题目
+
+这个过程不需要联网，因为这一步程序并不会检查ID的合法性。这也使得可能你输入了错误的ID导致后续无法获取想要的结果。
 
 ### 指定题包
 
