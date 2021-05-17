@@ -144,7 +144,7 @@ def submit(eid, pid, lang, solutioncode):
     if pid: return _submit_from_pack(eid, pid, lang, solutioncode)
     else: return _submit_not_from_pack(eid, lang, solutioncode)
 
-def get_data(eid, pid, codecnt: int = 1):
+def get_data(eid, pid, codecnt = None):
     if pid: return _get_data_from_pack(eid, pid, codecnt)
     else: return _get_data_not_from_pack(eid, codecnt)
 
@@ -152,9 +152,16 @@ def get_exercise(eid, pid, lang, feedback = 'dict'):
     if pid: return _get_exercise_from_pack(eid, pid, lang, feedback)
     else: return _get_exercise_not_from_pack(eid, lang, feedback)
 
-def get_pack(lastcnt: int = 8):
+def get_pack(before = None, lastcnt = None):
+    if lastcnt == None: lastcnt = 8
+    if type(lastcnt) == str:
+        try: lastcnt = int(lastcnt)
+        except: pass
+    if type(lastcnt) != int:
+        report('Unknown error.', 1)
+        return False
     headers = coding_base_headers.copy()
-    data = json.dumps({
+    data = {
         "operationName": "publicExercisePacks",
         "variables": {
             'lastcnt': lastcnt
@@ -176,7 +183,9 @@ query publicExercisePacks($lastcnt: Int!, $before: String) {
         }
     }
 }'''
-    })
+    }
+    if before: data['variables']['before'] = before
+    data = json.dumps(data)
     res = post(url = url, headers = headers, data = data)
     if not res: return False
     return json.loads(res.text)['data']['publicExercisePacks']['nodes']
@@ -290,7 +299,14 @@ mutation ($eid: ID!, $pid: ID, $lang: Language!, $sol: String!, $a: JSONObject) 
 }'''})
     return post(url = url, headers = headers, data = data)
 
-def _get_data_not_from_pack(eid, codecnt: int = 1):
+def _get_data_not_from_pack(eid, codecnt = None):
+    if codecnt == None: codecnt = 1
+    if type(codecnt) == str:
+        try: codecnt = int(codecnt)
+        except: pass
+    if type(codecnt) != int:
+        report('Unknown error.', 1)
+        return False
     headers = coding_base_headers.copy()
     data = json.dumps({
         "operationName": "codingExercise",
@@ -330,7 +346,14 @@ query codingExercise($eid: ID!, $codecnt: Int!) {
     if not res: return False
     return json.loads(res.text)['data']['node']['viewerStatus']['exerciseStatuses']['nodes']
 
-def _get_data_from_pack(eid, pid, codecnt: int = 1):
+def _get_data_from_pack(eid, pid, codecnt = None):
+    if codecnt == None: codecnt = 1
+    if type(codecnt) == str:
+        try: codecnt = int(codecnt)
+        except: pass
+    if type(codecnt) != int:
+        report('Unknown error.', 1)
+        return False
     headers = coding_base_headers.copy()
     data = json.dumps({
         "operationName": "codingExercise",
