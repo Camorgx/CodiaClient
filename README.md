@@ -12,17 +12,18 @@
 
 `Fatal`指严重出错导致程序无法进行的错误消息.
 
-|常见错误/警告信息|解释|
-|-------------------------------|---------------------|
-|`Fatal: No username or cookie specified.`|用户名未输入|
-|`Fatal: Empty password.`|密码未输入|
-|`Fatal: Login failed.`|登陆失败|
-|`Fatal: Invalid cookie input.`|`cookie`不合法|
-|`Warning: _login: invalid username or password.`|用户名不存在或密码错误|
-|`Warning: Connect timeout.`|网络连接超时|
-|`Warning: Connection error.`|网络连接错误|
-|`Warning: No pid specified.`|未指定题包`pid`|
-|`Warning: No eid specified.`|未指定题目`eid`|
+|常见错误/警告信息|解释|建议|
+|----------------|----|----|
+|`Fatal: Empty password.`|密码未输入|依据提示输入密码|
+|`Fatal: Invalid cookie input.`|`cookie`不合法|检查你的`cookie`|
+|`Fatal: Login failed.`|登陆失败|检查你的登录凭证|
+|`Fatal: No username or cookie specified.`|用户名未输入|按照正确格式输入用户名|
+|`Warning: _login: invalid username or password.`|用户名不存在或密码错误|检查你的用户名和密码|
+|`Warning: Connect timeout.`|网络连接超时|检查你的计算机网络连接，或稍后重试|
+|`Warning: Connection error.`|网络连接错误|检查你的计算机网络连接|
+|`Warning: Invalid request.`|非法请求|检查你的请求格式，可以在程序内`help`以获得帮助|
+|`Warning: No pid specified.`|未指定题包`pid`|按照正确格式输入`pid`|
+|`Warning: No eid specified.`|未指定题目`eid`|按照正确格式输入`eid`|
 
 # 常用功能
 
@@ -30,11 +31,11 @@
 
 按照正确格式输入账号密码，格式可以是 ：
 
-`run.py -u USERNAME --passwd PASSWORD`（可能会显示密码）
+`run.py -u USERNAME --passwd PASSWORD`（会在窗口中显示密码）
 
 或
 
-`run.py -u USERNAME`后依据提示输入密码（不会显示密码）
+`run.py -u USERNAME`后依据提示输入密码（不会在窗口中显示密码，建议使用这种方式）
 
 如果网络畅通并且账号验证成功，客户端会提示`Info: Login succeeded.(DisplayName)`，其中`DisplayName`是你的昵称。这表示你已经登录成功。
 
@@ -42,7 +43,9 @@
 
 ### 获取题包列表
 
-`getpack` 或 `gp`（返回类型为`json`）.
+`getpack` 或 `gp`.
+
+返回类型为`json`.
 
 在这里可以看到题包标题和`pid`等信息.
 
@@ -50,7 +53,9 @@
 
 ### 获取题包信息（需先指定题包）
 
-`showpack` 或 `sp`（返回类型为`json`）.
+`showpack` 或 `sp`.
+
+返回类型为`json`.
 
 在这里可以看到题包的一些信息，包括题包起止时间、题目标题和`eid`等信息.
 
@@ -72,7 +77,9 @@
 
 ## 查看题目内容
 
-`getexercise` 或 `ge`（该函数可以指定返回类型，直接调用默认为`dict`，在查询时默认为`json`）.
+`getexercise` 或 `ge`.
+
+该函数可以指定返回类型，直接调用默认为`dict`，在查询时默认为`json`.
 
 ## 提交代码
 
@@ -80,9 +87,15 @@
 
 `open PATH`
 
+读取路径上的文件内容并写入到变量`solutioncode`中.
+
 2. 提交
 
-`submit` （直接调用函数的返回类型为`requests.Response`，查询时没有返回）.
+`submit`.
+
+直接调用函数的返回类型为`requests.Response`，查询时没有返回.
+
+根据`pid`, `eid`的值确定提交的题目，并以`solutioncode`的值作为提交的代码.
 
 ## 查询提交过的代码
 
@@ -100,7 +113,9 @@
 
 2. 获取代码；
 
-`getcode` 或 `gc`（返回类型为`str`）.
+`getcode` 或 `gc`.
+
+返回类型为`str`.
 
 这行代码会获取最近一次提交的代码.
 
@@ -114,7 +129,9 @@
 
 2. 获取结果
 
-`getreport` 或 `gr`（返回类型为`json`）.
+`getreport` 或 `gr`.
+
+返回类型为`json`.
 
 这行代码会获取最近一次提交的代码的评判结果。如果仍在评判中，会返回空字典，即`{}`.
 
@@ -124,11 +141,15 @@
 
 1. 查看全部变量
 
-`show`（返回类型为`json`）.
+`show`.
+
+返回类型为`json`.
 
 2. 查看某个变量
 
-`show VAR`（返回类型为`json`）.
+`show VAR`.
+
+返回类型为`json`.
 
 特别地，`open`过的代码存放在`solutioncode`变量中，可以用`show solutioncode`或`show sc`查看.
 
