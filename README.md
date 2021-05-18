@@ -95,7 +95,7 @@
 
 直接调用函数的返回类型为`requests.Response`，查询时没有返回.
 
-根据`pid`, `eid`的值确定提交的题目，并以`solutioncode`的值作为提交的代码.
+根据`pid`, `eid`的值确定提交的题目，并以`solutioncode`的内容作为提交的代码.建议提交之前检查一遍`solutioncode`.查询方法参照：[查看程序运行中的变量](##查看程序运行中的变量)
 
 ## 查询提交过的代码
 
@@ -150,8 +150,6 @@
 `show VAR`.
 
 返回类型为`json`.
-
-特别地，`open`过的代码存放在`solutioncode`变量中，可以用`show solutioncode`或`show sc`查看.
 
 ## 例子
 
