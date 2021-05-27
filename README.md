@@ -15,6 +15,7 @@
 |`Fatal: Invalid cookie input.`|cookie不合法|检查你的cookie|
 |`Fatal: Login failed.`|登陆失败|检查你的登录凭证|
 |`Fatal: No username or cookie specified.`|用户名未输入|按照正确格式输入用户名|
+|`Fatal: Unknown error.`|未知错误|请联系开发人员|
 |`Warning: _login: invalid username or password.`|用户名不存在或密码错误|检查你的用户名和密码|
 |`Warning: Connect timeout.`|网络连接超时|检查你的计算机网络连接，或稍后重试|
 |`Warning: Connection error.`|网络连接错误|检查你的计算机网络连接|
@@ -27,6 +28,10 @@
 `run.py -u USERNAME --passwd PASSWORD` *(会在窗口中显示密码 )* 或 `run.py -u USERNAME`后依据提示输入密码. *(不会在窗口中显示密码，建议使用这种方式 )*  
 以用户名 USERNAME 和 密码 PASSWORD 尝试登录; 若启用缓存, 首先尝试匹配已经保存的配置. 要获取配置文件相关的帮助, 可以查看[配置相关](#配置相关).  
 如果网络畅通并且账号验证成功, 客户端会输出信息`Info: Login succeeded.(DisplayName)`, 其中 DisplayName 是你的昵称. 这表示你已经登录成功.
+
+## 找回密码
+`run.py -u USERNAME`后使密码为空，并以`y`确定更改密码  
+依据提示操作，若成功修改则会以修改后的密码尝试自动登录。
 
 ## 获取题包列表/信息
 ### 获取题包列表
