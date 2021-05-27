@@ -34,7 +34,7 @@ login_base_headers = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36 Edg/90.0.818.46',
 }
 def post(url, headers, data, timeout = 5):
-    headers['content-length'] = str(len(data))
+    headers['content-len'] = str(len(data))
     if type(data) == str: data = data.encode('utf-8')
     if type(data) != bytes:
         report('Datatype error.', 1)
@@ -58,7 +58,15 @@ def client_login(username, password = None, cookie = None):
         import getpass
         try: password = getpass.getpass('Enter password:')
         except KeyboardInterrupt: exit()
-        if not password: report('Empty password.', 3)
+        if not password:
+            report('Empty password. Do you want to change your password? [y/N]', end = '')
+            choice = input()
+            if choice == 'n' or choice == 'N': exit()
+            elif choice == 'y' or choice == 'Y':
+                password = change_password()
+                if not password:
+                    report("Empty password.", 3)
+            else: exit()
 
     if username and password:
         if cookie:
@@ -139,6 +147,96 @@ def login(username, passwd):
         report('Login succeeded.({})'.format(res['displayName']))
         if cache_var['cacheOn']: cache(username, passwd, coding_base_headers['cookie'])
         return True
+
+def change_password():
+    headers = login_base_headers.copy()
+    identifier, res = _acquire_verification()
+    if (not res) or res['status'] != "SUCCESS":
+        report("Unknown error.", 3)
+        return None
+    elif res['status'] == "SUCCESS":
+        report("Code sent successfully.")
+    else: return False
+    import getpass
+    try: vercode = getpass.getpass('Enter received code:')
+    except KeyboardInterrupt: exit()
+    if not vercode or len(vercode) != 6:
+        report('Invalid code.', 3)
+        return None
+    else:
+        try: password = getpass.getpass('Enter your new password:')
+        except KeyboardInterrupt: exit()
+        if not password or len(password) <= 6: report('Invalid password.', 3)
+        else:
+            data = {
+                "operationName": "verify",
+                "variables": {
+                    "identifier": identifier,
+                    "code": vercode
+                },
+                "query": r'''
+mutation verify($identifier: String!, $code: String!) {
+    verify(identifier: $identifier, credential: $code) {
+        verifyToken
+    }
+}'''
+            }
+            data = json.dumps(data)
+            res = post(url = url, headers = headers, data = data)
+            if not res: return False
+            res_data = json.loads(res.text)
+            if 'errors' in res_data:
+                report("change_password: " + res_data['errors'][0]['message'] + '.', 2)
+                return False
+            verifyToken = res_data['data']['verify']['verifyToken']
+            data = {
+                "operationName": "passwordChange",
+                "variables": {
+                    "newPassword": password,
+                    "newPasswordConfirm": password,
+                    "verifyToken": verifyToken
+                },
+                "query": r'''
+mutation passwordChange($newPassword: String!, $verifyToken: String) {
+    passwordChange(newPassword: $newPassword, verifyToken: $verifyToken) {
+        id
+    }
+}'''
+            }
+            data = json.dumps(data)
+            res = post(url = url, headers = headers, data = data)
+            if not res: return False
+            res_data = json.loads(res.text)
+            if 'errors' in res_data:
+                report("change_password: " + res_data['errors'][0]['message'] + '.', 2)
+                return False
+    return password
+
+
+def _acquire_verification():
+    headers = login_base_headers.copy()
+    identifier = input("Enter your email/phone:")
+    try: int(identifier)
+    except: id_type = "EMAIL"
+    else: id_type = "PHONE"
+    data = {
+        "operationName": "acquireVerification",
+        "variables": {
+            "identifier": identifier,
+            "type": id_type
+        },
+        "query": r'''
+mutation acquireVerification($identifier: String!, $type: VerificationType!) {
+  acquireVerification(identifier: $identifier, type: $type) {
+    status
+    message
+  }
+}'''
+    }
+    data = json.dumps(data)
+    res = post(url = url, headers = headers, data = data)
+    if not res: return None, False
+    return identifier, json.loads(res.text)['data']['acquireVerification']
 
 def submit(eid, pid, lang, solutioncode):
     if pid: return _submit_from_pack(eid, pid, lang, solutioncode)
@@ -248,7 +346,7 @@ mutation login($username: String!, $password: String!) {
     if not res: return False
     res_data = json.loads(res.text)
     if 'errors' in res_data:
-        report("_login: " + res_data['errors'][0]['message'] + '.', 1)
+        report("_login: " + res_data['errors'][0]['message'] + '.', 2)
         return False
     else:
         from re import search
