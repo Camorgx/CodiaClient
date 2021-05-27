@@ -3,6 +3,7 @@ import codiaclient as cc
 if __name__ == "__main__":
     args = cc.ArgParser().parse_args()
     if args.no_cache: cc.cache_var['cacheOn'] = False
+    if args.register: cc.net_var['register'] = True
     if cc.cache_var['cacheOn']: cc.cache_load()
     cc.report_var['allow_error_deg'] = args.allow_error_deg
     cc.requests_var['lang'] = args.lang

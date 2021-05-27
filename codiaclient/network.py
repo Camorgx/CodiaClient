@@ -2,7 +2,9 @@ from .report import report
 from .utils import passwd_hash, cookie_encrypt, cookie_decrypt
 from .cachectrl import variables as cache_var, cache_username_passwd_cookie as cache
 import json
-
+variables = {
+    'register': False
+}
 url = 'https://code.bdaa.pro/graphql/'
 coding_base_headers = {
     'accept': '*/*',
@@ -52,7 +54,6 @@ def post(url, headers, data, timeout = 5):
         return False
     else: return res
 
-
 def client_login(username, password = None, cookie = None):
     if username and not cookie and not password:
         import getpass
@@ -67,6 +68,9 @@ def client_login(username, password = None, cookie = None):
                 if not password:
                     report("Empty password.", 3)
             else: exit()
+
+    if variables['register']:
+        register(username, password)
 
     if username and password:
         if cookie:
@@ -148,6 +152,40 @@ def login(username, passwd):
         if cache_var['cacheOn']: cache(username, passwd, coding_base_headers['cookie'])
         return True
 
+def register(username, password, email = None):
+    headers = login_base_headers.copy()
+    if not email: email = input("Input your email:")
+    data = {
+        "operationName": "signup",
+        "variables": {
+            "login": username,
+            "password": password,
+            "email": email,
+            "displayName": username
+        },
+        "query": r'''
+mutation signup($login: String!, $password: String!, $email: String!) {
+  signup(login: $login, password: $password, email: $email) {
+    user {
+      id
+      login
+      displayName
+      defaultEmail
+      avatarUrl
+      verified
+    }
+  }
+}'''
+    }
+    data = json.dumps(data)
+    res = post(url = url, headers = headers, data = data)
+    if not res: return False
+    res_data = json.loads(res.text)
+    if 'errors' in res_data:
+        report("register: " + res_data['errors'][0]['message'] + '.', 2)
+        return False
+    return res_data['data']['signup']
+
 def change_password():
     headers = login_base_headers.copy()
     identifier, res = _acquire_verification()
@@ -212,10 +250,9 @@ mutation passwordChange($newPassword: String!, $verifyToken: String) {
                 return False
     return password
 
-
 def _acquire_verification():
     headers = login_base_headers.copy()
-    identifier = input("Enter your email/phone:")
+    identifier = input("Input your email/phone:")
     try: int(identifier)
     except: id_type = "EMAIL"
     else: id_type = "PHONE"

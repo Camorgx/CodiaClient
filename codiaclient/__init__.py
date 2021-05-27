@@ -1,4 +1,4 @@
-from .network import client_login, logined
+from .network import variables as net_var, client_login, logined
 from .argparse import ArgParser
 from .requests import variables as requests_var, requests
 from .report import variables as report_var
