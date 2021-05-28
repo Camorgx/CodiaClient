@@ -189,23 +189,32 @@ mutation signup($login: String!, $password: String!, $email: String!) {
 def change_password():
     headers = login_base_headers.copy()
     identifier, res = _acquire_verification()
-    if (not res) or res['status'] != "SUCCESS":
-        report("Unknown error.", 3)
-        return None
+    if not res:
+        report("Verification acquiring error.", 3)
+        return False
     elif res['status'] == "SUCCESS":
         report("Code sent successfully.")
-    else: return False
+    elif res['status'] == "SKIP":
+        pass
+    else:
+        if 'message' in res:
+            from re import search
+            report('Acquiring status error. ({})'.format(res['message']), 3)
+        else:
+            report("Acquiring status error.", 3)
+        return False
     import getpass
     try: vercode = getpass.getpass('Enter received code:')
     except KeyboardInterrupt: exit()
     if not vercode or len(vercode) != 6:
         report('Invalid code.', 3)
-        return None
+        return False
     else:
-        try: password = getpass.getpass('Enter your new password:')
+        try: password = getpass.getpass('Input your new password:')
         except KeyboardInterrupt: exit()
         if not password or len(password) <= 6: report('Invalid password.', 3)
         else:
+            passwordconfirm = getpass.getpass('Confirm your new password:')
             data = {
                 "operationName": "verify",
                 "variables": {
@@ -231,7 +240,7 @@ mutation verify($identifier: String!, $code: String!) {
                 "operationName": "passwordChange",
                 "variables": {
                     "newPassword": password,
-                    "newPasswordConfirm": password,
+                    "newPasswordConfirm": passwordconfirm,
                     "verifyToken": verifyToken
                 },
                 "query": r'''
@@ -253,9 +262,19 @@ mutation passwordChange($newPassword: String!, $verifyToken: String) {
 def _acquire_verification():
     headers = login_base_headers.copy()
     identifier = input("Input your email/phone:")
+    if len(identifier.split()) == 2:
+        identifier = identifier.split()
+        report("Code sending skipped.(email/phone:{})".format(identifier[0]))
+        return identifier[0], {"status": identifier[1].upper()}
     try: int(identifier)
-    except: id_type = "EMAIL"
-    else: id_type = "PHONE"
+    except:
+        if '@' in identifier:
+            id_type = "EMAIL"
+        else:
+            report("Identifier error.", 3)
+            return identifier, False
+    else:
+        id_type = "PHONE"
     data = {
         "operationName": "acquireVerification",
         "variables": {
@@ -273,7 +292,11 @@ mutation acquireVerification($identifier: String!, $type: VerificationType!) {
     data = json.dumps(data)
     res = post(url = url, headers = headers, data = data)
     if not res: return None, False
-    return identifier, json.loads(res.text)['data']['acquireVerification']
+    res_data = json.loads(res.text)
+    if 'errors' in res_data:
+        report("_acquire_verification: " + res_data['errors'][0]['message'] + '.', 2)
+        return None, False
+    return identifier, res_data['data']['acquireVerification']
 
 def submit(eid, pid, lang, solutioncode):
     if pid: return _submit_from_pack(eid, pid, lang, solutioncode)
