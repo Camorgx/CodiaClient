@@ -17,6 +17,7 @@
 |`Fatal: Login failed.`|登陆失败|检查你的登录凭证|
 |`Fatal: No username or cookie specified.`|用户名未输入|按照正确格式输入用户名|
 |`Fatal: Unknown error.`|未知错误|请联系开发人员|
+|`Warning: Cache loading failed.`|缓存失败|删除缓存文件|
 |`Warning: Connect timeout.`|网络连接超时|检查你的计算机网络连接，或稍后重试|
 |`Warning: Connection error.`|网络连接错误|检查你的计算机网络连接|
 |`Warning: Invalid request.`|非法请求|检查你的请求格式，可以在程序中输入`help`以获得帮助|
@@ -111,8 +112,9 @@ pid, eid 可以通过客户端查询, 也可以在网页端访问的链接中获
 若非直接命令行运行, 建议在启动时加上`--origin`选项以获取**未解码**的数据, 数据以 ***Unicode*** 编码, *python* 可以直接以`str.encode('utf-8').decode('unicode-escape')`的形式解码, 可以参考`./run.py`.
 ## 配置相关
 
-每次成功登录后默认会往配置文件 `./cache.passwd.conf` 中写入登录信息，包括: 
+每次成功登录后默认会往配置文件 `./codiaclient.cache` 中写入登录信息，包括: 
 - 用户名 *(明文 )*
+- 用户邮箱 *(明文 )*
 - 密码的 *sha256* 哈希值
 - cookie用 *AES* 加密的值 *(密钥为密码明文 )*
 

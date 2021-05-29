@@ -10,15 +10,19 @@ variables = {
     'logindic': {}
 }
 
-def cache_username_passwd_cookie(userdic, passwd, cookie, file = './codiaclient.cache'):
+def cache_for_login(userdic, passwd, cookie, file = './codiaclient.cache'):
     if not variables['cacheOn']:
         report("Invalid reference of function 'cache_username_passwd_cookie'.", 1)
         return False
     report("Caching cookie.")
     username = userdic['login']
     useremail = userdic['defaultEmail']
-    variables['logindic'][username] = {'username': username, 'email': useremail, 'passwd': passwd_hash(passwd), 'cookie': cookie_encrypt(cookie, passwd)}
-    variables['logindic'][useremail] = {'username': username, 'email': useremail, 'passwd': passwd_hash(passwd), 'cookie': cookie_encrypt(cookie, passwd)}
+    variables['logindic'][username] = variables['logindic'][useremail] = {
+        'username': username,
+        'email': useremail,
+        'passwd': passwd_hash(passwd),
+        'cookie': cookie_encrypt(cookie, passwd)
+    }
     try:
         dic_str = json.dumps({'logindic': variables['logindic']})
         dic_b64 = b64encode(dic_str.encode('utf-8'))
@@ -40,6 +44,6 @@ def cache_load(file = './codiaclient.cache'):
         config = json.loads(dic_str)
         if 'logindic' in config: variables['logindic'] = config['logindic']
     except (zlib.error, UnicodeDecodeError, json.decoder.JSONDecodeError):
-        report('Cache loading failed.', 1)
+        report('Cache load failed.', 1)
     except FileNotFoundError:
         pass

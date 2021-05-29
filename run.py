@@ -1,7 +1,9 @@
 import codiaclient as cc
+
 variables = {
     "origin": False
 }
+
 if __name__ == "__main__":
     args = cc.ArgParser().parse_args()
     if args.no_cache: cc.cache_var['cacheOn'] = False

@@ -1,6 +1,6 @@
 from .report import report
 from .utils import passwd_hash, cookie_encrypt, cookie_decrypt
-from .cachectrl import variables as cache_var, cache_username_passwd_cookie as cache
+from .cachectrl import variables as cache_var, cache_for_login as cache
 import json
 variables = {
     'register': False
