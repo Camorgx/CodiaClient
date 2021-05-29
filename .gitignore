@@ -1,5 +1,5 @@
 *.exe
-/cache.passwd.conf
+*.cache
 *~
 ~*
 __pycache__/

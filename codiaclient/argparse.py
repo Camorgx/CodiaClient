@@ -14,8 +14,8 @@ def ArgParser():
 	parser.add_argument("-u", "--username", help = "your codia username")
 	parser.add_argument("--passwd", "--password", help = "your codia password")
 	parser.add_argument("--no-cache", help = "do not cache or use cached username, password & cookie", action = 'store_true')
-	parser.add_argument("--register", help = "register", action = 'store_true')
-	parser.add_argument("--origin", help = "origin", action = 'store_true')
+	parser.add_argument("--register", help = "register for an account", action = 'store_true')
+	parser.add_argument("--origin", help = "encoding in unicode", action = 'store_true')
 	parser.add_argument("--allow-error-deg", help = "allow errors degree", type = int, choices = {0, 1, 2, 3}, default = 2)
-	parser.add_argument("-q", "--query-string", help = "your query string", metavar = 'QUERY')
+	parser.add_argument("-q", "--request-string", help = "your request string", metavar = 'REQ')
 	return parser

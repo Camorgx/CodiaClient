@@ -79,16 +79,6 @@ def client_login(username, password = None, cookie = None):
             displayName = logined()
             if displayName:
                 report('Login succeeded.({})'.format(displayName))
-                if cache_var['cacheOn']:
-                    if username in cache_var['logindic']:
-                        report('We have cached your cookie. Do you want to cover it? [Y/n]', end = '')
-                        choice = input()
-                        if choice == 'n' or choice == 'N': pass
-                        elif choice == 'y' or choice == 'Y': cache(username, password, cookie)
-                        else:
-                            report('Received bad parameter, executing the default operation.', 1)
-                            cache(username, password, cookie)
-                    else: cache(username, password, cookie)
             else:
                 report('Invalid cookie input.', 1)
                 if cache_var['cacheOn'] and username in cache_var['logindic'] and cache_var['logindic'][username]['passwd'] == passwd_hash(password):
@@ -137,9 +127,9 @@ def logined():
     })
     res = post(url = url, headers = headers, data = data)
     if not res: return False
-    res = json.loads(res.text)
-    if 'errors' in res: return False
-    else: return res['data']['me']['displayName']
+    res_data = json.loads(res.text)
+    if 'errors' in res_data: return False
+    else: return res_data['data']['me']['displayName']
 
 def login(username, passwd):
     report('Try login.')
@@ -149,17 +139,16 @@ def login(username, passwd):
         return False
     else:
         report('Login succeeded.({})'.format(res['displayName']))
-        if cache_var['cacheOn']: cache(username, passwd, coding_base_headers['cookie'])
         return True
 
-def register(username, password, email = None):
+def register(username, passwd, email = None):
     headers = login_base_headers.copy()
     if not email: email = input("Input your email:")
     data = {
         "operationName": "signup",
         "variables": {
             "login": username,
-            "password": password,
+            "password": passwd,
             "email": email,
             "displayName": username
         },
@@ -210,9 +199,9 @@ def change_password():
         report('Invalid code.', 3)
         return False
     else:
-        try: password = getpass.getpass('Input your new password:')
+        try: passwd = getpass.getpass('Input your new password:')
         except KeyboardInterrupt: exit()
-        if not password or len(password) <= 6: report('Invalid password.', 3)
+        if not passwd or len(passwd) <= 6: report('Invalid password.', 3)
         else:
             passwordconfirm = getpass.getpass('Confirm your new password:')
             data = {
@@ -239,7 +228,7 @@ mutation verify($identifier: String!, $code: String!) {
             data = {
                 "operationName": "passwordChange",
                 "variables": {
-                    "newPassword": password,
+                    "newPassword": passwd,
                     "newPasswordConfirm": passwordconfirm,
                     "verifyToken": verifyToken
                 },
@@ -257,7 +246,7 @@ mutation passwordChange($newPassword: String!, $verifyToken: String) {
             if 'errors' in res_data:
                 report("change_password: " + res_data['errors'][0]['message'] + '.', 2)
                 return False
-    return password
+    return passwd
 
 def _acquire_verification():
     headers = login_base_headers.copy()
@@ -414,6 +403,7 @@ mutation login($username: String!, $password: String!) {
         except:
             report('Unknown login error.', 1)
             return False
+    if cache_var['cacheOn']: cache(res_data['data']['login']['user'], passwd, coding_base_headers['cookie'])
     return res_data['data']['login']['user']
 
 def _submit_from_pack(eid, pid, lang, solutioncode):

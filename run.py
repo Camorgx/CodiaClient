@@ -19,7 +19,13 @@ if __name__ == "__main__":
     cc.client_login(username = args.username, password = args.passwd, cookie = args.cookie)
 
     cc.requests_var['username'] = cc.logined()
-    if args.query_string: print(cc.requests(args.query_string.split()), end = '')
+    if args.request_string:
+        try:
+            if not variables['origin']:
+                print(str(cc.requests(args.request_string.split())).encode('utf-8').decode('unicode-escape'), end = '')
+            else:
+                print(str(cc.requests(args.request_string.split())), end = '')
+        except (KeyboardInterrupt, EOFError): exit()
     else:
         while True:
             try:
