@@ -1,5 +1,17 @@
 from .report import report
 
+class AliasesDict(dict):
+    aliaseslist = {}
+    def __init__(self, dict, aliaseslist = {}):
+        self.aliaseslist = aliaseslist
+        super().__init__(dict)
+    def __getitem__(self, attr):
+        if attr in self.aliaseslist: return super().__getitem__(self.aliaseslist[attr])
+        else: return super().__getitem__(attr)
+    def __setitem__(self, key, value):
+        if key in self.aliaseslist: return super().__setitem__(self.aliaseslist[key], value)
+        else: return super().__setitem__(key, value)
+
 def passwd_hash(passwd):
     try:
         from hashlib import new
@@ -23,3 +35,4 @@ def cookie_encrypt(cookie, passwd):
 
 def cookie_decrypt(_cookie, passwd):
     return str(AES.new(add_to_16(passwd), AES.MODE_ECB).decrypt(base64.decodebytes(_cookie.encode(encoding = 'utf-8'))), encoding = 'utf-8').replace('\x00', '')
+

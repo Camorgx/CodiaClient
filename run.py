@@ -11,16 +11,15 @@ if __name__ == "__main__":
     if args.origin: variables['origin'] = True
     if cc.cache_var['cacheOn']: cc.cache_load()
     cc.report_var['allow_error_deg'] = args.allow_error_deg
-    cc.requests_var['lang'] = args.lang
-    cc.requests_var['eid'] = args.eid
-    cc.requests_var['pid'] = args.pid
+    cc.requests_var['l'] = args.lang
+    cc.requests_var['e'] = args.eid
+    cc.requests_var['p'] = args.pid
     if args.open:
-        cc.requests_var['solutioncode'] = args.open.read()
+        cc.requests_var['sc'] = args.open.read()
         args.open.close()
 
     cc.client_login(username = args.username, password = args.passwd, cookie = args.cookie)
 
-    cc.requests_var['username'] = cc.logined()
     if args.request_string:
         try:
             if not variables['origin']:

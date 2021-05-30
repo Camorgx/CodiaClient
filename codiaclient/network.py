@@ -3,7 +3,13 @@ from .utils import passwd_hash, cookie_encrypt, cookie_decrypt
 from .cachectrl import variables as cache_var, cache_for_login as cache
 import json
 variables = {
-    'register': False
+    'register': False,
+    'me': {
+        'username': None,
+        'nickname': None,
+        'email': None,
+        'verified': None,
+    },
 }
 url = 'https://code.bdaa.pro/graphql/'
 coding_base_headers = {
@@ -95,7 +101,7 @@ def client_login(username, password = None, cookie = None):
                 coding_base_headers['cookie'] = cookie_decrypt(cache_var['logindic'][username]['cookie'], password)
                 report("Using cached cookie.")
                 displayName = logined()
-                if displayName: report("Login succeeded.({})".format(displayName))
+                if displayName: report('Login succeeded.({})'.format(displayName))
                 else:
                     report('Invalid cached cookie.', 1)
                     login(username, password)
@@ -108,7 +114,7 @@ def client_login(username, password = None, cookie = None):
         else: report('Invalid cookie input.', 3)
     else: report('No username or cookie specified.', 3)
 
-def logined():
+def logined(reportUnverified:bool = True):
     headers = coding_base_headers.copy()
     data = json.dumps({
         "operationName": None,
@@ -129,7 +135,16 @@ def logined():
     if not res: return False
     res_data = json.loads(res.text)
     if 'errors' in res_data: return False
-    else: return res_data['data']['me']['displayName']
+    else:
+        if reportUnverified and not res_data['data']['me']['verified']:
+            report("The user has not verified.", 1)
+        if not res_data['data']['me']['displayName']:
+            res_data['data']['me']['displayName'] = "UNDEFINED"
+        variables['me']['username'] = res_data['data']['me']['login']
+        variables['me']['nickname'] = res_data['data']['me']['displayName']
+        variables['me']['email'] = res_data['data']['me']['defaultEmail']
+        variables['me']['verified'] = res_data['data']['me']['verified']
+        return res_data['data']['me']['displayName']
 
 def login(username, passwd):
     report('Try login.')
@@ -362,12 +377,60 @@ query pack($pid: ID!) {
                     title
                 }
             }
+            viewerStatus {
+                ongoing
+            }
         }
     }
 }'''})
     res = post(url = url, headers = headers, data = data)
     if not res: return False
     return json.loads(res.text)['data']['node']
+
+def start_pack(pid):
+    if show_pack(pid)['viewerStatus']['ongoing']:
+        report("This pack is already ongoing.", 1)
+        return None
+    headers = coding_base_headers.copy()
+    data = json.dumps({
+        "operationName": "startSession",
+        "variables": {
+            "pid": pid
+        },
+        "query": r'''
+mutation startSession($pid: ID!, $code: String) {
+  startSession(exercisePackId: $pid, code: $code) {
+    id
+    codingExercises {
+      passedCount
+      totalCount
+      edges {
+        node { id }
+        userStatus {
+          attempted
+          passed
+        }
+      }
+    }
+    pack {
+      id
+      description { content }
+      codingExercises {
+        nodes {
+          id
+          title
+        }
+      }
+      viewerStatus {
+        ongoing
+        due
+      }
+    }
+  }
+}'''})
+    res = post(url = url, headers = headers, data = data)
+    if not res: return False
+    return json.loads(res.text)['data']['startSession']
 
 def _login(username, passwd):
     headers = login_base_headers.copy()
