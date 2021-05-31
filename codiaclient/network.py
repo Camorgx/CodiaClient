@@ -648,15 +648,15 @@ query codingExercise($eid: ID!, $lang: Language!) {
     res = post(url = url, headers = headers, data = data)
     if not res: return False
     if feedback == 'Response': return res
-    res = json.loads(res.text)['data']['exercise']
-    ret = {}
-    ret['title'] = res['title']
-    ret['tags'] = res['tags']
-    ret['description-content'] = res['description']['content'].replace("\n\n", '\n')
-    ret['inputDescription-content'] = res['inputDescription']['content']
-    ret['outputDescription-content'] = res['outputDescription']['content']
-    ret['sampleData'] = []
-    for x in res['sampleData']:
+    res_data = json.loads(res.text)['data']['exercise']
+    res_dic = {}
+    res_dic['title'] = res_data['title']
+    res_dic['tags'] = res_data['tags']
+    res_dic['description-content'] = res_data['description']['content'].replace("\n\n", '\n')
+    res_dic['inputDescription-content'] = res_data['inputDescription']['content']
+    res_dic['outputDescription-content'] = res_data['outputDescription']['content']
+    res_dic['sampleData'] = []
+    for x in res_data['sampleData']:
         toappend = {}
         if x['input'] != None: toappend['input'] = x['input']['content']
         else: toappend['input'] = None
@@ -664,11 +664,11 @@ query codingExercise($eid: ID!, $lang: Language!) {
         else: toappend['output'] = None
         if x['explanation'] != None: toappend['explanation'] = x['explanation']['content']
         else: toappend['explanation'] = None
-        ret['sampleData'].append(toappend)
-    ret['supportedLanguages'] = res['supportedLanguages']
-    ret['note'] = res['note']
-    if feedback == 'dict': return ret
-    elif feedback == 'json' or feedback == 'str': return json.dumps(ret)
+        res_dic['sampleData'].append(toappend)
+    res_dic['supportedLanguages'] = res_data['supportedLanguages']
+    res_dic['note'] = res_data['note']
+    if feedback == 'dict': return res_dic
+    elif feedback == 'json' or feedback == 'str': return json.dumps(res_dic)
     else: return None
 
 def _get_exercise_from_pack(eid, pid, lang, feedback = 'dict'):
@@ -710,15 +710,15 @@ query codingExercise($eid: ID!, $pid: ID, $lang: Language!) {
     res = post(url = url, headers = headers, data = data)
     if not res: return False
     if feedback == 'Response': return res
-    res = json.loads(res.text)['data']['pack']['codingExercise']
-    ret = {}
-    ret['title'] = res['title']
-    ret['tags'] = res['tags']
-    ret['description-content'] = res['description']['content'].replace("\n\n", '\n')
-    ret['inputDescription-content'] = res['inputDescription']['content']
-    ret['outputDescription-content'] = res['outputDescription']['content']
-    ret['sampleData'] = []
-    for x in res['sampleData']:
+    res_data = json.loads(res.text)['data']['pack']['codingExercise']
+    res_dic = {}
+    res_dic['title'] = res_data['title']
+    res_dic['tags'] = res_data['tags']
+    res_dic['description-content'] = res_data['description']['content'].replace("\n\n", '\n')
+    res_dic['inputDescription-content'] = res_data['inputDescription']['content']
+    res_dic['outputDescription-content'] = res_data['outputDescription']['content']
+    res_dic['sampleData'] = []
+    for x in res_data['sampleData']:
         toappend = {}
         if x['input'] != None: toappend['input'] = x['input']['content']
         else: toappend['input'] = None
@@ -726,9 +726,9 @@ query codingExercise($eid: ID!, $pid: ID, $lang: Language!) {
         else: toappend['output'] = None
         if x['explanation'] != None: toappend['explanation'] = x['explanation']['content']
         else: toappend['explanation'] = None
-        ret['sampleData'].append(toappend)
-    ret['supportedLanguages'] = res['supportedLanguages']
-    ret['note'] = res['note']
-    if feedback == 'dict': return ret
-    elif feedback == 'json' or feedback == 'str': return json.dumps(ret)
+        res_dic['sampleData'].append(toappend)
+    res_dic['supportedLanguages'] = res_data['supportedLanguages']
+    res_dic['note'] = res_data['note']
+    if feedback == 'dict': return res_dic
+    elif feedback == 'json' or feedback == 'str': return json.dumps(res_dic)
     else: return None

@@ -28,15 +28,15 @@
 ## 登录
 `run.py -u USERNAME --passwd PASSWORD` *(会在窗口中显示密码 )* 或 `run.py -u USERNAME`后依据提示输入密码. *(不会在窗口中显示密码，建议使用这种方式 )*  
 以用户名 USERNAME 和 密码 PASSWORD 尝试登录; 若启用缓存, 首先尝试匹配已经保存的配置. 要获取配置文件相关的帮助, 可以查看[配置相关](#配置相关).  
-如果网络畅通并且账号验证成功, 客户端会输出信息`Info: Login succeeded.(DisplayName)`, 其中 DisplayName 是你的昵称. 这表示你已经登录成功.
+如果网络畅通并且账号验证成功, 客户端会输出信息`Info: Login succeeded.(DisplayName)`, 其中 `DisplayName` 是你的昵称（没有设置会显示 `UNDEFINED` ）. 这表示你已经登录成功.
 
 ## 找回密码
 `run.py -u USERNAME`后使密码留空，以`y`确定更改密码并依据提示根据邮箱或手机号找回密码，若成功修改则会以修改后的密码尝试自动登录。
 
 ## 注册
 `run.py --register -u USERNAME --passwd PASSWORD`*(会在窗口中显示密码 )* 或 `run.py --register -u USERNAME`后依据提示输入密码. *(不会在窗口中显示密码，建议使用这种方式 )*  
-以用户名 USERNAME 和 密码 PASSWORD 尝试注册，请依据提示输入邮箱。  
-注册成功后会直接登录，用户名存在并且密码正确也会直接登录。  
+以用户名 USERNAME 和 密码 PASSWORD 尝试注册，请依据提示输入邮箱和验证码。  
+注册成功后会直接登录；若用户名存在并且密码正确也会直接登录。  
 *Tips: 服务器目前没有提供注销接口，请注意不要滥用此功能。*
 
 ## 获取题包列表/信息
