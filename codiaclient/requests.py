@@ -152,7 +152,10 @@ class Requests:
                         elif len(conf) == 2:
                             try: res = get_data(eid = variables['e'], pid = variables['p'], codecnt = int(conf[1]))
                             except ValueError:
-                                report('Invalid request: type(codecnt) should be int.', 1)
+                                if conf[1].lower() == 'all':
+                                    self.show_msg(json.dumps(get_data(eid = variables['e'], pid = variables['p'])))
+                                else:
+                                    report('Invalid request: type(codecnt) should be int.', 1)
                                 return
                         else: pass
                         res = {x['key']: x['value'] for x in res[0]['submission']['reports']}

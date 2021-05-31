@@ -1,29 +1,5 @@
 如果想要了解客户端的用法，可以用`run.py -h`来获得*命令帮助*，登录后可以在程序中输入`help`获得*查询帮助*.
 
-# 输出信息解释
-
-客户端的输出信息分为四种，错误级别从低到高分别为`Info`, `Warning`, `Error`, `Fatal`.
-
-- `Info`指程序正常运行中产生的消息
-- `Warning`指可能导致程序出错的警告消息
-- `Error`指不影响程序整体运行的错误消息
-- `Fatal`指严重出错导致程序无法进行的错误消息
-
-|常见错误/警告信息|解释|建议|
-|----------------|----|----|
-|`Error: _login: invalid username or password.`|用户名不存在或密码错误|检查你的用户名和密码|
-|`Fatal: Empty password.`|密码未输入|依据提示输入密码|
-|`Fatal: Invalid cookie input.`|cookie不合法|检查你的cookie|
-|`Fatal: Login failed.`|登陆失败|检查你的登录凭证|
-|`Fatal: No username or cookie specified.`|用户名未输入|按照正确格式输入用户名|
-|`Fatal: Unknown error.`|未知错误|请联系开发人员|
-|`Warning: Cache loading failed.`|缓存失败|删除缓存文件|
-|`Warning: Connect timeout.`|网络连接超时|检查你的计算机网络连接，或稍后重试|
-|`Warning: Connection error.`|网络连接错误|检查你的计算机网络连接|
-|`Warning: Invalid request.`|非法请求|检查你的请求格式，可以在程序中输入`help`以获得帮助|
-|`Warning: No pid specified.`|未指定题包编号|按照正确格式输入题包编号|
-|`Warning: No eid specified.`|未指定题目编号|按照正确格式输入题目编号|
-
 # 常用功能
 ## 登录
 `run.py -u USERNAME --passwd PASSWORD` *(会在窗口中显示密码 )* 或 `run.py -u USERNAME`后依据提示输入密码. *(不会在窗口中显示密码，建议使用这种方式 )*  
@@ -76,10 +52,13 @@ pid, eid 可以通过客户端查询, 也可以在网页端访问的链接中获
 `eid EID` 或 `e EID`.  
 指定编号为EID的题目.
 
+*Tips: 以上实际为对程序内变量的赋值操作，可以参考[变量相关](#变量相关)。*
+
 ## 查看题目内容
 
 `getexercise` 或 `ge`.  
-查看题目内容. 该函数可以指定返回类型, 直接调用默认为*dict*, 在查询时默认为*json*.
+查看题目内容. 该函数可以指定返回类型, 直接调用默认为*dict*, 在查询时默认为*json*.  
+在这里可以获取题目的一些信息，包括题目标题、内容和样例，题目所给定的缺省代码，提交统计等信息。
 
 ## 开始题包
 
@@ -94,7 +73,7 @@ pid, eid 可以通过客户端查询, 也可以在网页端访问的链接中获
 `submit`.  
 提交代码到服务器评测. 直接调用函数的返回类型为*requests.Response*, 查询时没有返回.  
 根据 pid, eid 的值确定提交的题目，并以`solutioncode`的内容作为提交的代码.
-*Tips: 如果在提交题包中的题目的代码前没有开始过这个题包，可能会无法记录提交结果。开始题包方法参照：[开始题包](#开始题包)。提交之前请确保 `pid`, `eid`正确。可以获取题面以验证，方法参照：[查看题目内容](#查看题目内容)。另外建议提交之前检查一遍 `solutioncode`. 查询方法参照：[查看程序运行中的变量](#查看程序运行中的变量)。*
+*Tips: 如果在提交题包中的题目的代码前没有开始过这个题包，可能会无法记录提交结果。开始题包方法参照：[开始题包](#开始题包)。提交之前请确保 `pid`, `eid`正确。可以获取题面以验证，方法参照：[查看题目内容](#查看题目内容)。另外建议提交之前检查一遍 `solutioncode`. 查询方法参照：[查看变量](#查看变量)。*
 
 ## 查询提交过的代码
 
@@ -105,17 +84,11 @@ pid, eid 可以通过客户端查询, 也可以在网页端访问的链接中获
 
 `gr [K]`.  
 获取倒数第 K 次提交的代码的评判结果, K 默认为1; 如果仍在评测中, 会返回空字典, 即`{}`. 返回类型为*json*.  
-
-## 查看程序运行中的变量
-
-`show [VAR]`.  
-查看变量名为VAR的变量; 若没有指定变量名, 则返回`requests.variables`中的所有变量. 返回类型为*json*.
-
 # 辅助功能
 ## 接口相关
 若非直接命令行运行, 建议在启动时加上`--origin`选项以获取**未解码**的数据, 数据以 ***Unicode*** 编码, *python* 可以直接以`str.encode('utf-8').decode('unicode-escape')`的形式解码, 可以参考`./run.py`.
-## 配置相关
 
+## 配置相关
 每次成功登录后默认会往配置文件 `./codiaclient.cache` 中写入登录信息，包括: 
 - 用户名 *(明文 )*
 - 用户邮箱 *(明文 )*
@@ -125,3 +98,55 @@ pid, eid 可以通过客户端查询, 也可以在网页端访问的链接中获
 这种记录方法在绝大多数情况下保证无法从配置文件中获取密码的值，并且在密码不正确时不能获取对应的cookie.
 在登录时会首先尝试匹配配置中的信息。成功匹配则直接使用配置中的cookie尝试登录，失败则会向服务器提交数据以获得新的cookie.  
 若在启动程序时加上`--no-cache`的选项，则会禁用配置，即不会往配置文件中写入信息，也不会从配置文件中读取信息。**但已经写入的数据不会删除。**
+
+## 变量相关
+用户能获取/修改的变量全部位于`requests_var`.
+*Tips: 同时位于 `requests_var` 和 `net_var` 的变量不能修改.*
+
+### 查看变量
+`show [VAR]`.  
+查看变量名为VAR的变量（允许使用别名来查找）; 若没有指定变量名, 则返回`requests_var`中的所有变量. 返回类型为*json*.
+
+### 修改变量
+`VAR VAL`.  
+将变量（别）名为VAR的变量的值修改为VAL, VAL不允许为空。
+
+### 重置变量
+`del [VAR]`或`reset [VAR]`  
+将变量（别）名为VAR的变量的值修改为*None*; 若没有指定变量名，则重置所有变量。
+
+# 输出信息解释
+
+客户端的输出信息分为四种，错误级别从低到高分别为`Info`, `Warning`, `Error`, `Fatal`.
+
+- `Info`指程序正常运行中产生的消息
+- `Warning`指可能导致程序出错的警告消息
+- `Error`指不影响程序整体运行的错误消息
+- `Fatal`指严重出错导致程序无法进行的错误消息
+
+## 常见错误信息与警告信息
+
+|信息内容|解释|建议|
+|----------------|----|----|
+|`Error: _login: invalid username or password.`|用户名不存在或密码错误|检查你的用户名和密码|
+|`Fatal: change_password: Acquiring status error.`|修改密码时获取凭证状态错误|检查你的网络连接和输入的凭证|
+|`Fatal: Empty password.`|密码未输入|依据提示输入密码|
+|`Fatal: Identifier error.`|凭证错误|检查你输入的凭证|
+|`Fatal: Invalid cookie input.`|输入的cookie不合法|检查你的cookie|
+|`Fatal: Login failed.`|登陆失败|检查你的登录凭证|
+|`Fatal: No username or cookie specified.`|用户名未输入|按照正确格式输入用户名|
+|`Fatal: Unknown error.`|未知错误|检查你之前的操作|
+|`Fatal: Verification acquiring error.`|认证凭证获取失败|检查你的网络并稍后重试|
+|`Warning: Cache loading failed.`|缓存失败|删除缓存文件|
+|`Warning: Connect timeout.`|网络连接超时|检查你的计算机网络连接，或稍后重试|
+|`Warning: Connection error.`|网络连接错误|检查你的计算机网络连接|
+|``Warning: FUN: Variable `VAR` type error.``|变量类型错误|检查你调用函数名为`FUN`的函数时参数名为`VAR`的参数类型|
+|`Warning: Invalid cached cookie.`|缓存的cookie不合法|等待程序登录|
+|`Warning: Invalid cookie input.`|输入的cookie不合法|检查你的cookie或等待程序登录|
+|`Warning: Invalid request.`|非法请求|检查你的请求格式，可以在程序中输入`help`以获得帮助|
+|`Warning: Unknown login error.`|未知登录错误|检查你的登录凭证并稍后再次尝试|
+|`Warning: No pid specified.`|未指定题包编号|按照正确格式输入题包编号|
+|`Warning: No eid specified.`|未指定题目编号|按照正确格式输入题目编号|
+|`Warning: This pack is already ongoing.`|题包已经正在进行|不需要开始题包，可以直接答题|
+|`Warning: The user has not verified.`|用户未认证|认证所使用的登录账号|
+

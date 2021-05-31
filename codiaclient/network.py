@@ -21,8 +21,6 @@ coding_base_headers = {
     'origin': 'https://code.bdaa.pro',
     'pragma': 'no-cache',
     'referer': 'https://code.bdaa.pro',
-    'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="90", "Microsoft Edge";v="90"',
-    'sec-ch-ua-mobile': '?0',
     'sec-fetch-dest': 'empty',
     'sec-fetch-mode': 'cors',
     'sec-fetch-site': 'same-origin',
@@ -42,10 +40,10 @@ login_base_headers = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36 Edg/90.0.818.46',
 }
 def post(url, headers, data, timeout = 5):
-    headers['content-len'] = str(len(data))
+    headers['content-length'] = str(len(data))
     if type(data) == str: data = data.encode('utf-8')
     if type(data) != bytes:
-        report('Datatype error.', 1)
+        report('post: Variable `data` type error. (should be `str` or `bytes`, not `{}`)'.format(type(data)), 1)
         return False
     import requests
     try: res = requests.post(url = url, headers = headers, data = data, timeout = timeout)
@@ -202,10 +200,9 @@ def change_password():
         pass
     else:
         if 'message' in res:
-            from re import search
-            report('Acquiring status error. ({})'.format(res['message']), 3)
+            report('change_password: Acquiring status error. ({})'.format(res['message']), 3)
         else:
-            report("Acquiring status error.", 3)
+            report("change_password: Acquiring status error.", 3)
         return False
     import getpass
     try: vercode = getpass.getpass('Enter received code:')
@@ -320,7 +317,7 @@ def get_pack(before = None, lastcnt = None):
         try: lastcnt = int(lastcnt)
         except: pass
     if type(lastcnt) != int:
-        report('Unknown error.', 1)
+        report('get_pack: Variable `lastcnt` type error. (should be `int`, not `{}`)'.format(type(lastcnt)), 1)
         return False
     headers = coding_base_headers.copy()
     data = {
@@ -516,7 +513,7 @@ def _get_data_not_from_pack(eid, codecnt = None):
         try: codecnt = int(codecnt)
         except: pass
     if type(codecnt) != int:
-        report('Unknown error.', 1)
+        report('_get_data_not_from_pack: Variable `codecnt` type error. (should be `int`, not `{}`)'.format(type(codecnt)), 1)
         return False
     headers = coding_base_headers.copy()
     data = json.dumps({
@@ -563,7 +560,7 @@ def _get_data_from_pack(eid, pid, codecnt = None):
         try: codecnt = int(codecnt)
         except: pass
     if type(codecnt) != int:
-        report('Unknown error.', 1)
+        report('_get_data_from_pack: Variable `codecnt` type error. (should be `int`, not `{}`)'.format(type(codecnt)), 1)
         return False
     headers = coding_base_headers.copy()
     data = json.dumps({
@@ -642,6 +639,14 @@ query codingExercise($eid: ID!, $lang: Language!) {
                 url
                 content
             }
+            codeSnippet(lang: $lang) {
+                url
+                content
+            }
+            viewerStatus {
+                passedCount
+                totalCount
+            }
         }
     }
 }'''})
@@ -666,7 +671,11 @@ query codingExercise($eid: ID!, $lang: Language!) {
         else: toappend['explanation'] = None
         res_dic['sampleData'].append(toappend)
     res_dic['supportedLanguages'] = res_data['supportedLanguages']
-    res_dic['note'] = res_data['note']
+    if res_data['note'] != None: res_dic['note'] = res_data['note']['content']
+    else: res_dic['note'] = None
+    if res_data['codeSnippet'] != None: res_dic['codeSnippet'] = res_data['codeSnippet']['content']
+    else: res_dic['codeSnippet'] = None
+    res_dic['viewerStatus'] = res_data['viewerStatus']
     if feedback == 'dict': return res_dic
     elif feedback == 'json' or feedback == 'str': return json.dumps(res_dic)
     else: return None
@@ -703,6 +712,14 @@ query codingExercise($eid: ID!, $pid: ID, $lang: Language!) {
                     url
                     content
                 }
+                codeSnippet(lang: $lang) {
+                    url
+                    content
+                }
+                viewerStatus {
+                    passedCount
+                    totalCount
+                }
             }
         }
     }
@@ -728,7 +745,11 @@ query codingExercise($eid: ID!, $pid: ID, $lang: Language!) {
         else: toappend['explanation'] = None
         res_dic['sampleData'].append(toappend)
     res_dic['supportedLanguages'] = res_data['supportedLanguages']
-    res_dic['note'] = res_data['note']
+    if res_data['note'] != None: res_dic['note'] = res_data['note']['content']
+    else: res_dic['note'] = None
+    if res_data['codeSnippet'] != None: res_dic['codeSnippet'] = res_data['codeSnippet']['content']
+    else: res_dic['codeSnippet'] = None
+    res_dic['viewerStatus'] = res_data['viewerStatus']
     if feedback == 'dict': return res_dic
     elif feedback == 'json' or feedback == 'str': return json.dumps(res_dic)
     else: return None
