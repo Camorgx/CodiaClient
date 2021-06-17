@@ -69,8 +69,7 @@ def client_login(username, password = None, cookie = None):
             if choice == 'n' or choice == 'N': exit()
             elif choice == 'y' or choice == 'Y':
                 password = change_password()
-                if not password:
-                    report("Empty password.", 3)
+                if not password: report("Empty password.", 3)
             else: exit()
 
     if variables['register']:
@@ -81,8 +80,7 @@ def client_login(username, password = None, cookie = None):
             report("Using the input cookie.")
             coding_base_headers['cookie'] = cookie
             displayName = logined()
-            if displayName:
-                report('Login succeeded.({})'.format(displayName))
+            if displayName: report('Login succeeded.({})'.format(displayName))
             else:
                 report('Invalid cookie input.', 1)
                 if cache_var['cacheOn'] and username in cache_var['logindic'] and cache_var['logindic'][username]['passwd'] == passwd_hash(password):
@@ -112,7 +110,7 @@ def client_login(username, password = None, cookie = None):
         else: report('Invalid cookie input.', 3)
     else: report('No username or cookie specified.', 3)
 
-def logined(reportUnverified:bool = True):
+def logined(reportUnverified: bool = True):
     headers = coding_base_headers.copy()
     data = json.dumps({
         "operationName": None,
@@ -188,7 +186,8 @@ mutation signup($login: String!, $password: String!, $email: String!) {
         return False
     return res_data['data']['signup']
 
-def change_password():
+def change_password(vercode = None, passwd = None, passwordconfirm = None):
+    import getpass
     headers = login_base_headers.copy()
     identifier, res = _acquire_verification()
     if not res:
@@ -196,26 +195,27 @@ def change_password():
         return False
     elif res['status'] == "SUCCESS":
         report("Code sent successfully.")
-    elif res['status'] == "SKIP":
-        pass
+    elif res['status'] == "SKIP": pass
     else:
-        if 'message' in res:
-            report('change_password: Acquiring status error. ({})'.format(res['message']), 3)
-        else:
-            report("change_password: Acquiring status error.", 3)
+        if 'message' in res: report('change_password: Acquiring status error. ({})'.format(res['message']), 3)
+        else: report("change_password: Acquiring status error.", 3)
         return False
-    import getpass
-    try: vercode = getpass.getpass('Enter received code:')
-    except KeyboardInterrupt: exit()
-    if not vercode or len(vercode) != 6:
-        report('Invalid code.', 3)
-        return False
-    else:
-        try: passwd = getpass.getpass('Input your new password:')
+    if not vercode:
+        try: vercode = getpass.getpass('Enter received code:')
         except KeyboardInterrupt: exit()
-        if not passwd or len(passwd) <= 6: report('Invalid password.', 3)
+        if not vercode or len(vercode) != 6:
+            report('Invalid code.', 3)
+            return False
+    else:
+        if not passwd:
+            try: passwd = getpass.getpass('Input your new password:')
+            except KeyboardInterrupt: exit()
+            if not passwd or len(passwd) <= 6:
+                report('Invalid password.', 3)
+                return False
         else:
-            passwordconfirm = getpass.getpass('Confirm your new password:')
+            if not passwordconfirm:
+                passwordconfirm = getpass.getpass('Confirm your new password:')
             data = {
                 "operationName": "verify",
                 "variables": {
@@ -260,9 +260,9 @@ mutation passwordChange($newPassword: String!, $verifyToken: String) {
                 return False
     return passwd
 
-def _acquire_verification():
+def _acquire_verification(identifier = None):
     headers = login_base_headers.copy()
-    identifier = input("Input your email/phone:")
+    if not identifier: identifier = input("Input your email/phone:")
     if len(identifier.split()) == 2:
         identifier = identifier.split()
         report("Code sending skipped.(email/phone:{})".format(identifier[0]))
