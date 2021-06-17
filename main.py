@@ -1,7 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtWidgets import QMessageBox,QLineEdit
-from PyQt5.QtWidgets import QInputDialog
 import loginWindow
 import ResetPassword
 from codiaclient.network import *
