@@ -190,7 +190,7 @@ mutation signup($login: String!, $password: String!, $email: String!) {
         return False
     return res_data['data']['signup']
 
-def change_password(vercode = None, passwd = None, passwordconfirm = None):
+def change_password(identifier = None, vercode = None, passwd = None, passwordconfirm = None):
     import getpass
     headers = login_base_headers.copy()
     if not vercode:
