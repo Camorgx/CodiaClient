@@ -10,7 +10,7 @@ variables = {
     'logindic': {}
 }
 
-def cache_for_login(userdic, passwd, cookie = None, passwd_store_on = False, file = './codiaclient.cache'):
+def cache_for_login(userdic, passwd, cookie = None, passwd_store_on = 0, file = './codiaclient.cache'):
     if not variables['cache_on']:
         report("Invalid reference of function 'cache_username_passwd_cookie'.", 1)
         return False
@@ -24,7 +24,7 @@ def cache_for_login(userdic, passwd, cookie = None, passwd_store_on = False, fil
     if cookie: encrypted_cookie = cookie_encrypt(cookie, passwd)
 
     hashed_passwd = passwd_hash(passwd)
-    if passwd_store_on: stored_passwd = passwd
+    if passwd_store_on == 2: stored_passwd = passwd
     else: stored_passwd = None
     variables['logindic'][username] = variables['logindic'][useremail] = {
         'username': username,
@@ -44,14 +44,14 @@ def cache_for_login(userdic, passwd, cookie = None, passwd_store_on = False, fil
         report('Cache failed.', 1)
         raise
 
-def update_cache_for_login(username, passwd, passwd_store_on, file = './codiaclient.cache'):
+def update_cache_for_login(username, passwd, passwd_store_on = 0, file = './codiaclient.cache'):
     userdic = variables['logindic'][username]
     username = userdic['username']
     useremail = userdic['email']
     encrypted_cookie = userdic['cookie']
 
     hashed_passwd = passwd_hash(passwd)
-    if passwd_store_on: stored_passwd = passwd
+    if passwd_store_on == 2: stored_passwd = passwd
     else: stored_passwd = None
     variables['logindic'][username] = variables['logindic'][useremail] = {
         'username': username,
