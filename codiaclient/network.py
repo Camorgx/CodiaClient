@@ -65,7 +65,8 @@ def client_login(args = None, username = None, password = None, cookie = None):
         password = args.passwd
         cookie = args.cookie
     if username and not cookie and not password:
-        if cache_var['cache_on'] and username in cache_var['logindic'] and cache_var['logindic'][username]['passwd_store_on']:
+        if (cache_var['cache_on'] and variables['passwd_store_on'])\
+        and username in cache_var['logindic'] and cache_var['logindic'][username]['passwd']:
             report("Using cached password.")
             password = cache_var['logindic'][username]['passwd']
         else:
@@ -82,6 +83,7 @@ def client_login(args = None, username = None, password = None, cookie = None):
                 else: exit()
 
     if variables['register']:
+        print("Trying register.")
         register(username, password)
 
     if username and password:
