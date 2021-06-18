@@ -23,14 +23,16 @@ def ArgParser():
     parser.add_argument("--register", help = "register for an account", action = 'store_true')
     parser.add_argument("--origin", help = "encoding in unicode", action = 'store_true')
     parser.add_argument("--allow-error-deg", help = "allow errors degree", type = int, choices = {0, 1, 2, 3}, default = 2)
+    parser.add_argument("--store-password", help = "store your password. 0: Don't store; 1: If stored, use it; 2: Store", type = int, choices = {0, 1, 2}, default = 1)
     parser.add_argument("-q", "--request-string", help = "your request string", metavar = 'REQ')
     return parser
 
 def ArgInit(args):
-    if args.no_cache: cache_var['cacheOn'] = False
-    if args.register: net_var['register'] = True
-    if cache_var['cacheOn']: cache_load()
+    cache_var['cache_on'] = not args.no_cache
+    net_var['register'] = args.register
+    net_var['passwd_store_on'] = args.store_password
     report_var['allow_error_deg'] = args.allow_error_deg
+    if cache_var['cache_on']: cache_load()
     requests_var['l'] = args.lang
     requests_var['e'] = args.eid
     requests_var['p'] = args.pid
