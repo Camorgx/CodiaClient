@@ -215,7 +215,7 @@ mutation signup($login: String!, $password: String!, $email: String!) {
     if 'errors' in res_data:
         report("register: " + res_data['errors'][0]['message'] + '.', 2)
         return False
-    return res_data['data']['signup']
+    return res_data['data']['signup']['user']
 
 def change_password(identifier = None, vercode = None, passwd = None, passwordconfirm = None):
     import getpass
