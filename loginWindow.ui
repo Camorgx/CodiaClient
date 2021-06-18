@@ -2,17 +2,12 @@
 <ui version="4.0">
  <class>loginWindow</class>
  <widget class="QMainWindow" name="loginWindow">
-  <property name="font">
-   <font>
-    <family>Microsoft Yahei</family>
-   </font>
-  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>792</width>
-    <height>466</height>
+    <width>800</width>
+    <height>500</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -23,122 +18,541 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>792</width>
-    <height>466</height>
+    <width>800</width>
+    <height>500</height>
    </size>
+  </property>
+  <property name="font">
+   <font>
+    <family>Microsoft YaHei UI</family>
+    <pointsize>10</pointsize>
+   </font>
   </property>
   <property name="windowTitle">
    <string>欢迎使用Codia——登陆</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLineEdit" name="lineEdit">
-    <property name="font">
-     <font>
-      <family>Consolas</family>
-     </font>
-    </property>
+   <widget class="QFrame" name="loginFrame">
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>130</y>
-      <width>220</width>
-      <height>22</height>
+      <x>40</x>
+      <y>20</y>
+      <width>720</width>
+      <height>400</height>
      </rect>
     </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QPushButton" name="pushButtonGoReset">
+     <property name="geometry">
+      <rect>
+       <x>410</x>
+       <y>240</y>
+       <width>120</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>忘记密码</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="checkBox">
+     <property name="geometry">
+      <rect>
+       <x>450</x>
+       <y>200</y>
+       <width>100</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>记住密码</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>120</y>
+       <width>160</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>用户名/邮箱/手机</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <property name="indent">
+      <number>10</number>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit0Username">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>120</y>
+       <width>240</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Consolas</family>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>160</y>
+       <width>160</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>密码</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="indent">
+      <number>10</number>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit0Password">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>160</y>
+       <width>240</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Consolas</family>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonGoRegister">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>280</y>
+       <width>330</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>没有codia账号？点击这里注册</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonLogin">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>240</y>
+       <width>120</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>登陆</string>
+     </property>
+    </widget>
    </widget>
-   <widget class="QLabel" name="label">
+   <widget class="QFrame" name="registerFrame">
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>130</y>
-      <width>145</width>
-      <height>16</height>
+      <x>40</x>
+      <y>20</y>
+      <width>720</width>
+      <height>400</height>
      </rect>
     </property>
-    <property name="text">
-     <string>用户名/邮箱/手机</string>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
     </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QLineEdit" name="lineEdit1Password">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>160</y>
+       <width>240</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Consolas</family>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonRegister">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>240</y>
+       <width>120</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>注册</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit1Checkpassword">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>200</y>
+       <width>240</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Consolas</family>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>120</y>
+       <width>160</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>用户名</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="indent">
+      <number>10</number>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_4">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>160</y>
+       <width>160</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>密码</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="indent">
+      <number>10</number>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_5">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>80</y>
+       <width>160</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>邮箱</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="indent">
+      <number>10</number>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit1Userphone">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>80</y>
+       <width>240</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Consolas</family>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_6">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>200</y>
+       <width>160</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>确认密码</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="indent">
+      <number>10</number>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit1Username">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>120</y>
+       <width>240</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Consolas</family>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton1Return">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>280</y>
+       <width>330</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>已有codia账号？点击这里登录</string>
+     </property>
+    </widget>
    </widget>
-   <widget class="QLabel" name="label_2">
+   <widget class="QFrame" name="resetFrame">
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>160</y>
-      <width>145</width>
-      <height>16</height>
+      <x>40</x>
+      <y>20</y>
+      <width>720</width>
+      <height>400</height>
      </rect>
     </property>
-    <property name="text">
-     <string>密码</string>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
     </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QPushButton" name="pushButtonReset">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>240</y>
+       <width>120</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>重置密码</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_7">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>80</y>
+       <width>150</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>绑定邮箱/手机</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="indent">
+      <number>10</number>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_8">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>200</y>
+       <width>150</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>确认新密码</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="indent">
+      <number>10</number>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit2CheckNewPassword">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>200</y>
+       <width>240</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Consolas</family>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_9">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>120</y>
+       <width>150</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>验证码</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="indent">
+      <number>10</number>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit2CheckNum">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>120</y>
+       <width>240</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Consolas</family>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit2Account">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>80</y>
+       <width>240</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Consolas</family>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_10">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>160</y>
+       <width>150</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>新密码</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="indent">
+      <number>10</number>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit2NewPassword">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>160</y>
+       <width>240</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Consolas</family>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton2GetCheck">
+     <property name="geometry">
+      <rect>
+       <x>549</x>
+       <y>79</y>
+       <width>112</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>发送验证码</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton2Return">
+     <property name="geometry">
+      <rect>
+       <x>410</x>
+       <y>240</y>
+       <width>120</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>返回</string>
+     </property>
+    </widget>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_2">
-    <property name="font">
-     <font>
-      <family>Consolas</family>
-     </font>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>360</x>
-      <y>160</y>
-      <width>220</width>
-      <height>22</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButtonLogin">
-    <property name="geometry">
-     <rect>
-      <x>230</x>
-      <y>215</y>
-      <width>141</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>登陆</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButtonRegister">
-    <property name="geometry">
-     <rect>
-      <x>230</x>
-      <y>250</y>
-      <width>331</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>没有codia账户？请点击这里注册</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButtonReset">
-    <property name="geometry">
-     <rect>
-      <x>420</x>
-      <y>215</y>
-      <width>141</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>忘记密码</string>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBox">
-    <property name="geometry">
-     <rect>
-      <x>460</x>
-      <y>190</y>
-      <width>86</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>记住密码</string>
-    </property>
-   </widget>
+   <zorder>registerFrame</zorder>
+   <zorder>resetFrame</zorder>
+   <zorder>loginFrame</zorder>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QMenuBar" name="menuBar">
@@ -146,8 +560,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>792</width>
-     <height>24</height>
+     <width>800</width>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
