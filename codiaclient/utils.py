@@ -35,4 +35,3 @@ def cookie_encrypt(cookie, passwd):
 
 def cookie_decrypt(_cookie, passwd):
     return str(AES.new(add_to_16(passwd), AES.MODE_ECB).decrypt(base64.decodebytes(_cookie.encode(encoding = 'utf-8'))), encoding = 'utf-8').replace('\x00', '')
-
