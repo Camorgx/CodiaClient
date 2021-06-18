@@ -44,18 +44,18 @@ def post(url, headers, data, timeout = 5):
     headers['content-length'] = str(len(data))
     if type(data) == str: data = data.encode('utf-8')
     if type(data) != bytes:
-        report('post: Variable `data` type error. (should be `str` or `bytes`, not `{}`)'.format(type(data)), 1)
+        report('post: Variable `data` type error. (should be `str` or `bytes`, not `{}`)'.format(type(data)), 2)
         return False
     import requests
     try: res = requests.post(url = url, headers = headers, data = data, timeout = timeout)
     except requests.exceptions.ConnectTimeout:
-        report('Connect timeout.', 1)
+        report('Connect timeout.', 2)
         return False
     except requests.exceptions.ConnectionError:
-        report('Connection error.', 1)
+        report('Connection error.', 2)
         return False
     except Exception as e:
-        report(e, 1)
+        report(e, 2)
         return False
     else: return res
 
