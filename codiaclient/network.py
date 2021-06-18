@@ -1,9 +1,10 @@
 from .report import report
 from .utils import passwd_hash, cookie_encrypt, cookie_decrypt
-from .cachectrl import variables as cache_var, cache_for_login as cache
+from .cachectrl import variables as cache_var, cache_for_login as cache, update_cache_for_login as update_cache
 import json
 variables = {
     'register': False,
+    'passwd_store_on': False,
     'me': {
         'username': None,
         'nickname': None,
@@ -64,17 +65,21 @@ def client_login(args = None, username = None, password = None, cookie = None):
         password = args.passwd
         cookie = args.cookie
     if username and not cookie and not password:
-        import getpass
-        try: password = getpass.getpass('Enter password:')
-        except KeyboardInterrupt: exit()
-        if not password:
-            report('Empty password. Do you want to change your password? [y/N]', end = '')
-            choice = input()
-            if choice == 'n' or choice == 'N': exit()
-            elif choice == 'y' or choice == 'Y':
-                password = change_password()
-                if not password: report("Empty password.", 3)
-            else: exit()
+        if cache_var['cache_on'] and username in cache_var['logindic'] and cache_var['logindic'][username]['passwd_store_on']:
+            report("Using cached password.")
+            password = cache_var['logindic'][username]['passwd']
+        else:
+            import getpass
+            try: password = getpass.getpass('Enter password:')
+            except KeyboardInterrupt: exit()
+            if not password:
+                report('Empty password. Do you want to change your password? [y/N]', end = '')
+                choice = input()
+                if choice == 'n' or choice == 'N': exit()
+                elif choice == 'y' or choice == 'Y':
+                    password = change_password()
+                    if not password: report("Empty password.", 3)
+                else: exit()
 
     if variables['register']:
         register(username, password)
@@ -83,25 +88,38 @@ def client_login(args = None, username = None, password = None, cookie = None):
         if cookie:
             report("Using the input cookie.")
             coding_base_headers['cookie'] = cookie
-            displayName = logined()
-            if displayName: report('Login succeeded.({})'.format(displayName))
+            status, displayName = logined()
+            if displayName:
+                report('Login succeeded.({})'.format(displayName))
+                if status == "UNMATCHED":
+                    update_cache(username = username, passwd = password, passwd_store_on = variables['passwd_store_on'])
             else:
                 report('Invalid cookie input.', 1)
-                if cache_var['cacheOn'] and username in cache_var['logindic'] and cache_var['logindic'][username]['passwd'] == passwd_hash(password):
-                    coding_base_headers['cookie'] = cookie_decrypt(cache_var['logindic'][username]['cookie'], password)
-                    report("Using cached cookie.")
-                    displayName = logined()
-                    if displayName: report('Login succeeded.({})'.format(displayName))
+                if cache_var['cache_on'] and username in cache_var['logindic'] and cache_var['logindic'][username]['hashed_passwd'] == passwd_hash(password):
+                    displayName = None
+                    if cache_var['logindic'][username]['cookie']:
+                        coding_base_headers['cookie'] = cookie_decrypt(cache_var['logindic'][username]['cookie'], password)
+                        report("Using cached cookie.")
+                        status, displayName = logined()
+                    if displayName:
+                        report('Login succeeded.({})'.format(displayName))
+                        if status == "UNMATCHED":
+                            update_cache(username = username, passwd = password, passwd_store_on = variables['passwd_store_on'])
                     else:
                         report('Invalid cached cookie.', 1)
                         login(username, password)
                 else: login(username, password)
         else: # no cookie input
-            if cache_var['cacheOn'] and username in cache_var['logindic'] and cache_var['logindic'][username]['passwd'] == passwd_hash(password):
-                coding_base_headers['cookie'] = cookie_decrypt(cache_var['logindic'][username]['cookie'], password)
-                report("Using cached cookie.")
-                displayName = logined()
-                if displayName: report('Login succeeded.({})'.format(displayName))
+            if cache_var['cache_on'] and username in cache_var['logindic'] and cache_var['logindic'][username]['hashed_passwd'] == passwd_hash(password):
+                displayName = None
+                if cache_var['logindic'][username]['cookie']:
+                    coding_base_headers['cookie'] = cookie_decrypt(cache_var['logindic'][username]['cookie'], password)
+                    report("Using cached cookie.")
+                    status, displayName = logined()
+                if displayName:
+                    report('Login succeeded.({})'.format(displayName))
+                    if status == "UNMATCHED":
+                        update_cache(username = username, passwd = password, passwd_store_on = variables['passwd_store_on'])
                 else:
                     report('Invalid cached cookie.', 1)
                     login(username, password)
@@ -109,8 +127,11 @@ def client_login(args = None, username = None, password = None, cookie = None):
     elif cookie:
         report("Using the input cookie.")
         coding_base_headers['cookie'] = cookie
-        displayName = logined()
-        if displayName: report('Login succeeded.({})'.format(displayName))
+        status, displayName = logined()
+        if displayName:
+            report('Login succeeded.({})'.format(displayName))
+            if status == "UNMATCHED":
+                update_cache(username = username, passwd = password, passwd_store_on = variables['passwd_store_on'])
         else: report('Invalid cookie input.', 3)
     else: report('No username or cookie specified.', 3)
 
@@ -132,9 +153,9 @@ def logined(reportUnverified: bool = True):
 }''',
     })
     res = post(url = url, headers = headers, data = data)
-    if not res: return False
+    if not res: return "SUCCESS", None
     res_data = json.loads(res.text)
-    if 'errors' in res_data: return False
+    if 'errors' in res_data: return "SUCCESS", None
     else:
         if reportUnverified and not res_data['data']['me']['verified']:
             report("The user has not verified.", 1)
@@ -144,7 +165,11 @@ def logined(reportUnverified: bool = True):
         variables['me']['nickname'] = res_data['data']['me']['displayName']
         variables['me']['email'] = res_data['data']['me']['defaultEmail']
         variables['me']['verified'] = res_data['data']['me']['verified']
-        return res_data['data']['me']['displayName']
+        username = variables['me']['username']
+        if username in cache_var['logindic']:
+            if bool(cache_var['logindic'][username]['passwd_store_on']) != bool(variables['passwd_store_on']):
+                return "UNMATCHED", res_data['data']['me']['displayName']
+        return "SUCCESS", res_data['data']['me']['displayName']
 
 def login(username, passwd):
     report('Try login.')
@@ -466,7 +491,7 @@ mutation login($username: String!, $password: String!) {
         except:
             report('Unknown login error.', 1)
             return False
-    if cache_var['cacheOn']: cache(res_data['data']['login']['user'], passwd, coding_base_headers['cookie'])
+    if cache_var['cache_on']: cache(userdic = res_data['data']['login']['user'], passwd = passwd, cookie = coding_base_headers['cookie'], passwd_store_on = variables['passwd_store_on'])
     return res_data['data']['login']['user']
 
 def _submit_from_pack(eid, pid, lang, solutioncode):

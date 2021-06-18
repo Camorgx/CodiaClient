@@ -6,22 +6,60 @@ from base64 import b64encode, b64decode
 import json
 
 variables = {
-    'cacheOn': True,
+    'cache_on': True,
     'logindic': {}
 }
 
-def cache_for_login(userdic, passwd, cookie, file = './codiaclient.cache'):
-    if not variables['cacheOn']:
+def cache_for_login(userdic, passwd, cookie = None, passwd_store_on = False, file = './codiaclient.cache'):
+    if not variables['cache_on']:
         report("Invalid reference of function 'cache_username_passwd_cookie'.", 1)
         return False
     report("Caching cookie.")
-    username = userdic['login']
-    useremail = userdic['defaultEmail']
+    username = None
+    useremail = None
+    encrypted_cookie = None
+    if 'login' in userdic: username = userdic['login']
+    if 'defaultEmail' in userdic: useremail = userdic['defaultEmail']
+    if 'cookie' in userdic and not cookie: cookie = userdic['cookie']
+    if cookie: encrypted_cookie = cookie_encrypt(cookie, passwd)
+
+    hashed_passwd = passwd_hash(passwd)
+    if passwd_store_on: stored_passwd = passwd
+    else: stored_passwd = None
     variables['logindic'][username] = variables['logindic'][useremail] = {
         'username': username,
         'email': useremail,
-        'passwd': passwd_hash(passwd),
-        'cookie': cookie_encrypt(cookie, passwd)
+        'passwd': stored_passwd,
+        'hashed_passwd': hashed_passwd,
+        'cookie': encrypted_cookie,
+        'passwd_store_on': passwd_store_on
+    }
+    try:
+        dic_str = json.dumps({'logindic': variables['logindic']})
+        dic_b64 = b64encode(dic_str.encode('utf-8'))
+        dic_ziped = zlib.compress(dic_b64)
+        with open(file, 'wb') as f: f.write(dic_ziped)
+        report("Cache complete.")
+    except:
+        report('Cache failed.', 1)
+        raise
+
+def update_cache_for_login(username, passwd, passwd_store_on, file = './codiaclient.cache'):
+    userdic = variables['logindic'][username]
+    username = userdic['username']
+    useremail = userdic['email']
+    encrypted_cookie = userdic['cookie']
+
+    hashed_passwd = passwd_hash(passwd)
+    if passwd_store_on: stored_passwd = passwd
+    else: stored_passwd = None
+    variables['logindic'][username] = variables['logindic'][useremail] = {
+        'username': username,
+        'email': useremail,
+        'passwd': stored_passwd,
+        'hashed_passwd': hashed_passwd,
+        'cookie': encrypted_cookie,
+        'passwd_store_on': passwd_store_on
     }
     try:
         dic_str = json.dumps({'logindic': variables['logindic']})
@@ -34,7 +72,7 @@ def cache_for_login(userdic, passwd, cookie, file = './codiaclient.cache'):
         raise
 
 def cache_load(file = './codiaclient.cache'):
-    if not variables['cacheOn']:
+    if not variables['cache_on']:
         report("Invalid reference of function 'cache_load'.", 1)
         return False
     try:
