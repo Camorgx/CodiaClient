@@ -58,7 +58,11 @@ def post(url, headers, data, timeout = 5):
         return False
     else: return res
 
-def client_login(username, password = None, cookie = None):
+def client_login(args = None, username = None, password = None, cookie = None):
+    if args:
+        username = args.username
+        password = args.passwd
+        cookie = args.cookie
     if username and not cookie and not password:
         import getpass
         try: password = getpass.getpass('Enter password:')
@@ -194,8 +198,7 @@ def change_password(vercode = None, passwd = None, passwordconfirm = None):
         if not res:
             report("Verification acquiring error.", 3)
             return False
-        elif res['status'] == "SUCCESS":
-            report("Code sent successfully.")
+        elif res['status'] == "SUCCESS": report("Code sent successfully.")
         elif res['status'] == "SKIP": pass
         else:
             if 'message' in res: report('change_password: Acquiring status error. ({})'.format(res['message']), 3)
@@ -203,16 +206,16 @@ def change_password(vercode = None, passwd = None, passwordconfirm = None):
             return False
         try: vercode = getpass.getpass('Enter received code:')
         except KeyboardInterrupt: exit()
-        if not vercode or len(vercode) != 6:
-            report('Invalid code.', 3)
-            return False
+    if not vercode or len(vercode) != 6:
+        report('Invalid code.', 3)
+        return False
     else:
         if not passwd:
             try: passwd = getpass.getpass('Input your new password:')
             except KeyboardInterrupt: exit()
-            if not passwd or len(passwd) <= 6:
-                report('Invalid password.', 3)
-                return False
+        if not passwd or len(passwd) < 6:
+            report('Invalid password.', 3)
+            return False
         else:
             if not passwordconfirm:
                 passwordconfirm = getpass.getpass('Confirm your new password:')
