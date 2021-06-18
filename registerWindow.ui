@@ -22,14 +22,14 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>115</x>
-     <y>81</y>
-     <width>146</width>
+     <x>140</x>
+     <y>80</y>
+     <width>111</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>请输入你的邮箱或手机：</string>
+    <string>请输入你的邮箱：</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">

@@ -51,7 +51,13 @@ def BeginReset():
 def GetCheck():
     if not ResetUi.alineEdit_Account.text():
         QMessageBox.information(None, '消息', '请输入邮箱或手机号。', QMessageBox.Ok)
-    ret = _acquire_verification(ResetUi.alineEdit_Account.text())[1]
+    try:
+        ret = _acquire_verification(ResetUi.alineEdit_Account.text())[1]
+    except Error as e:
+        if 'Connect timeout' in str(e):
+            QMessageBox.critical(None, '错误', '网络连接超时。', QMessageBox.Ok)
+        elif 'Connection error' in str(e):
+            QMessageBox.critical(None, '错误', '网络连接错误。', QMessageBox.Ok)
     if not ret:
         QMessageBox.critical(None, '错误', '验证码获取失败,请重新获取。', QMessageBox.Ok)
     elif ret['status'] == 'SUCCESS':
@@ -63,6 +69,7 @@ def GetCheck():
 def Reset():
     if not ResetUi.alineEdit_Account.text():
         QMessageBox.information(None, '消息', '请输入邮箱或手机号。', QMessageBox.Ok)
+        return
     if not ResetUi.lineEdit_CheckNum.text():
         QMessageBox.information(None, '消息', '请输入验证码。', QMessageBox.Ok)
         return
@@ -77,6 +84,10 @@ def Reset():
         change_password(identifier=ResetUi.alineEdit_Account.text(), vercode=ResetUi.lineEdit_CheckNum.text(),
                         passwd=ResetUi.lineEdit_NewPassword.text(), passwordconfirm=ResetUi.lineEdit_Check_NewPassword.text())
     except Exception as e:
+        if 'Connect timeout' in str(e):
+            QMessageBox.critical(None, '错误', '网络连接超时。', QMessageBox.Ok)
+        elif 'Connection error' in str(e):
+            QMessageBox.critical(None, '错误', '网络连接错误。', QMessageBox.Ok)
         if 'invalid credential' in str(e):
             QMessageBox.critical(None, '错误', '验证码不正确。', QMessageBox.Ok)
             return
@@ -120,7 +131,41 @@ def BeginRegister():
     RegisterWindow.show()
 
 def Register():
-    pass
+    if not RegisterUi.lineEdit_userphone.text():
+        QMessageBox.information(None, '消息', '请输入邮箱。', QMessageBox.Ok)
+        return
+    if not RegisterUi.lineEdit_username.text():
+        QMessageBox.information(None, '消息', '请输入用户名。', QMessageBox.Ok)
+        return
+    if not RegisterUi.lineEdit_password.text():
+        QMessageBox.information(None, '消息', '请输入密码。', QMessageBox.Ok)
+        return
+    if ((not RegisterUi.lineEdit_checkpassword.text()) or (not RegisterUi.lineEdit_password.text())
+            or (RegisterUi.lineEdit_password.text() != RegisterUi.lineEdit_checkpassword.text())):
+        QMessageBox.information(None, '消息', '两次输入的密码不相同,请重新输入。', QMessageBox.Ok)
+        return
+    try:
+        ret = register(username=RegisterUi.lineEdit_username.text(),passwd=RegisterUi.lineEdit_password.text(),
+                 email=RegisterUi.lineEdit_userphone.text())
+    except Error as e:
+        if 'Connect timeout' in str(e):
+            QMessageBox.critical(None, '注册失败', '网络连接超时。', QMessageBox.Ok)
+        elif 'Connection error' in str(e):
+            QMessageBox.critical(None, '注册失败', '网络连接错误。', QMessageBox.Ok)
+        elif 'email has been used' in str(e):
+            QMessageBox.critical(None, '注册失败', '该邮箱已被使用。', QMessageBox.Ok)
+        elif 'invalid password' in str(e):
+            QMessageBox.critical(None, '注册失败', '密码不合法。', QMessageBox.Ok)
+        elif 'user exists' in str(e):
+            QMessageBox.critical(None, '注册失败', '用户名已存在。', QMessageBox.Ok)
+        else:
+            QMessageBox.critical(None, '未知错误', str(e), QMessageBox.Ok)
+    else:
+        if not ret:
+            QMessageBox.critical(None, '注册失败', '注册失败，请重试。', QMessageBox.Ok)
+        else:
+            QMessageBox.information(None, '注册成功', '成功注册了用户' + ret['login'], QMessageBox.Ok)
+            RegisterWindow.close()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

@@ -17,7 +17,7 @@ class Ui_registerWindow(object):
         registerWindow.resize(721, 334)
         registerWindow.setMaximumSize(QtCore.QSize(721, 334))
         self.label = QtWidgets.QLabel(registerWindow)
-        self.label.setGeometry(QtCore.QRect(115, 81, 146, 16))
+        self.label.setGeometry(QtCore.QRect(140, 80, 111, 16))
         self.label.setObjectName("label")
         self.label_2 = QtWidgets.QLabel(registerWindow)
         self.label_2.setGeometry(QtCore.QRect(130, 110, 120, 16))
@@ -50,7 +50,7 @@ class Ui_registerWindow(object):
     def retranslateUi(self, registerWindow):
         _translate = QtCore.QCoreApplication.translate
         registerWindow.setWindowTitle(_translate("registerWindow", "注册"))
-        self.label.setText(_translate("registerWindow", "请输入你的邮箱或手机："))
+        self.label.setText(_translate("registerWindow", "请输入你的邮箱："))
         self.label_2.setText(_translate("registerWindow", "请输入你的用户名："))
         self.label_3.setText(_translate("registerWindow", "请输入密码："))
         self.label_4.setText(_translate("registerWindow", "请确认密码："))
