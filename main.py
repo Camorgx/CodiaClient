@@ -32,11 +32,42 @@ def BeginReset():
 def GetCheck():
     if not ResetUi.alineEdit_Account.text():
         QMessageBox.information(None, '消息', '请输入邮箱或手机号。', QMessageBox.Ok)
+    ret = _acquire_verification(ResetUi.alineEdit_Account.text())[1]
+    if not ret:
+        QMessageBox.critical(None, '错误', '验证码获取失败,请重新获取。', QMessageBox.Ok)
+    elif ret['status'] == 'SUCCESS':
+        QMessageBox.information(None,'成功','验证码获取成功',QMessageBox.Ok)
+    else:
+        QMessageBox.critical(None, '错误', '验证码获取失败,请重新获取。', QMessageBox.Ok)
+#信息获取完成，开始重置密码
 def Reset():
-    pass
+    if not ResetUi.lineEdit_CheckNum.text():
+        QMessageBox.information(None, '消息', '请输入验证码。', QMessageBox.Ok)
+        return
+    if not ResetUi.lineEdit_NewPassword.text():
+        QMessageBox.information(None, '消息', '请输入新密码。', QMessageBox.Ok)
+        return
+    if (not ResetUi.lineEdit_Check_NewPassword.text()) or (ResetUi.lineEdit_NewPassword.text() != ResetUi.lineEdit_Check_NewPassword.text()):
+        QMessageBox.information(None, '消息', '两次输入的密码不相同,请重新输入。', QMessageBox.Ok)
+        return
+    try:
+        change_password(ResetUi.lineEdit_CheckNum.text(),ResetUi.lineEdit_NewPassword.text(),ResetUi.lineEdit_Check_NewPassword.text())
+    except Exception as e:
+        if 'invalid credential' in str(e):
+            QMessageBox.critical(None, '错误', '验证码不正确。', QMessageBox.Ok)
+            return
+        if 'auth not found' in str(e):
+            QMessageBox.critical(None, '错误', '该账户未注册。', QMessageBox.Ok)
+        if 'Invalid password' in str(e):
+            QMessageBox.critical(None, '错误', '新密码格式不正确。', QMessageBox.Ok)
+    else:
+        QMessageBox.information(None, '成功', '密码重置成功', QMessageBox.Ok)
+#初始化重置密码窗体
 def ResetWindowInit():
     ResetUi.pushButtonGetCheck.clicked.connect(GetCheck)
     ResetUi.pushButton_OK.clicked.connect(Reset)
+    ResetUi.lineEdit_NewPassword.setEchoMode(QLineEdit.Password)
+    ResetUi.lineEdit_Check_NewPassword.setEchoMode(QLineEdit.Password)
     if not LoginUi.lineEdit.text():
         QMessageBox.information(None, '消息', '请输入邮箱或手机号。', QMessageBox.Ok)
         return False
