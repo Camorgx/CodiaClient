@@ -189,18 +189,18 @@ mutation signup($login: String!, $password: String!, $email: String!) {
 def change_password(vercode = None, passwd = None, passwordconfirm = None):
     import getpass
     headers = login_base_headers.copy()
-    identifier, res = _acquire_verification()
-    if not res:
-        report("Verification acquiring error.", 3)
-        return False
-    elif res['status'] == "SUCCESS":
-        report("Code sent successfully.")
-    elif res['status'] == "SKIP": pass
-    else:
-        if 'message' in res: report('change_password: Acquiring status error. ({})'.format(res['message']), 3)
-        else: report("change_password: Acquiring status error.", 3)
-        return False
     if not vercode:
+        identifier, res = _acquire_verification()
+        if not res:
+            report("Verification acquiring error.", 3)
+            return False
+        elif res['status'] == "SUCCESS":
+            report("Code sent successfully.")
+        elif res['status'] == "SKIP": pass
+        else:
+            if 'message' in res: report('change_password: Acquiring status error. ({})'.format(res['message']), 3)
+            else: report("change_password: Acquiring status error.", 3)
+            return False
         try: vercode = getpass.getpass('Enter received code:')
         except KeyboardInterrupt: exit()
         if not vercode or len(vercode) != 6:
