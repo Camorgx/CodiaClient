@@ -1,4 +1,6 @@
 import sys
+import json
+from base64 import b64encode,b64decode
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtWidgets import QMessageBox, QLineEdit
 import loginWindow
@@ -9,6 +11,7 @@ from codiaclient.network import _acquire_verification
 from codiaclient.report import Error
 from codiaclient import client_login
 from codiaclient import report_var
+from codiaclient.utils import cookie_decrypt,cookie_encrypt
 
 #开始进行登录操作
 def BeginLogin():
@@ -38,7 +41,27 @@ def BeginLogin():
             return False
         else:
             loginusernickname = logined()[1]
+            try:
+                with open('config.sav', 'wb') as configfile:
+                    if LoginUi.checkBox.isChecked():
+                        config = json.dumps({
+                            'password_store_on': True,
+                            'username': LoginUi.lineEdit.text(),
+                            'password': cookie_encrypt(LoginUi.lineEdit_2.text(), 'hdt20040127')
+                        }).encode()
+                        configfile.write(b64encode(config))
+                    else:
+                        config = json.dumps({
+                            'password_store_on': False,
+                            'username': LoginUi.lineEdit.text(),
+                            'password': None
+                        }).encode()
+                        configfile.write(b64encode(config))
+            except Exception as e:
+                QMessageBox.critical(None, '未知错误', str(e), QMessageBox.Ok)
             QMessageBox.information(None, '登录成功', '已登录用户: ' + loginusernickname, QMessageBox.Ok)
+            if not variables['me']['verified']:
+                QMessageBox.information(None, '消息', '当前账号功能受限，请尽快完成联系方式验证。', QMessageBox.Ok)
             return True
 
 #初始化重置密码窗口并打开
@@ -58,12 +81,13 @@ def GetCheck():
             QMessageBox.critical(None, '错误', '网络连接超时。', QMessageBox.Ok)
         elif 'Connection error' in str(e):
             QMessageBox.critical(None, '错误', '网络连接错误。', QMessageBox.Ok)
-    if not ret:
-        QMessageBox.critical(None, '错误', '验证码获取失败,请重新获取。', QMessageBox.Ok)
-    elif ret['status'] == 'SUCCESS':
-        QMessageBox.information(None, '成功', '验证码获取成功', QMessageBox.Ok)
     else:
-        QMessageBox.critical(None, '错误', '验证码获取失败,请重新获取。', QMessageBox.Ok)
+        if not ret:
+            QMessageBox.critical(None, '错误', '验证码获取失败,请重新获取。', QMessageBox.Ok)
+        elif ret['status'] == 'SUCCESS':
+            QMessageBox.information(None, '成功', '验证码获取成功', QMessageBox.Ok)
+        else:
+            QMessageBox.critical(None, '错误', '验证码获取失败,请重新获取。', QMessageBox.Ok)
 
 # 信息获取完成，开始重置密码
 def Reset():
@@ -120,16 +144,20 @@ def BeginTask():
     LoginUi.pushButtonLogin.clicked.connect(BeginLogin)
     LoginUi.lineEdit_2.setEchoMode(QLineEdit.Password)
     LoginUi.pushButtonReset.clicked.connect(BeginReset)
-    report_var['allow_error_deg'] = 0
+    report_var['allow_error_deg'] = 1
     LoginUi.pushButtonRegister.clicked.connect(BeginRegister)
 
+#开始进行注册
 def BeginRegister():
     RegisterUi.setupUi(RegisterWindow)
     if LoginUi.lineEdit.text():
-        RegisterUi.lineEdit_userphone .setText(LoginUi.lineEdit.text())
+        RegisterUi.lineEdit_username.setText(LoginUi.lineEdit.text())
+    RegisterUi.lineEdit_password.setEchoMode(QLineEdit.Password)
+    RegisterUi.lineEdit_checkpassword.setEchoMode(QLineEdit.Password)
     RegisterUi.pushButton.clicked.connect(Register)
     RegisterWindow.show()
 
+#注册函数
 def Register():
     if not RegisterUi.lineEdit_userphone.text():
         QMessageBox.information(None, '消息', '请输入邮箱。', QMessageBox.Ok)
@@ -172,6 +200,20 @@ if __name__ == '__main__':
     LoginWindow = QMainWindow()
     LoginUi = loginWindow.Ui_loginWindow()
     LoginUi.setupUi(LoginWindow)
+    try:
+        with open('config.sav', 'rb') as configfile:
+            config = configfile.read()
+        config = json.loads(b64decode(config).decode())
+        if config['password_store_on']:
+            LoginUi.lineEdit.setText(config['username'])
+            LoginUi.lineEdit_2.setText(cookie_decrypt(config['password'], 'hdt20040127'))
+            LoginUi.checkBox.setChecked(True)
+        else:
+            LoginUi.lineEdit.setText(config['username'])
+    except FileNotFoundError:
+        print('Config file not found')
+    except Exception:
+        QMessageBox.critical(None, '错误', '缓存文件损坏', QMessageBox.Ok)
     ResetWindow = QMainWindow()
     ResetUi = ResetPassword.Ui_ResetPassword()
     RegisterWindow = QMainWindow()
