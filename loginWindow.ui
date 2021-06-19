@@ -61,7 +61,7 @@
      </size>
     </property>
     <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
+     <enum>QFrame::NoFrame</enum>
     </property>
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
@@ -202,10 +202,13 @@
      </rect>
     </property>
     <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
+     <enum>QFrame::NoFrame</enum>
     </property>
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
+    </property>
+    <property name="lineWidth">
+     <number>0</number>
     </property>
     <widget class="QLineEdit" name="lineEdit1Password">
      <property name="geometry">
@@ -363,14 +366,14 @@
     <widget class="QPushButton" name="pushButton1Return">
      <property name="geometry">
       <rect>
-       <x>160</x>
-       <y>280</y>
-       <width>330</width>
+       <x>370</x>
+       <y>240</y>
+       <width>120</width>
        <height>32</height>
       </rect>
      </property>
      <property name="text">
-      <string>已有codia账号？点击这里登录</string>
+      <string>返回</string>
      </property>
     </widget>
    </widget>
@@ -384,7 +387,7 @@
      </rect>
     </property>
     <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
+     <enum>QFrame::NoFrame</enum>
     </property>
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
@@ -569,9 +572,9 @@
      </property>
     </widget>
    </widget>
-   <zorder>registerFrame</zorder>
    <zorder>resetFrame</zorder>
    <zorder>loginFrame</zorder>
+   <zorder>registerFrame</zorder>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QMenuBar" name="menuBar">
@@ -580,7 +583,7 @@
      <x>0</x>
      <y>0</y>
      <width>640</width>
-     <height>29</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">

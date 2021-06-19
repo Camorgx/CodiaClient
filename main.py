@@ -1,5 +1,4 @@
 import sys
-import json
 from base64 import b64encode,b64decode
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtWidgets import QMessageBox, QLineEdit
@@ -165,7 +164,7 @@ def Reset():
     try:
         change_password(identifier=LoginUi.lineEdit2Account.text(), vercode=LoginUi.lineEdit2CheckNum.text(),
                         passwd=LoginUi.lineEdit2NewPassword.text(), passwordconfirm=LoginUi.lineEdit2CheckNewPassword.text())
-    except Exception as e:
+    except codiaError as e:
         errorTranslate = error_translate(e)
         if errorTranslate:
             QMessageBox.critical(None, '错误', errorTranslate, QMessageBox.Ok)
