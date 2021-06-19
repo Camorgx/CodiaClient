@@ -19,3 +19,4 @@ def cache_load(file = './codiaclient.cache'):
         pass
 cache_load()
 print(json.dumps(variables, indent = 2))
+input('Press any key to continue...')
