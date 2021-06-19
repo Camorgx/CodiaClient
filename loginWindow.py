@@ -199,7 +199,7 @@ class Ui_loginWindow(object):
         self.menuBar.setGeometry(QtCore.QRect(0, 0, 640, 29))
         self.menuBar.setObjectName("menuBar")
         self.menu = QtWidgets.QMenu(self.menuBar)
-        self.menu.setGeometry(QtCore.QRect(0, 0, 150, 90))
+        self.menu.setGeometry(QtCore.QRect(270, 156, 147, 87))
         self.menu.setObjectName("menu")
         loginWindow.setMenuBar(self.menuBar)
         self.actions = QtWidgets.QAction(loginWindow)
@@ -218,7 +218,7 @@ class Ui_loginWindow(object):
 
     def retranslateUi(self, loginWindow):
         _translate = QtCore.QCoreApplication.translate
-        loginWindow.setWindowTitle(_translate("loginWindow", "欢迎使用Codia——登陆"))
+        loginWindow.setWindowTitle(_translate("loginWindow", "欢迎使用Codia——登录"))
         self.pushButtonGoReset.setText(_translate("loginWindow", "忘记密码"))
         self.checkBox.setText(_translate("loginWindow", "记住密码"))
         self.label.setText(_translate("loginWindow", "用户名/邮箱/手机"))

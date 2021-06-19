@@ -29,7 +29,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>欢迎使用Codia——登陆</string>
+   <string>欢迎使用Codia——登录</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -585,10 +585,10 @@
    <widget class="QMenu" name="menu">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>150</width>
-      <height>90</height>
+      <x>270</x>
+      <y>156</y>
+      <width>147</width>
+      <height>87</height>
      </rect>
     </property>
     <property name="title">
