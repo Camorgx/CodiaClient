@@ -94,6 +94,7 @@ def ShowReset():
 #初始化任务，为登陆窗口信号绑定槽函数
 def TaskInit():
     report_var['allow_error_deg'] = 1
+
     LoginUi.pushButtonLogin.clicked.connect(BeginLogin)
     LoginUi.lineEdit0Password.setEchoMode(QLineEdit.Password)
     LoginUi.pushButtonGoReset.clicked.connect(ShowReset)
@@ -185,11 +186,8 @@ def ReturnHomeFromReset():
     LoginUi.loginFrame.show()
     LoginUi.resetFrame.hide()
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    LoginWindow = QMainWindow()
-    LoginUi = loginWindow.Ui_loginWindow()
-    LoginUi.setupUi(LoginWindow)
+#从缓存中读取`记住密码`相关配置
+def PasswordStoreRead():
     try:
         with open('config.sav', 'rb') as configfile:
             config = configfile.read()
@@ -204,6 +202,13 @@ if __name__ == '__main__':
         print('Config file not found')
     except:
         QMessageBox.critical(None, '错误', '缓存文件损坏', QMessageBox.Ok)
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    LoginWindow = QMainWindow()
+    LoginUi = loginWindow.Ui_loginWindow()
+    LoginUi.setupUi(LoginWindow)
+    PasswordStoreRead()
     TaskInit()
     LoginWindow.show()
     sys.exit(app.exec_())
