@@ -169,7 +169,7 @@ def logined(reportUnverified: bool = True):
         variables['me']['verified'] = res_data['data']['me']['verified']
         username = variables['me']['username']
         if username in cache_var['logindic']:
-            if bool(cache_var['logindic'][username]['passwd_store_on']) != bool(variables['passwd_store_on']):
+            if cache_var['logindic'][username]['passwd_store_on'] < variables['passwd_store_on'] or bool(cache_var['logindic'][username]['passwd_store_on']) != bool(variables['passwd_store_on']):
                 return "UNMATCHED", res_data['data']['me']['displayName']
         return "SUCCESS", res_data['data']['me']['displayName']
 
@@ -377,7 +377,8 @@ query publicExercisePacks($lastcnt: Int!, $before: String) {
     data = json.dumps(data)
     res = post(url = url, headers = headers, data = data)
     if not res: return False
-    return json.loads(res.text)['data']['publicExercisePacks']['nodes']
+    try: return json.loads(res.text)['data']['publicExercisePacks']['nodes']
+    except: return False
 
 def show_pack(pid):
     headers = coding_base_headers.copy()
@@ -457,7 +458,8 @@ mutation startSession($pid: ID!, $code: String) {
 }'''})
     res = post(url = url, headers = headers, data = data)
     if not res: return False
-    return json.loads(res.text)['data']['startSession']
+    try: return json.loads(res.text)['data']['startSession']
+    except: return False
 
 def _login(username, passwd):
     headers = login_base_headers.copy()
@@ -554,31 +556,31 @@ def _get_data_not_from_pack(eid, codecnt = None):
         },
         "query": '''
 query codingExercise($eid: ID!, $codecnt: Int!) {
-    node(id: $eid) {
-        ... on CodingExercise {
-            viewerStatus {
-                exerciseStatuses(last: $codecnt) {
-                    nodes {
-                        ... on CodingExerciseStatus {
-                            id
-                            scoreRate
-                            submission {
-                                id
-                                reports {
-                                    key
-                                    value
-                                }
-                            }
-                            solution {
-                                lang 
-                                asset { content }
-                            } 
-                        }
-                    }
+  node(id: $eid) {
+    ... on CodingExercise {
+      viewerStatus {
+        exerciseStatuses(last: $codecnt) {
+          nodes {
+            ... on CodingExerciseStatus {
+              id
+              scoreRate
+              submission {
+                id
+                reports {
+                  key
+                  value
                 }
+              }
+              solution {
+                lang
+                asset { content }
+              }
             }
+          }
         }
+      }
     }
+  }
 }'''})
     res = post(url = url, headers = headers, data = data)
     if not res: return False
@@ -602,39 +604,39 @@ def _get_data_from_pack(eid, pid, codecnt = None):
         },
         "query": '''
 query codingExercise($eid: ID!, $pid: ID, $codecnt: Int!) {
-    node(id: $pid) {
-        ... on ExercisePack {
-            id
-            codingExercise(id: $eid) {
+  node(id: $pid) {
+    ... on ExercisePack {
+      id
+      codingExercise(id: $eid) {
+        id
+        title
+        tags
+        viewerStatus {
+          passedCount
+          totalCount
+          exerciseStatuses(last: $codecnt) {
+            nodes {
+              ... on CodingExerciseStatus {
                 id
-                title
-                tags
-                viewerStatus {
-                    passedCount
-                    totalCount
-                    exerciseStatuses(last: $codecnt) {
-                        nodes {
-                            ... on CodingExerciseStatus {
-                                id
-                                scoreRate
-                                submission {
-                                    id
-                                    reports {
-                                        key
-                                        value
-                                    }
-                                }
-                                solution {
-                                    lang 
-                                    asset { content }
-                                }
-                            }
-                        }
-                    }
+                scoreRate
+                submission {
+                  id
+                  reports {
+                    key
+                    value
+                  }
                 }
+                solution {
+                  lang
+                  asset { content }
+                }
+              }
             }
+          }
         }
+      }
     }
+  }
 }'''})
     res = post(url = url, headers = headers, data = data)
     if not res: return False
