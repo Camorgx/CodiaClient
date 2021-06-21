@@ -1,16 +1,21 @@
 import sys
-from base64 import b64encode,b64decode
+from base64 import b64encode, b64decode
+
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtWidgets import QMessageBox, QLineEdit
+
+import MainFunctions
 import loginWindow
+import functionWindow
+from codiaclient import client_login
+from codiaclient import report_var
 from codiaclient.network import *
 from codiaclient.network import _acquire_verification
 from codiaclient.report import Error as codiaError, error_translate
-from codiaclient import client_login
-from codiaclient import report_var
 from codiaclient.utils import cookie_decrypt, cookie_encrypt
 
-#开始进行登录操作
+
+# 开始进行登录操作
 def BeginLogin():
     loginusername = LoginUi.lineEdit0Username.text()
     loginpassword = LoginUi.lineEdit0Password.text()
@@ -22,7 +27,7 @@ def BeginLogin():
         return False
     else:
         try:
-            client_login(username = loginusername, password = loginpassword)
+            client_login(username=loginusername, password=loginpassword)
         except codiaError as e:
             errorTranslate = error_translate(e)
             if errorTranslate:
@@ -54,9 +59,15 @@ def BeginLogin():
             QMessageBox.information(None, '登录成功', '已登录用户: ' + loginusernickname, QMessageBox.Ok)
             if not variables['me']['verified']:
                 QMessageBox.information(None, '消息', '当前账号功能受限，请尽快完成联系方式验证。', QMessageBox.Ok)
+            FunctionUi.setupUi(FunctionWindow)
+            MainFunctions.functionWindow_init(FunctionUi)
+            LoginWindow.hide()
+            FunctionWindow.show()
+            print('输出完成')
             return True
 
-#获取重置密码的验证码
+
+# 获取重置密码的验证码
 def GetCheck():
     if not LoginUi.lineEdit2Account.text():
         QMessageBox.information(None, '消息', '请输入邮箱或手机号。', QMessageBox.Ok)
@@ -77,21 +88,24 @@ def GetCheck():
         else:
             QMessageBox.critical(None, '错误', '验证码获取失败,请重新获取。', QMessageBox.Ok)
 
-#打开注册界面
+
+# 打开注册界面
 def ShowRegister():
     LoginUi.loginFrame.hide()
     LoginUi.registerFrame.show()
     if LoginUi.lineEdit0Username.text():
         LoginUi.lineEdit1Username.setText(LoginUi.lineEdit0Username.text())
 
-#打开重置密码界面
+
+# 打开重置密码界面
 def ShowReset():
     LoginUi.loginFrame.hide()
     LoginUi.resetFrame.show()
     if LoginUi.lineEdit0Username.text():
         LoginUi.lineEdit2Account.setText(LoginUi.lineEdit0Username.text())
 
-#初始化任务，为登陆窗口信号绑定槽函数
+
+# 初始化任务，为登陆窗口信号绑定槽函数
 def TaskInit():
     report_var['allow_error_deg'] = 1
 
@@ -115,7 +129,8 @@ def TaskInit():
     LoginUi.registerFrame.hide()
     LoginUi.resetFrame.hide()
 
-#注册函数
+
+# 注册函数
 def Register():
     if not LoginUi.lineEdit1Userphone.text():
         QMessageBox.information(None, '消息', '请输入邮箱。', QMessageBox.Ok)
@@ -131,8 +146,8 @@ def Register():
         QMessageBox.information(None, '消息', '两次输入的密码不相同,请重新输入。', QMessageBox.Ok)
         return
     try:
-        ret = register(username = LoginUi.lineEdit1Username.text(),passwd = LoginUi.lineEdit1Password.text(),
-                 email = LoginUi.lineEdit1Userphone.text())
+        ret = register(username=LoginUi.lineEdit1Username.text(), passwd=LoginUi.lineEdit1Password.text(),
+                       email=LoginUi.lineEdit1Userphone.text())
     except codiaError as e:
         errorTranslate = error_translate(e)
         if errorTranslate:
@@ -146,6 +161,7 @@ def Register():
         else:
             QMessageBox.information(None, '注册成功', '成功注册了用户' + ret['login'], QMessageBox.Ok)
             ReturnHomeFromReg()
+
 
 # 信息获取完成，开始重置密码
 def Reset():
@@ -164,7 +180,8 @@ def Reset():
         return
     try:
         change_password(identifier=LoginUi.lineEdit2Account.text(), vercode=LoginUi.lineEdit2CheckNum.text(),
-                        passwd=LoginUi.lineEdit2NewPassword.text(), passwordconfirm=LoginUi.lineEdit2CheckNewPassword.text())
+                        passwd=LoginUi.lineEdit2NewPassword.text(),
+                        passwordconfirm=LoginUi.lineEdit2CheckNewPassword.text())
     except codiaError as e:
         errorTranslate = error_translate(e)
         if errorTranslate:
@@ -176,17 +193,20 @@ def Reset():
         QMessageBox.information(None, '成功', '密码重置成功。', QMessageBox.Ok)
         ReturnHomeFromReset()
 
-#从注册界面返回主界面
+
+# 从注册界面返回主界面
 def ReturnHomeFromReg():
     LoginUi.loginFrame.show()
     LoginUi.registerFrame.hide()
 
-#从重置密码界面返回主界面
+
+# 从重置密码界面返回主界面
 def ReturnHomeFromReset():
     LoginUi.loginFrame.show()
     LoginUi.resetFrame.hide()
 
-#从缓存中读取`记住密码`相关配置
+
+# 从缓存中读取`记住密码`相关配置
 def PasswordStoreRead():
     try:
         with open('config.sav', 'rb') as configfile:
@@ -203,11 +223,14 @@ def PasswordStoreRead():
     except:
         QMessageBox.critical(None, '错误', '缓存文件损坏', QMessageBox.Ok)
 
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     LoginWindow = QMainWindow()
     LoginUi = loginWindow.Ui_loginWindow()
     LoginUi.setupUi(LoginWindow)
+    FunctionWindow = QMainWindow()
+    FunctionUi = functionWindow.Ui_functionWindow()
     PasswordStoreRead()
     TaskInit()
     LoginWindow.show()
