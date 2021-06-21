@@ -63,7 +63,6 @@ def BeginLogin():
             MainFunctions.functionWindow_init(FunctionUi)
             LoginWindow.hide()
             FunctionWindow.show()
-            print('输出完成')
             return True
 
 
