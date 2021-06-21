@@ -169,7 +169,7 @@ def logined(reportUnverified: bool = True):
         variables['me']['verified'] = res_data['data']['me']['verified']
         username = variables['me']['username']
         if username in cache_var['logindic']:
-            if bool(cache_var['logindic'][username]['passwd_store_on']) != bool(variables['passwd_store_on']):
+            if cache_var['logindic'][username]['passwd_store_on'] < variables['passwd_store_on'] or bool(cache_var['logindic'][username]['passwd_store_on']) != bool(variables['passwd_store_on']):
                 return "UNMATCHED", res_data['data']['me']['displayName']
         return "SUCCESS", res_data['data']['me']['displayName']
 
@@ -377,7 +377,8 @@ query publicExercisePacks($lastcnt: Int!, $before: String) {
     data = json.dumps(data)
     res = post(url = url, headers = headers, data = data)
     if not res: return False
-    return json.loads(res.text)['data']['publicExercisePacks']['nodes']
+    try: return json.loads(res.text)['data']['publicExercisePacks']['nodes']
+    except: return False
 
 def show_pack(pid):
     headers = coding_base_headers.copy()
