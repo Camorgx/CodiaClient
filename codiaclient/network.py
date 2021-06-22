@@ -349,39 +349,52 @@ def get_pack(before = None, after = None, lastcnt = None):
     if type(lastcnt) != int:
         report('get_pack: Variable `lastcnt` type error. (should be `int`, not `{}`)'.format(type(lastcnt)), 1)
         return False
+    if before and after:
+        report('get_pack: Argument `before` should not be used with `after`.', 1)
+        return False
     headers = coding_base_headers.copy()
     data = {
         "operationName": "publicExercisePacks",
-        "variables": {
-            'lastcnt': lastcnt
-        },
-        "query": r'''
-query publicExercisePacks($lastcnt: Int!, $before: String, $after: String) {
-    publicExercisePacks(last: $lastcnt, before: $before, after: $after) {
-        pageInfo {
-            hasPreviousPage
-            startCursor
-        }
-        nodes {
-            id
-            name
-            start
-            time
-            createdAt
-            updatedAt
-            due
-            exclusive
-            protected
-            codingExercises {
-                viewerPassedCount
-                totalCount
-            }
-        }
+        "variables": {},
     }
-}'''
-    }
-    if before: data['variables']['before'] = before
-    if after: data['variables']['after'] = after
+    if before:
+        data['variables']['before'] = before
+        data['variables']['lastcnt'] = lastcnt
+        queryargs = r"$lastcnt: Int!, $before: String"
+        funargs = r"last: $lastcnt, before: $before"
+    elif after:
+        data['variables']['after'] = after
+        data['variables']['firstcnt'] = lastcnt
+        queryargs = r"$firstcnt: Int!, $after: String"
+        funargs = r"first: $firstcnt, after: $after"
+    else:
+        data['variables']['lastcnt'] = lastcnt
+        queryargs = r"$lastcnt: Int!, $before: String"
+        funargs = r"last: $lastcnt, before: $before"
+    data['query'] = f'''
+query publicExercisePacks({queryargs}) {{
+  publicExercisePacks({funargs}) {{
+    pageInfo {{
+      hasPreviousPage
+      startCursor
+    }}
+    nodes {{
+      id
+      name
+      start
+      time
+      createdAt
+      updatedAt
+      due
+      exclusive
+      protected
+      codingExercises {{
+        viewerPassedCount
+        totalCount
+      }}
+    }}
+  }}
+}}'''
     data = json.dumps(data)
     res = post(url = url, headers = headers, data = data)
     if not res: return False
