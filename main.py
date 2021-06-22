@@ -37,7 +37,6 @@ def BeginLogin():
                 raise
             return False
         else:
-            loginusernickname = logined()[1]
             try:
                 with open('config.sav', 'wb') as configfile:
                     if LoginUi.checkBox.isChecked():
@@ -56,16 +55,22 @@ def BeginLogin():
                         configfile.write(b64encode(config))
             except Exception as e:
                 QMessageBox.critical(None, '未知错误', str(e), QMessageBox.Ok)
-            if not variables['me']['verified']:
-                verified = False
+                return False
             else:
-                verified = True
-            FunctionUi.setupUi(FunctionWindow)
-            MainFunctions.functionWindow_init(FunctionUi, loginusernickname, verified)
-            LoginWindow.hide()
-            FunctionWindow.show()
-            return True
+                BeginFunction()
+                return True
 
+def BeginFunction():
+    loginusernickname = logined()[1]
+    verified = bool(variables['me']['verified'])
+    FunctionUi.setupUi(FunctionWindow)
+    MainFunctions.functionWindow_init(FunctionUi, loginusernickname, verified)
+
+    from utils import Font
+    FunctionWindow.setFont(Font['main'])
+
+    LoginWindow.hide()
+    FunctionWindow.show()
 
 # 获取重置密码的验证码
 def GetCheck():
@@ -108,6 +113,9 @@ def ShowReset():
 # 初始化任务，为登陆窗口信号绑定槽函数
 def TaskInit():
     report_var['allow_error_deg'] = 1
+
+    from utils import Font
+    LoginWindow.setFont(Font['main'])
 
     LoginUi.pushButtonLogin.clicked.connect(BeginLogin)
     LoginUi.lineEdit0Password.setEchoMode(QLineEdit.Password)
