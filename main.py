@@ -8,7 +8,7 @@ import loginWindow
 import functionWindow
 
 from codiaclient import client_login
-from codiaclient import report_var
+from codiaclient import report_var, net_var
 from codiaclient.network import *
 from codiaclient.network import _acquire_verification
 from codiaclient.report import Error as codiaError, error_translate
@@ -20,42 +20,42 @@ def BeginLogin():
     loginusername = LoginUi.lineEdit0Username.text()
     loginpassword = LoginUi.lineEdit0Password.text()
     if not LoginUi.lineEdit0Username.text():
-        QMessageBox.critical(None, '登录失败', '请输入邮箱或手机号。', QMessageBox.Ok)
+        QMessageBox.critical(None, "登录失败", "请输入邮箱或手机号。", QMessageBox.Ok)
         return False
     if not LoginUi.lineEdit0Password.text():
-        QMessageBox.critical(None, '登录失败', '请输入密码。', QMessageBox.Ok)
+        QMessageBox.critical(None, "登录失败", "请输入密码。", QMessageBox.Ok)
         return False
     else:
         try:
-            client_login(username=loginusername, password=loginpassword)
+            client_login(username = loginusername, password = loginpassword)
         except codiaError as e:
             errorTranslate = error_translate(e)
             if errorTranslate:
-                QMessageBox.critical(None, '登录失败', errorTranslate, QMessageBox.Ok)
+                QMessageBox.critical(None, "登录失败", errorTranslate, QMessageBox.Ok)
             else:
-                QMessageBox.critical(None, '未知错误', str(e), QMessageBox.Ok)
+                QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
                 raise
             return False
         else:
             from base64 import b64encode
             try:
-                with open('config.sav', 'wb') as configfile:
+                with open("config.sav", "wb") as configfile:
                     if LoginUi.checkBox.isChecked():
                         config = json.dumps({
-                            'password_store_on': True,
-                            'username': LoginUi.lineEdit0Username.text(),
-                            'password': cookie_encrypt(LoginUi.lineEdit0Password.text(), 'hdt20040127')
+                            "password_store_on": True,
+                            "username": LoginUi.lineEdit0Username.text(),
+                            "password": cookie_encrypt(LoginUi.lineEdit0Password.text(), "hdt20040127")
                         }).encode()
                         configfile.write(b64encode(config))
                     else:
                         config = json.dumps({
-                            'password_store_on': False,
-                            'username': LoginUi.lineEdit0Username.text(),
-                            'password': None
+                            "password_store_on": False,
+                            "username": LoginUi.lineEdit0Username.text(),
+                            "password": None
                         }).encode()
                         configfile.write(b64encode(config))
             except Exception as e:
-                QMessageBox.critical(None, '未知错误', str(e), QMessageBox.Ok)
+                QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
             finally:
                 BeginFunction()
                 return True
@@ -63,12 +63,12 @@ def BeginLogin():
 # 打开做题界面
 def BeginFunction():
     loginusernickname = logined()[1]
-    verified = bool(variables['me']['verified'])
+    verified = bool(net_var["me"]["verified"])
     FunctionUi.setupUi(FunctionWindow)
     MainFunctions.functionWindow_init(FunctionUi, loginusernickname, verified)
 
     from codiaclientgui.utils import Font
-    FunctionWindow.setFont(Font['main'])
+    FunctionWindow.setFont(Font["main"])
 
     LoginWindow.hide()
     FunctionWindow.show()
@@ -76,23 +76,23 @@ def BeginFunction():
 # 获取重置密码的验证码
 def GetCheck():
     if not LoginUi.lineEdit2Account.text():
-        QMessageBox.information(None, '消息', '请输入邮箱或手机号。', QMessageBox.Ok)
+        QMessageBox.information(None, "消息", "请输入邮箱或手机号。", QMessageBox.Ok)
     try:
         ret = _acquire_verification(LoginUi.lineEdit2Account.text())[1]
     except codiaError as e:
         errorTranslate = error_translate(e)
         if errorTranslate:
-            QMessageBox.critical(None, '错误', errorTranslate, QMessageBox.Ok)
+            QMessageBox.critical(None, "错误", errorTranslate, QMessageBox.Ok)
         else:
-            QMessageBox.critical(None, '未知错误', str(e), QMessageBox.Ok)
+            QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
             raise
     else:
         if not ret:
-            QMessageBox.critical(None, '错误', '验证码获取失败,请重新获取。', QMessageBox.Ok)
-        elif ret['status'] == 'SUCCESS':
-            QMessageBox.information(None, '成功', '验证码获取成功', QMessageBox.Ok)
+            QMessageBox.critical(None, "错误", "验证码获取失败, 请重新获取。", QMessageBox.Ok)
+        elif ret["status"] == "SUCCESS":
+            QMessageBox.information(None, "成功", "验证码获取成功", QMessageBox.Ok)
         else:
-            QMessageBox.critical(None, '错误', '验证码获取失败,请重新获取。', QMessageBox.Ok)
+            QMessageBox.critical(None, "错误", "验证码获取失败, 请重新获取。", QMessageBox.Ok)
 
 
 # 打开注册界面
@@ -113,10 +113,10 @@ def ShowReset():
 
 # 初始化任务，为登陆窗口信号绑定槽函数
 def BeginTask():
-    report_var['allow_error_deg'] = 1
+    report_var["allow_error_deg"] = 1
 
     from codiaclientgui.utils import Font
-    LoginWindow.setFont(Font['main'])
+    LoginWindow.setFont(Font["main"])
 
     LoginUi.pushButtonLogin.clicked.connect(BeginLogin)
     LoginUi.lineEdit0Password.setEchoMode(QLineEdit.Password)
@@ -142,64 +142,64 @@ def BeginTask():
 # 注册函数
 def Register():
     if not LoginUi.lineEdit1Userphone.text():
-        QMessageBox.information(None, '消息', '请输入邮箱。', QMessageBox.Ok)
+        QMessageBox.information(None, "消息", "请输入邮箱。", QMessageBox.Ok)
         return
     if not LoginUi.lineEdit1Username.text():
-        QMessageBox.information(None, '消息', '请输入用户名。', QMessageBox.Ok)
+        QMessageBox.information(None, "消息", "请输入用户名。", QMessageBox.Ok)
         return
     if not LoginUi.lineEdit1Password.text():
-        QMessageBox.information(None, '消息', '请输入密码。', QMessageBox.Ok)
+        QMessageBox.information(None, "消息", "请输入密码。", QMessageBox.Ok)
         return
     if ((not LoginUi.lineEdit1Checkpassword.text()) or (not LoginUi.lineEdit1Password.text())
             or (LoginUi.lineEdit1Password.text() != LoginUi.lineEdit1Checkpassword.text())):
-        QMessageBox.information(None, '消息', '两次输入的密码不相同,请重新输入。', QMessageBox.Ok)
+        QMessageBox.information(None, "消息", "两次输入的密码不相同, 请重新输入。", QMessageBox.Ok)
         return
     try:
-        ret = register(username=LoginUi.lineEdit1Username.text(), passwd=LoginUi.lineEdit1Password.text(),
-                       email=LoginUi.lineEdit1Userphone.text())
+        ret = register(username = LoginUi.lineEdit1Username.text(), passwd = LoginUi.lineEdit1Password.text(),
+                       email = LoginUi.lineEdit1Userphone.text())
     except codiaError as e:
         errorTranslate = error_translate(e)
         if errorTranslate:
-            QMessageBox.critical(None, '注册失败', errorTranslate, QMessageBox.Ok)
+            QMessageBox.critical(None, "注册失败", errorTranslate, QMessageBox.Ok)
         else:
-            QMessageBox.critical(None, '未知错误', str(e), QMessageBox.Ok)
+            QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
             raise
     else:
         if not ret:
-            QMessageBox.critical(None, '注册失败', '注册失败，请重试。', QMessageBox.Ok)
+            QMessageBox.critical(None, "注册失败", "注册失败，请重试。", QMessageBox.Ok)
         else:
-            QMessageBox.information(None, '注册成功', '成功注册了用户' + ret['login'], QMessageBox.Ok)
+            QMessageBox.information(None, "注册成功", "成功注册了用户" + ret["login"], QMessageBox.Ok)
             ReturnHomeFromReg()
 
 
 # 信息获取完成，开始重置密码
 def Reset():
     if not LoginUi.lineEdit2Account.text():
-        QMessageBox.information(None, '消息', '请输入邮箱或手机号。', QMessageBox.Ok)
+        QMessageBox.information(None, "消息", "请输入邮箱或手机号。", QMessageBox.Ok)
         return
     if not LoginUi.lineEdit2CheckNum.text():
-        QMessageBox.information(None, '消息', '请输入验证码。', QMessageBox.Ok)
+        QMessageBox.information(None, "消息", "请输入验证码。", QMessageBox.Ok)
         return
     if not LoginUi.lineEdit2NewPassword.text():
-        QMessageBox.information(None, '消息', '请输入新密码。', QMessageBox.Ok)
+        QMessageBox.information(None, "消息", "请输入新密码。", QMessageBox.Ok)
         return
     if ((not LoginUi.lineEdit2CheckNewPassword.text()) or (not LoginUi.lineEdit2NewPassword.text())
             or (LoginUi.lineEdit2NewPassword.text() != LoginUi.lineEdit2CheckNewPassword.text())):
-        QMessageBox.information(None, '消息', '两次输入的密码不相同,请重新输入。', QMessageBox.Ok)
+        QMessageBox.information(None, "消息", "两次输入的密码不相同, 请重新输入。", QMessageBox.Ok)
         return
     try:
-        change_password(identifier=LoginUi.lineEdit2Account.text(), vercode=LoginUi.lineEdit2CheckNum.text(),
-                        passwd=LoginUi.lineEdit2NewPassword.text(),
-                        passwordconfirm=LoginUi.lineEdit2CheckNewPassword.text())
+        change_password(identifier = LoginUi.lineEdit2Account.text(), vercode = LoginUi.lineEdit2CheckNum.text(),
+                        passwd = LoginUi.lineEdit2NewPassword.text(),
+                        passwordconfirm = LoginUi.lineEdit2CheckNewPassword.text())
     except codiaError as e:
         errorTranslate = error_translate(e)
         if errorTranslate:
-            QMessageBox.critical(None, '错误', errorTranslate, QMessageBox.Ok)
+            QMessageBox.critical(None, "错误", errorTranslate, QMessageBox.Ok)
         else:
-            QMessageBox.critical(None, '未知错误', str(e), QMessageBox.Ok)
+            QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
             raise
     else:
-        QMessageBox.information(None, '成功', '密码重置成功。', QMessageBox.Ok)
+        QMessageBox.information(None, "成功", "密码重置成功。", QMessageBox.Ok)
         ReturnHomeFromReset()
 
 
@@ -219,30 +219,30 @@ def ReturnHomeFromReset():
 def PasswordStoreRead():
     from base64 import b64decode
     try:
-        with open('config.sav', 'rb') as configfile:
+        with open("config.sav", "rb") as configfile:
             config = configfile.read()
         config = json.loads(b64decode(config).decode())
-        if config['password_store_on']:
-            LoginUi.lineEdit0Username.setText(config['username'])
-            LoginUi.lineEdit0Password.setText(cookie_decrypt(config['password'], 'hdt20040127'))
+        if config["password_store_on"]:
+            LoginUi.lineEdit0Username.setText(config["username"])
+            LoginUi.lineEdit0Password.setText(cookie_decrypt(config["password"], "hdt20040127"))
             LoginUi.checkBox.setChecked(True)
         else:
-            LoginUi.lineEdit0Username.setText(config['username'])
+            LoginUi.lineEdit0Username.setText(config["username"])
     except FileNotFoundError:
-        print('Config file not found')
+        print("Config file not found")
     except:
-        QMessageBox.critical(None, '错误', '缓存文件损坏', QMessageBox.Ok)
+        QMessageBox.critical(None, "错误", "缓存文件损坏", QMessageBox.Ok)
 
 def ConfigInit():
     screen = app.screens()[0]
     dpi = screen.physicalDotsPerInch()
     from codiaclientgui.utils import Font
-    Font['main'].setFamily("Microsoft YaHei")
-    if dpi <= 150: Font['main'].setPointSize(10)
-    elif dpi <= 300: Font['main'].setPointSize(13)
-    else: Font['main'].setPointSize(15)
+    Font["main"].setFamily("Microsoft YaHei")
+    if dpi <= 150: Font["main"].setPointSize(10)
+    elif dpi <= 300: Font["main"].setPointSize(13)
+    else: Font["main"].setPointSize(15)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app = QApplication(sys.argv)
     ConfigInit()
     LoginWindow = QMainWindow()
