@@ -42,10 +42,22 @@ def getpackwidget(data: dict):
             label_finish = QLabel('未完成')
             label_finish.setPalette(Palette['red'])
         label_hasdone_total = QLabel('已完成/总计: {}/{}'.format(hasdone, total))
+        if data['due']:
+            end = (datetime.strptime(search(r"^[^.]*", data['due'].replace('T', " ")).group(), "%Y-%m-%d %H:%M:%S")
+                + timedelta(hours = 8)).strftime("%Y-%m-%d %H:%M:%S")
+        else: end = '无限制'
+
+        if data['createdAt']:
+            start = (datetime.strptime(search(r"^[^.]*", data['createdAt'].replace('T', " ")).group(), "%Y-%m-%d %H:%M:%S")
+                  + timedelta(hours = 8)).strftime("%Y-%m-%d %H:%M:%S")
+        else: start = '无限制'
     else:
+        end = ""
+        start = ""
         label_finish = QLabel('无权限')
         label_finish.setPalette(Palette['gray'])
         label_hasdone_total = QLabel('')
+        widget.setEnabled(False)
     layout_main.addWidget(label_finish)
     layout_main.setStretchFactor(label_finish, 1)
     label_name = QLabel(data['name'])
@@ -59,16 +71,6 @@ def getpackwidget(data: dict):
     layout_right_up.setStretchFactor(label_end, 4)
     layout_right_down.addWidget(label_hasdone_total)
     layout_right_down.setStretchFactor(label_hasdone_total, 4)
-    if data['due']:
-        end = (datetime.strptime(search(r"^[^.]*", data['due'].replace('T', " ")).group(), "%Y-%m-%d %H:%M:%S")
-            + timedelta(hours = 8)).strftime("%Y-%m-%d %H:%M:%S")
-
-    else: end = '无限制'
-
-    if data['createdAt']:
-        start = (datetime.strptime(search(r"^[^.]*", data['createdAt'].replace('T', " ")).group(), "%Y-%m-%d %H:%M:%S")
-              + timedelta(hours = 8)).strftime("%Y-%m-%d %H:%M:%S")
-    else: start = '无限制'
     label_start_time = QLabel(start)
     label_end_time = QLabel(end)
     layout_right_down.addWidget(label_start_time)

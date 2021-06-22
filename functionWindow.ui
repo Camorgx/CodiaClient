@@ -25,6 +25,10 @@
   <property name="windowTitle">
    <string>题包列表</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>favicon.ico</normaloff>favicon.ico</iconset>
+  </property>
   <property name="dockNestingEnabled">
    <bool>false</bool>
   </property>
