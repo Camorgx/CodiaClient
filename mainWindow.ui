@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>windowMain</class>
+ <widget class="QMainWindow" name="windowMain">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1280</width>
+    <height>768</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1280</width>
+    <height>768</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1280</width>
+    <height>768</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>题包列表</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>favicon.ico</normaloff>favicon.ico</iconset>
+  </property>
+  <property name="dockNestingEnabled">
+   <bool>false</bool>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QFrame" name="framePack">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>1280</width>
+      <height>768</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>1280</width>
+      <height>768</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>1280</width>
+      <height>768</height>
+     </size>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QListWidget" name="listWidgetPack">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>50</y>
+       <width>1080</width>
+       <height>560</height>
+      </rect>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>1280</width>
+       <height>768</height>
+      </size>
+     </property>
+     <property name="cursor" stdset="0">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonPackOK">
+     <property name="geometry">
+      <rect>
+       <x>410</x>
+       <y>670</y>
+       <width>120</width>
+       <height>40</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>确认</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonPackNext">
+     <property name="geometry">
+      <rect>
+       <x>770</x>
+       <y>670</y>
+       <width>120</width>
+       <height>40</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>下一页</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonPackPrevious">
+     <property name="geometry">
+      <rect>
+       <x>590</x>
+       <y>670</y>
+       <width>120</width>
+       <height>40</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>上一页</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelPackPage">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>670</y>
+       <width>120</width>
+       <height>40</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>第 1 页</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QFrame" name="frameExercise">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>1280</width>
+      <height>768</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>1280</width>
+      <height>768</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>1280</width>
+      <height>768</height>
+     </size>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QPushButton" name="pushButtonExerciseOK">
+     <property name="geometry">
+      <rect>
+       <x>410</x>
+       <y>670</y>
+       <width>120</width>
+       <height>40</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>确认</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonExerciseBack">
+     <property name="geometry">
+      <rect>
+       <x>590</x>
+       <y>670</y>
+       <width>120</width>
+       <height>40</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>返回</string>
+     </property>
+    </widget>
+    <widget class="QListWidget" name="listWidgetExercise">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>50</y>
+       <width>1080</width>
+       <height>560</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonExerciseBegin">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>670</y>
+       <width>120</width>
+       <height>40</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>开始题包</string>
+     </property>
+    </widget>
+   </widget>
+   <zorder>frameExercise</zorder>
+   <zorder>framePack</zorder>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1280</width>
+     <height>26</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
