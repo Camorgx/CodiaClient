@@ -118,6 +118,7 @@ def TaskInit():
     from codiaclientgui.utils import Font
     LoginWindow.setFont(Font['main'])
 
+    LoginUi.pushButtonLogin.setFont(Font['main'])
     LoginUi.pushButtonLogin.clicked.connect(BeginLogin)
     LoginUi.lineEdit0Password.setEchoMode(QLineEdit.Password)
     LoginUi.pushButtonGoReset.clicked.connect(ShowReset)
