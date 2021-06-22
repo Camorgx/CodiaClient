@@ -243,6 +243,7 @@ if __name__ == "__main__":
     PasswordStoreRead()
     BeginTask()
     LoginWindow.show()
+    print(LoginUi.pushButtonLogin.font().family())
     sys.exit(app.exec_())
 
 '''
