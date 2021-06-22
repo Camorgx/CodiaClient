@@ -18,8 +18,13 @@ import sys
 if sys.platform == 'win32':
     Font['main'].setFamily("Microsoft YaHei")
     Font['main'].setPointSize(10)
-    Font['status'].setFamily("SimHei")
+    Font['status'].setFamily("FangSong")
+    Font['main'].setPointSize(9)
 elif sys.platform == 'darwin':
+    Font['main'].setFamily(".AppleSystemUIFont")
+    Font['main'].setPointSize(13)
+    Font['status'].setFamily(".AppleSystemUIFont")
+    Font['main'].setPointSize(12)
     pass
 else:
     Font['main'].setFamily("Microsoft YaHei")
