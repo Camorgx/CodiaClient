@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QPalette, QBrush, QColor
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
 from PyQt5.QtWidgets import QListWidgetItem, QWidget, QListWidget
+from PyQt5.QtWidgets import QMessageBox
 
 import functionWindow
 from codiaclient.network import *
@@ -20,12 +21,19 @@ redBrush = QBrush(QColor(160, 0, 30))
 redBrush.setStyle(Qt.SolidPattern)
 Palette['red'].setBrush(QPalette.Active, QPalette.Text, redBrush)
 
-def functionWindow_init(ui: functionWindow.Ui_functionWindow):
-    packlist = get_pack()
+def functionWindow_init(ui: functionWindow.Ui_functionWindow, nickname='UNDEFINED', verified=True):
+    pack_list = get_pack(lastcnt=12)
     ui.frame_questionlist.hide()
     ui.frame_packlist.show()
-    for dic in packlist:
+    if verified:
+        status_bar_label = QLabel('当前用户：' + nickname)
+    else:
+        status_bar_label = QLabel('当前用户：' + nickname + '(未验证)')
+        QMessageBox.information(None, '消息', '当前账号功能受限，请尽快完成联系方式验证。', QMessageBox.Ok)
+    ui.statusbar.addWidget(status_bar_label)
+    for dic in pack_list:
         add_item_to_pack_list(ui.listWidget_packs, dic)
+
 
 def getpackwidget(data: dict):
     widget = QWidget()
@@ -58,7 +66,7 @@ def getpackwidget(data: dict):
     layout_right_down.setStretchFactor(label_hasdone_total, 4)
     if data['due']:
         end = (datetime.datetime.strptime(data['due'].replace('T', " ")[:-5], "%Y-%m-%d %H:%M:%S")
-                + datetime.timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
+               + datetime.timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
     else:
         end = '无限制'
     if data['createdAt']:
@@ -83,10 +91,10 @@ def getpackwidget(data: dict):
     return widget
 
 
-def add_item_to_pack_list(packlist: QListWidget, data: dict):
+def add_item_to_pack_list(pack_list: QListWidget, data: dict):
     item = QListWidgetItem()
     item.setSizeHint(QSize(651, 68))
     widget = getpackwidget(data)
-    packlist.addItem(item)
-    packlist.setItemWidget(item, widget)
+    pack_list.addItem(item)
+    pack_list.setItemWidget(item, widget)
     # print(show_pack(data['id']))
