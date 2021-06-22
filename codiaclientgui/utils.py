@@ -12,7 +12,7 @@ Palette = {
 }
 import sys
 if sys.platform == 'win32': Font['main'].setFamily("Microsoft YaHei")
-elif sys.platform == 'darwin': Font['main'].setFamily("Apple UI")
+elif sys.platform == 'darwin': Font['main'].setFamily(".AppleSystemUIFont")
 else: Font['main'].setFamily("SimSun")
 Font['main'].setPointSize(10)
 
