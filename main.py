@@ -112,7 +112,7 @@ def ShowReset():
 
 
 # 初始化任务，为登陆窗口信号绑定槽函数
-def TaskInit():
+def BeginTask():
     report_var['allow_error_deg'] = 1
 
     from codiaclientgui.utils import Font
@@ -233,16 +233,31 @@ def PasswordStoreRead():
     except:
         QMessageBox.critical(None, '错误', '缓存文件损坏', QMessageBox.Ok)
 
+def ConfigInit():
+    pass
+    screenRect = QApplication.desktop().screenGeometry()
+    screenheight = screenRect.height()
+    screenwidth = screenRect.width()
+    from codiaclientgui.utils import Font
+    Font['main'].setFamily("Microsoft YaHei")
+    if screenheight * screenwidth < 1280 * 720: Font['main'].setPointSize(9)
+    elif screenheight * screenwidth < 2048 * 1080: Font['main'].setPointSize(10)
+    elif screenheight * screenwidth < 4096 * 2160: Font['main'].setPointSize(13)
+    else: Font['main'].setPointSize(15)
+
 
 if __name__ == '__main__':
+    from PyQt5.QtCore import Qt
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     app = QApplication(sys.argv)
+    ConfigInit()
     LoginWindow = QMainWindow()
     LoginUi = loginWindow.Ui_loginWindow()
     LoginUi.setupUi(LoginWindow)
     FunctionWindow = QMainWindow()
     FunctionUi = functionWindow.Ui_functionWindow()
     PasswordStoreRead()
-    TaskInit()
+    BeginTask()
     LoginWindow.show()
     sys.exit(app.exec_())
 

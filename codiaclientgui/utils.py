@@ -1,5 +1,7 @@
-from PyQt5.QtGui import QFont, QPalette, QBrush, QColor
+import sys
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont, QPalette, QBrush, QColor
+from PyQt5.QtWidgets import QApplication
 
 Font = {
     'main': QFont(),
@@ -10,16 +12,9 @@ Palette = {
     "red": QPalette(),
     "gray": QPalette(),
 }
-import sys
-if sys.platform == 'win32':
-    Font['main'].setFamily("Microsoft YaHei")
-    Font['main'].setPointSize(10)
-elif sys.platform == 'darwin':
-    Font['main'].setFamily("Microsoft YaHei")
-    Font['main'].setPointSize(13)
-else:
-    Font['main'].setFamily("SimSun")
-    Font['main'].setPointSize(13)
+
+Font['main'].setFamily("Microsoft YaHei")
+Font['main'].setPointSize(10)
 
 greenBrush = QBrush(QColor(80, 160, 30))
 greenBrush.setStyle(Qt.SolidPattern)
