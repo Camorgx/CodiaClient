@@ -155,9 +155,9 @@ def logined(reportUnverified: bool = True):
 }''',
     })
     res = post(url = url, headers = headers, data = data)
-    if not res: return "SUCCESS", None
+    if not res: return "FAILED", None
     res_data = json.loads(res.text)
-    if 'errors' in res_data: return "SUCCESS", None
+    if 'errors' in res_data: return "FAILED", None
     else:
         if reportUnverified and not res_data['data']['me']['verified']:
             report("The user has not verified.", 1)
