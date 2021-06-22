@@ -18,12 +18,12 @@ import sys
 if sys.platform == 'win32':
     Font['main'].setFamily("Microsoft YaHei")
     Font['main'].setPointSize(10)
+    Font['status'].setFamily("SimHei")
 elif sys.platform == 'darwin':
     pass
 else:
     Font['main'].setFamily("Microsoft YaHei")
     Font['main'].setPointSize(13)
-Font['status'].setFamily("SimHei")
 
 greenBrush = QBrush(QColor(80, 160, 30))
 greenBrush.setStyle(Qt.SolidPattern)
