@@ -16,6 +16,12 @@
     <height>720</height>
    </size>
   </property>
+  <property name="font">
+   <font>
+    <family>Microsoft YaHei</family>
+    <pointsize>10</pointsize>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>题包列表</string>
   </property>
@@ -172,7 +178,7 @@
      <x>0</x>
      <y>0</y>
      <width>1000</width>
-     <height>26</height>
+     <height>29</height>
     </rect>
    </property>
   </widget>

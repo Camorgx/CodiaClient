@@ -1,13 +1,24 @@
 import datetime
 
 from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtGui import QPalette, QBrush, QColor
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
 from PyQt5.QtWidgets import QListWidgetItem, QWidget, QListWidget
-from PyQt5 import QtGui
 
 import functionWindow
 from codiaclient.network import *
 
+Palette = {
+    "green": QPalette(),
+    "red": QPalette(),
+}
+greenBrush = QBrush(QColor(80, 160, 30))
+greenBrush.setStyle(Qt.SolidPattern)
+Palette['green'].setBrush(QPalette.Active, QPalette.Text, greenBrush)
+
+redBrush = QBrush(QColor(160, 0, 30))
+redBrush.setStyle(Qt.SolidPattern)
+Palette['red'].setBrush(QPalette.Active, QPalette.Text, redBrush)
 
 def functionWindow_init(ui: functionWindow.Ui_functionWindow):
     packlist = get_pack(lastcnt = 12)
@@ -15,7 +26,6 @@ def functionWindow_init(ui: functionWindow.Ui_functionWindow):
     ui.frame_packlist.show()
     for dic in packlist:
         add_item_to_pack_list(ui.listWidget_packs, dic)
-
 
 def getpackwidget(data: dict):
     widget = QWidget()
@@ -27,18 +37,10 @@ def getpackwidget(data: dict):
     hasdone = data['codingExercises']['viewerPassedCount']
     if total == hasdone:
         label_finish = QLabel('已完成')
-        greenPalette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(80, 160, 30))
-        brush.setStyle(Qt.SolidPattern)
-        greenPalette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Text, brush)
-        label_finish.setPalette(greenPalette)
+        label_finish.setPalette(Palette['green'])
     else:
         label_finish = QLabel('未完成')
-        redPalette = QtGui.QPalette()
-        brush = QtGui.QBrush(QtGui.QColor(160, 0, 30))
-        brush.setStyle(Qt.SolidPattern)
-        redPalette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Text, brush)
-        label_finish.setPalette(redPalette)
+        label_finish.setPalette(Palette['red'])
     layout_main.addWidget(label_finish)
     layout_main.setStretchFactor(label_finish, 1)
     label_name = QLabel(data['name'])
