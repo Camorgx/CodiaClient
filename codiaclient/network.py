@@ -362,6 +362,9 @@ query publicExercisePacks($lastcnt: Int!, $before: String) {
             id
             name
             start
+            time
+            createdAt
+            updatedAt
             due
             exclusive
             protected
