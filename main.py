@@ -238,8 +238,8 @@ def ConfigInit():
     dpi = screen.physicalDotsPerInch()
     from codiaclientgui.utils import Font
     Font["main"].setFamily("Microsoft YaHei")
-    if dpi <= 150: Font["main"].setPointSize(10)
-    elif dpi <= 300: Font["main"].setPointSize(13)
+    if dpi >= 140: Font["main"].setPointSize(10)
+    elif dpi >= 120: Font["main"].setPointSize(13)
     else: Font["main"].setPointSize(15)
 
 if __name__ == "__main__":
