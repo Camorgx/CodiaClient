@@ -40,6 +40,8 @@ def functionWindow_init(UI: functionWindow.Ui_functionWindow, nickname = "UNDEFI
 
 
 def nextPage(UI: functionWindow.Ui_functionWindow):
+    UI.pushButton_next.setEnabled(False)
+    UI.pushButton_last.setEnabled(False)
     variables['page_number'] += 1
     pack_list = get_pack(before = variables['last_pack_pid'])
     print(pack_list)
@@ -47,17 +49,16 @@ def nextPage(UI: functionWindow.Ui_functionWindow):
     pack_list = pack_list['nodes']
     variables['last_pack_pid'] = pack_list[0]['id']
     variables['first_pack_pid'] = pack_list[-1]['id']
-    if not variables['has_next']:
-        UI.pushButton_next.setEnabled(False)
-    UI.pushButton_last.setEnabled(True)
+    UI.pushButton_next.setEnabled(bool(variables['has_next']))
+    UI.pushButton_last.setEnabled(variables['page_number'] != 1)
     UI.label_page.setText('第 {} 页'.format(variables['page_number']))
-    for i in range(0, UI.listWidget_packs.count()):
-        UI.listWidget_packs.takeItem(0)
-    for dic in pack_list:
-        add_item_to_pack_list(UI.listWidget_packs, dic)
+    for i in range(0, UI.listWidget_packs.count()): UI.listWidget_packs.takeItem(0)
+    for dic in pack_list: add_item_to_pack_list(UI.listWidget_packs, dic)
 
 
 def previousPage(UI: functionWindow.Ui_functionWindow):
+    UI.pushButton_next.setEnabled(False)
+    UI.pushButton_last.setEnabled(False)
     variables['page_number'] -= 1
     pack_list = get_pack(after = variables['first_pack_pid'])
     print(pack_list)
@@ -65,14 +66,11 @@ def previousPage(UI: functionWindow.Ui_functionWindow):
     pack_list = pack_list['nodes']
     variables['last_pack_pid'] = pack_list[0]['id']
     variables['first_pack_pid'] = pack_list[-1]['id']
-    if not variables['has_next']:
-        UI.pushButton_next.setEnabled(False)
-    UI.pushButton_last.setEnabled(True)
+    UI.pushButton_next.setEnabled(bool(variables['has_next']))
+    UI.pushButton_last.setEnabled(variables['page_number'] != 1)
     UI.label_page.setText('第 {} 页'.format(variables['page_number']))
-    for i in range(0, UI.listWidget_packs.count()):
-        UI.listWidget_packs.takeItem(0)
-    for dic in pack_list:
-        add_item_to_pack_list(UI.listWidget_packs, dic)
+    for i in range(0, UI.listWidget_packs.count()): UI.listWidget_packs.takeItem(0)
+    for dic in pack_list: add_item_to_pack_list(UI.listWidget_packs, dic)
 
 
 def get_pack_widget(data: dict):
