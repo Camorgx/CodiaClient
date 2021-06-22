@@ -358,6 +358,10 @@ def get_pack(before = None, lastcnt = None):
         "query": r'''
 query publicExercisePacks($lastcnt: Int!, $before: String) {
     publicExercisePacks(last: $lastcnt, before: $before) {
+        pageInfo {
+            hasPreviousPage
+            startCursor
+        }
         nodes {
             id
             name
@@ -380,7 +384,8 @@ query publicExercisePacks($lastcnt: Int!, $before: String) {
     data = json.dumps(data)
     res = post(url = url, headers = headers, data = data)
     if not res: return False
-    try: return json.loads(res.text)['data']['publicExercisePacks']['nodes']
+    print(json.loads(res.text))
+    try: return json.loads(res.text)['data']['publicExercisePacks']
     except: return False
 
 def show_pack(pid):
