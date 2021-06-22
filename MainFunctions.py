@@ -27,9 +27,9 @@ def functionWindow_init(ui: functionWindow.Ui_functionWindow, nickname="UNDEFINE
     ui.exerciseFrame.hide()
     ui.packFrame.show()
     if verified:
-        status_bar_label = QLabel("当前用户: {}".format(nickname))
+        status_bar_label = QLabel(f"当前用户: {nickname}")
     else:
-        status_bar_label = QLabel("当前用户: {}(未验证)".format(nickname))
+        status_bar_label = QLabel(f"当前用户: {nickname}(未验证)")
         QMessageBox.information(None, "消息", "当前账号功能受限，请尽快完成联系方式验证。", QMessageBox.Ok)
     status_bar_label.setFont(Font["status"])
     ui.statusbar.addWidget(status_bar_label)
@@ -63,7 +63,7 @@ def nextPage(ui: functionWindow.Ui_functionWindow):
     if not has_next:
         ui.pushButton_next.setEnabled(False)
     ui.pushButton_last.setEnabled(True)
-    ui.label_page.setText('第 ' + str(page_number) + ' 页')
+    ui.label_page.setText(f'第 {page_number} 页')
     for i in range(0, ui.listWidget_packs.count()):
         ui.listWidget_packs.takeItem(0)
     for dic in pack_list:
@@ -78,7 +78,7 @@ def lastPage(ui: functionWindow.Ui_functionWindow):
         ui.pushButton_last.setEnabled(False)
     ui.pushButton_next.setEnabled(True)
     pack_list = pages[page_number - 1]
-    ui.label_page.setText('第 ' + str(page_number) + ' 页')
+    ui.label_page.setText(f'第 {page_number} 页')
     for i in range(0, ui.listWidget_packs.count()):
         ui.listWidget_packs.takeItem(0)
     for dic in pack_list:
@@ -100,7 +100,7 @@ def get_pack_widget(data: dict):
         else:
             label_finish = QLabel("未完成")
             label_finish.setPalette(Palette["red"])
-        label_has_done_total = QLabel("已完成/总计: {}/{}".format(has_done, total))
+        label_has_done_total = QLabel(f"已完成/总计: {has_done}/{total}")
         if data["due"]:
             end = (datetime.strptime(search(r"^[^.]*", data["due"].replace("T", " ")).group(), "%Y-%m-%d %H:%M:%S")
                    + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
