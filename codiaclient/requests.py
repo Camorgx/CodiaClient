@@ -121,7 +121,7 @@ class Requests:
                     if variables['e']: res = submit(eid = variables['e'], pid = variables['p'], lang = variables['l'], solutioncode = variables['sc'])
                     else: report("No eid specified.", 1)
                 else: report('Invalid request.', 1)
-            elif conf[0] in ['gp', 'getp', 'getpack']: #getpack [N] [before PID]
+            elif conf[0] in ['gp', 'getp', 'getpack']: #getpack [N] [before|after PID]
                 if len(conf) == 1:
                     res = get_pack()
                     if not res: report("No result.", 1)
@@ -137,10 +137,20 @@ class Requests:
                         res = get_pack(before = conf[2])
                         if not res: report("No result.", 1)
                         else: self.show_msg(json.dumps(res['nodes']))
+                    elif conf[1] in ['af', 'after']:
+                        res = get_pack(after = conf[2])
+                        if not res: report("No result.", 1)
+                        else: self.show_msg(json.dumps(res['nodes']))
                     else: report('Invalid request.', 1)
                 elif len(conf) == 4:
                     if conf[2] in ['bf', 'before']:
                         try: res = get_pack(before = conf[3], lastcnt = int(conf[1]))
+                        except ValueError: report('Invalid request: type(lastcnt) should be int.', 1)
+                        else:
+                            if not res: report("No result.", 1)
+                            else: self.show_msg(json.dumps(res['nodes']))
+                    if conf[2] in ['af', 'after']:
+                        try: res = get_pack(after = conf[3], lastcnt = int(conf[1]))
                         except ValueError: report('Invalid request: type(lastcnt) should be int.', 1)
                         else:
                             if not res: report("No result.", 1)
