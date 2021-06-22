@@ -341,7 +341,7 @@ def get_exercise(eid, pid, lang, feedback = 'dict'):
     if pid: return _get_exercise_from_pack(eid, pid, lang, feedback)
     else: return _get_exercise_not_from_pack(eid, lang, feedback)
 
-def get_pack(before = None, lastcnt = None):
+def get_pack(before = None, after = None, lastcnt = None):
     if lastcnt == None: lastcnt = 8
     if type(lastcnt) == str:
         try: lastcnt = int(lastcnt)
@@ -356,8 +356,8 @@ def get_pack(before = None, lastcnt = None):
             'lastcnt': lastcnt
         },
         "query": r'''
-query publicExercisePacks($lastcnt: Int!, $before: String) {
-    publicExercisePacks(last: $lastcnt, before: $before) {
+query publicExercisePacks($lastcnt: Int!, $before: String, $after: String) {
+    publicExercisePacks(last: $lastcnt, before: $before, after: $after) {
         pageInfo {
             hasPreviousPage
             startCursor
@@ -381,10 +381,10 @@ query publicExercisePacks($lastcnt: Int!, $before: String) {
 }'''
     }
     if before: data['variables']['before'] = before
+    if after: data['variables']['after'] = after
     data = json.dumps(data)
     res = post(url = url, headers = headers, data = data)
     if not res: return False
-    print(json.loads(res.text))
     try: return json.loads(res.text)['data']['publicExercisePacks']
     except: return False
 
