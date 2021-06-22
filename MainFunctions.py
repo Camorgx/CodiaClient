@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QListWidgetItem, QWidget, QListWidget
 from PyQt5.QtWidgets import QMessageBox
 
 import functionWindow
-from utils import Font, Palette
+from codiaclientgui.utils import Font, Palette
 from codiaclient.network import get_pack, show_pack
 
 

@@ -67,7 +67,7 @@ def BeginFunction():
     FunctionUi.setupUi(FunctionWindow)
     MainFunctions.functionWindow_init(FunctionUi, loginusernickname, verified)
 
-    from utils import Font
+    from codiaclientgui.utils import Font
     FunctionWindow.setFont(Font['main'])
 
     LoginWindow.hide()
@@ -115,7 +115,7 @@ def ShowReset():
 def TaskInit():
     report_var['allow_error_deg'] = 1
 
-    from utils import Font
+    from codiaclientgui.utils import Font
     LoginWindow.setFont(Font['main'])
 
     LoginUi.pushButtonLogin.clicked.connect(BeginLogin)
