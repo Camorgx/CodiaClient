@@ -20,6 +20,7 @@ def functionWindow_init(ui: functionWindow.Ui_functionWindow, nickname='UNDEFINE
     else:
         status_bar_label = QLabel('当前用户: {}(未验证)'.format(nickname))
         QMessageBox.information(None, '消息', '当前账号功能受限，请尽快完成联系方式验证。', QMessageBox.Ok)
+    status_bar_label.setFont(Font['status'])
     ui.statusbar.addWidget(status_bar_label)
     for dic in pack_list:
         add_item_to_pack_list(ui.listWidget_packs, dic)

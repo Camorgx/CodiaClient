@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QApplication
 
 Font = {
     'main': QFont(),
+    'status': QFont(),
 }
 
 Palette = {
@@ -15,6 +16,7 @@ Palette = {
 
 Font['main'].setFamily("Microsoft YaHei")
 Font['main'].setPointSize(10)
+Font['status'].setFamily("SimHei")
 
 greenBrush = QBrush(QColor(80, 160, 30))
 greenBrush.setStyle(Qt.SolidPattern)
