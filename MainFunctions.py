@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta
 from re import search
 
 from PyQt5.QtCore import Qt, QSize
@@ -7,18 +7,18 @@ from PyQt5.QtWidgets import QListWidgetItem, QWidget, QListWidget
 from PyQt5.QtWidgets import QMessageBox
 
 import functionWindow
-from utils import *
-from codiaclient.network import *
+from utils import Font, Palette
+from codiaclient.network import get_pack, show_pack
 
 
 def functionWindow_init(ui: functionWindow.Ui_functionWindow, nickname='UNDEFINED', verified=True):
-    pack_list = get_pack(lastcnt=12)
+    pack_list = get_pack()
     ui.frame_questionlist.hide()
     ui.frame_packlist.show()
     if verified:
-        status_bar_label = QLabel('当前用户：' + nickname)
+        status_bar_label = QLabel('当前用户: {}'.format(nickname))
     else:
-        status_bar_label = QLabel('当前用户：' + nickname + '(未验证)')
+        status_bar_label = QLabel('当前用户: {}(未验证)'.format(nickname))
         QMessageBox.information(None, '消息', '当前账号功能受限，请尽快完成联系方式验证。', QMessageBox.Ok)
     ui.statusbar.addWidget(status_bar_label)
     for dic in pack_list:
@@ -40,7 +40,7 @@ def getpackwidget(data: dict):
         else:
             label_finish = QLabel('未完成')
             label_finish.setPalette(Palette['red'])
-        label_hasdone_total = QLabel('已完成/总计： {}/{}'.format(hasdone, total))
+        label_hasdone_total = QLabel('已完成/总计: {}/{}'.format(hasdone, total))
     else:
         label_finish = QLabel('无权限')
         label_finish.setPalette(Palette['gray'])
@@ -59,14 +59,14 @@ def getpackwidget(data: dict):
     layout_right_down.addWidget(label_hasdone_total)
     layout_right_down.setStretchFactor(label_hasdone_total, 4)
     if data['due']:
-        end = (datetime.datetime.strptime(search(r"^[^.]*", data['due'].replace('T', " ")).group(), "%Y-%m-%d %H:%M:%S")
-            + datetime.timedelta(hours = 8)).strftime("%Y-%m-%d %H:%M:%S")
+        end = (datetime.strptime(search(r"^[^.]*", data['due'].replace('T', " ")).group(), "%Y-%m-%d %H:%M:%S")
+            + timedelta(hours = 8)).strftime("%Y-%m-%d %H:%M:%S")
 
     else: end = '无限制'
 
     if data['createdAt']:
-        start = (datetime.datetime.strptime(search(r"^[^.]*", data['createdAt'].replace('T', " ")).group(), "%Y-%m-%d %H:%M:%S")
-              + datetime.timedelta(hours = 8)).strftime("%Y-%m-%d %H:%M:%S")
+        start = (datetime.strptime(search(r"^[^.]*", data['createdAt'].replace('T', " ")).group(), "%Y-%m-%d %H:%M:%S")
+              + timedelta(hours = 8)).strftime("%Y-%m-%d %H:%M:%S")
     else: start = '无限制'
     label_start_time = QLabel(start)
     label_end_time = QLabel(end)

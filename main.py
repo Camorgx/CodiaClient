@@ -1,5 +1,4 @@
 import sys
-from base64 import b64encode, b64decode
 
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtWidgets import QMessageBox, QLineEdit
@@ -7,6 +6,7 @@ from PyQt5.QtWidgets import QMessageBox, QLineEdit
 import MainFunctions
 import loginWindow
 import functionWindow
+
 from codiaclient import client_login
 from codiaclient import report_var
 from codiaclient.network import *
@@ -37,6 +37,7 @@ def BeginLogin():
                 raise
             return False
         else:
+            from base64 import b64encode
             try:
                 with open('config.sav', 'wb') as configfile:
                     if LoginUi.checkBox.isChecked():
@@ -55,11 +56,11 @@ def BeginLogin():
                         configfile.write(b64encode(config))
             except Exception as e:
                 QMessageBox.critical(None, '未知错误', str(e), QMessageBox.Ok)
-                return False
-            else:
+            finally:
                 BeginFunction()
                 return True
 
+# 打开做题界面
 def BeginFunction():
     loginusernickname = logined()[1]
     verified = bool(variables['me']['verified'])
@@ -216,6 +217,7 @@ def ReturnHomeFromReset():
 
 # 从缓存中读取`记住密码`相关配置
 def PasswordStoreRead():
+    from base64 import b64decode
     try:
         with open('config.sav', 'rb') as configfile:
             config = configfile.read()
