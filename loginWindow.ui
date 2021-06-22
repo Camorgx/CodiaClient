@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>loginWindow</class>
- <widget class="QMainWindow" name="loginWindow">
+ <class>windowLogin</class>
+ <widget class="QMainWindow" name="windowLogin">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
-    <height>360</height>
+    <width>540</width>
+    <height>320</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -39,13 +39,13 @@
      <height>360</height>
     </size>
    </property>
-   <widget class="QFrame" name="loginFrame">
+   <widget class="QFrame" name="frameLogin">
     <property name="geometry">
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>640</width>
-      <height>360</height>
+      <width>540</width>
+      <height>294</height>
      </rect>
     </property>
     <property name="maximumSize">
@@ -63,8 +63,8 @@
     <widget class="QPushButton" name="pushButtonLoginGoReset">
      <property name="geometry">
       <rect>
-       <x>370</x>
-       <y>210</y>
+       <x>320</x>
+       <y>190</y>
        <width>120</width>
        <height>32</height>
       </rect>
@@ -76,8 +76,8 @@
     <widget class="QCheckBox" name="checkBox">
      <property name="geometry">
       <rect>
-       <x>400</x>
-       <y>170</y>
+       <x>360</x>
+       <y>150</y>
        <width>100</width>
        <height>30</height>
       </rect>
@@ -89,8 +89,8 @@
     <widget class="QLabel" name="label">
      <property name="geometry">
       <rect>
-       <x>90</x>
-       <y>90</y>
+       <x>50</x>
+       <y>70</y>
        <width>160</width>
        <height>30</height>
       </rect>
@@ -111,8 +111,8 @@
     <widget class="QLineEdit" name="lineEditLoginUsername">
      <property name="geometry">
       <rect>
-       <x>260</x>
-       <y>90</y>
+       <x>220</x>
+       <y>70</y>
        <width>240</width>
        <height>30</height>
       </rect>
@@ -126,8 +126,8 @@
     <widget class="QLabel" name="label_2">
      <property name="geometry">
       <rect>
-       <x>90</x>
-       <y>130</y>
+       <x>50</x>
+       <y>110</y>
        <width>160</width>
        <height>30</height>
       </rect>
@@ -145,8 +145,8 @@
     <widget class="QLineEdit" name="lineEditLoginPassword">
      <property name="geometry">
       <rect>
-       <x>260</x>
-       <y>130</y>
+       <x>220</x>
+       <y>110</y>
        <width>240</width>
        <height>30</height>
       </rect>
@@ -160,8 +160,8 @@
     <widget class="QPushButton" name="pushButtonLoginGoRegister">
      <property name="geometry">
       <rect>
-       <x>160</x>
-       <y>250</y>
+       <x>110</x>
+       <y>230</y>
        <width>330</width>
        <height>32</height>
       </rect>
@@ -173,8 +173,8 @@
     <widget class="QPushButton" name="pushButtonLogin">
      <property name="geometry">
       <rect>
-       <x>160</x>
-       <y>210</y>
+       <x>110</x>
+       <y>190</y>
        <width>120</width>
        <height>32</height>
       </rect>
@@ -184,13 +184,13 @@
      </property>
     </widget>
    </widget>
-   <widget class="QFrame" name="registerFrame">
+   <widget class="QFrame" name="frameRegister">
     <property name="geometry">
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>640</width>
-      <height>360</height>
+      <width>540</width>
+      <height>294</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -202,8 +202,8 @@
     <widget class="QLineEdit" name="lineEditRegisterPassword">
      <property name="geometry">
       <rect>
-       <x>260</x>
-       <y>130</y>
+       <x>220</x>
+       <y>110</y>
        <width>240</width>
        <height>30</height>
       </rect>
@@ -217,8 +217,8 @@
     <widget class="QPushButton" name="pushButtonRegister">
      <property name="geometry">
       <rect>
-       <x>160</x>
-       <y>210</y>
+       <x>110</x>
+       <y>190</y>
        <width>120</width>
        <height>32</height>
       </rect>
@@ -230,8 +230,8 @@
     <widget class="QLineEdit" name="lineEditRegisterCheckPassword">
      <property name="geometry">
       <rect>
-       <x>260</x>
-       <y>170</y>
+       <x>220</x>
+       <y>150</y>
        <width>240</width>
        <height>30</height>
       </rect>
@@ -245,8 +245,8 @@
     <widget class="QLabel" name="label_3">
      <property name="geometry">
       <rect>
-       <x>90</x>
-       <y>90</y>
+       <x>50</x>
+       <y>70</y>
        <width>160</width>
        <height>30</height>
       </rect>
@@ -264,14 +264,14 @@
     <widget class="QLabel" name="label_4">
      <property name="geometry">
       <rect>
-       <x>90</x>
-       <y>130</y>
+       <x>50</x>
+       <y>110</y>
        <width>160</width>
        <height>30</height>
       </rect>
      </property>
      <property name="text">
-      <string>密码</string>
+      <string>设置密码</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -283,14 +283,14 @@
     <widget class="QLabel" name="label_5">
      <property name="geometry">
       <rect>
-       <x>90</x>
-       <y>50</y>
+       <x>50</x>
+       <y>30</y>
        <width>160</width>
        <height>30</height>
       </rect>
      </property>
      <property name="text">
-      <string>邮箱</string>
+      <string>绑定邮箱</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -302,8 +302,8 @@
     <widget class="QLineEdit" name="lineEditRegisterUserphone">
      <property name="geometry">
       <rect>
-       <x>260</x>
-       <y>50</y>
+       <x>220</x>
+       <y>30</y>
        <width>240</width>
        <height>30</height>
       </rect>
@@ -317,8 +317,8 @@
     <widget class="QLabel" name="label_6">
      <property name="geometry">
       <rect>
-       <x>90</x>
-       <y>170</y>
+       <x>50</x>
+       <y>150</y>
        <width>160</width>
        <height>30</height>
       </rect>
@@ -336,8 +336,8 @@
     <widget class="QLineEdit" name="lineEditRegisterUsername">
      <property name="geometry">
       <rect>
-       <x>260</x>
-       <y>90</y>
+       <x>220</x>
+       <y>70</y>
        <width>240</width>
        <height>30</height>
       </rect>
@@ -351,8 +351,8 @@
     <widget class="QPushButton" name="pushButtonRegisterReturn">
      <property name="geometry">
       <rect>
-       <x>370</x>
-       <y>210</y>
+       <x>320</x>
+       <y>190</y>
        <width>120</width>
        <height>32</height>
       </rect>
@@ -362,13 +362,13 @@
      </property>
     </widget>
    </widget>
-   <widget class="QFrame" name="resetFrame">
+   <widget class="QFrame" name="frameReset">
     <property name="geometry">
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>640</width>
-      <height>360</height>
+      <width>540</width>
+      <height>294</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -380,8 +380,8 @@
     <widget class="QPushButton" name="pushButtonReset">
      <property name="geometry">
       <rect>
-       <x>160</x>
-       <y>210</y>
+       <x>110</x>
+       <y>190</y>
        <width>120</width>
        <height>32</height>
       </rect>
@@ -393,8 +393,8 @@
     <widget class="QLabel" name="label_7">
      <property name="geometry">
       <rect>
-       <x>100</x>
-       <y>50</y>
+       <x>60</x>
+       <y>30</y>
        <width>150</width>
        <height>30</height>
       </rect>
@@ -412,8 +412,8 @@
     <widget class="QLabel" name="label_8">
      <property name="geometry">
       <rect>
-       <x>100</x>
-       <y>170</y>
+       <x>60</x>
+       <y>150</y>
        <width>150</width>
        <height>30</height>
       </rect>
@@ -431,8 +431,8 @@
     <widget class="QLineEdit" name="lineEditResetCheckNewPassword">
      <property name="geometry">
       <rect>
-       <x>260</x>
-       <y>170</y>
+       <x>220</x>
+       <y>150</y>
        <width>240</width>
        <height>30</height>
       </rect>
@@ -446,8 +446,8 @@
     <widget class="QLabel" name="label_9">
      <property name="geometry">
       <rect>
-       <x>100</x>
-       <y>90</y>
+       <x>60</x>
+       <y>70</y>
        <width>150</width>
        <height>30</height>
       </rect>
@@ -465,8 +465,8 @@
     <widget class="QLineEdit" name="lineEditResetCheckNum">
      <property name="geometry">
       <rect>
-       <x>260</x>
-       <y>90</y>
+       <x>220</x>
+       <y>70</y>
        <width>130</width>
        <height>30</height>
       </rect>
@@ -480,8 +480,8 @@
     <widget class="QLineEdit" name="lineEditResetAccount">
      <property name="geometry">
       <rect>
-       <x>260</x>
-       <y>50</y>
+       <x>220</x>
+       <y>30</y>
        <width>240</width>
        <height>30</height>
       </rect>
@@ -495,8 +495,8 @@
     <widget class="QLabel" name="label_10">
      <property name="geometry">
       <rect>
-       <x>100</x>
-       <y>130</y>
+       <x>60</x>
+       <y>110</y>
        <width>150</width>
        <height>30</height>
       </rect>
@@ -514,8 +514,8 @@
     <widget class="QLineEdit" name="lineEditResetNewPassword">
      <property name="geometry">
       <rect>
-       <x>260</x>
-       <y>130</y>
+       <x>220</x>
+       <y>110</y>
        <width>240</width>
        <height>30</height>
       </rect>
@@ -526,11 +526,11 @@
       </font>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButtonResetGetCheck">
+    <widget class="QPushButton" name="pushButtonResetAcquire">
      <property name="geometry">
       <rect>
-       <x>389</x>
-       <y>89</y>
+       <x>339</x>
+       <y>69</y>
        <width>112</width>
        <height>32</height>
       </rect>
@@ -542,8 +542,8 @@
     <widget class="QPushButton" name="pushButtonResetReturn">
      <property name="geometry">
       <rect>
-       <x>370</x>
-       <y>210</y>
+       <x>320</x>
+       <y>190</y>
        <width>120</width>
        <height>32</height>
       </rect>
@@ -553,16 +553,16 @@
      </property>
     </widget>
    </widget>
-   <zorder>resetFrame</zorder>
-   <zorder>registerFrame</zorder>
-   <zorder>loginFrame</zorder>
+   <zorder>frameReset</zorder>
+   <zorder>frameRegister</zorder>
+   <zorder>frameLogin</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>640</width>
+     <width>540</width>
      <height>26</height>
     </rect>
    </property>
