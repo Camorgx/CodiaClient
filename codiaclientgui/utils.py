@@ -14,8 +14,16 @@ Palette = {
     "gray": QPalette(),
 }
 
-Font['main'].setFamily("Microsoft YaHei")
-Font['main'].setPointSize(10)
+import sys
+if sys.platform == 'win32':
+    Font['main'].setFamily("Microsoft YaHei")
+    Font['main'].setPointSize(10)
+elif sys.platform == 'darwin':
+    Font['main'].setFamily("Microsoft YaHei")
+    Font['main'].setPointSize(13)
+else:
+    Font['main'].setFamily("Microsoft YaHei")
+    Font['main'].setPointSize(13)
 Font['status'].setFamily("SimHei")
 
 greenBrush = QBrush(QColor(80, 160, 30))
