@@ -7,7 +7,6 @@ import MainFunctions
 import loginWindow
 import functionWindow
 
-from codiaclient import client_login
 from codiaclient import report_var, net_var
 from codiaclient.network import *
 from codiaclient.network import _acquire_verification
@@ -243,11 +242,9 @@ if __name__ == "__main__":
     PasswordStoreRead()
     BeginTask()
     LoginWindow.show()
-    print(LoginUi.pushButtonLogin.font().family())
     sys.exit(app.exec_())
 
 '''
-我修改了你的命名.
 命名规则如下:
 对于此窗体 (Login) 比较容易混淆的, 在其类型后标注其隶属窗体:
     0 代表主窗体
