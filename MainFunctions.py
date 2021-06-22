@@ -13,15 +13,12 @@ from codiaclient.network import get_pack, show_pack
 variables = {
     "page_number": 0,
     "last_pack_pid": None,
-    "max_page_number": 1,
+    "first_pack_pid": None,
     "has_next": True,
 }
 
 
 def functionWindow_init(UI: functionWindow.Ui_functionWindow, nickname = "UNDEFINED", verified=True):
-    pack_list = get_pack()['nodes']
-    UI.exerciseFrame.hide()
-    UI.packFrame.show()
     if verified:
         status_bar_label = QLabel(f"当前用户: {nickname}")
     else:
@@ -29,22 +26,26 @@ def functionWindow_init(UI: functionWindow.Ui_functionWindow, nickname = "UNDEFI
         QMessageBox.information(None, "消息", "当前账号功能受限，请尽快完成联系方式验证。", QMessageBox.Ok)
     status_bar_label.setFont(Font["status"])
     UI.statusbar.addWidget(status_bar_label)
-    for dic in pack_list:
-        add_item_to_pack_list(UI.listWidget_packs, dic)
-    variables['page_number'] = 1
-    variables['last_pack_pid'] = pack_list[0]['id']
-    variables['first_pack_pid'] = pack_list[-1]['id']
-    UI.pushButton_last.setEnabled(False)
     UI.pushButton_next.clicked.connect(lambda: nextPage(UI))
     UI.pushButton_last.clicked.connect(lambda: previousPage(UI))
+    nextPage(UI)
+    UI.exerciseFrame.hide()
+    UI.packFrame.show()
 
 
 def nextPage(UI: functionWindow.Ui_functionWindow):
     UI.pushButton_next.setEnabled(False)
     UI.pushButton_last.setEnabled(False)
+    try: pack_list = get_pack(before = variables['last_pack_pid'])
+    except codiaError as e:
+        errorTranslate = error_translate(e)
+        if errorTranslate:
+            QMessageBox.critical(None, "获取失败", errorTranslate, QMessageBox.Ok)
+        else:
+            QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
+            raise
+        return False
     variables['page_number'] += 1
-    pack_list = get_pack(before = variables['last_pack_pid'])
-    print(pack_list)
     variables['has_next'] = pack_list['pageInfo']['hasPreviousPage']
     pack_list = pack_list['nodes']
     variables['last_pack_pid'] = pack_list[0]['id']
@@ -59,9 +60,16 @@ def nextPage(UI: functionWindow.Ui_functionWindow):
 def previousPage(UI: functionWindow.Ui_functionWindow):
     UI.pushButton_next.setEnabled(False)
     UI.pushButton_last.setEnabled(False)
+    try: pack_list = get_pack(after = variables['first_pack_pid'])
+    except codiaError as e:
+        errorTranslate = error_translate(e)
+        if errorTranslate:
+            QMessageBox.critical(None, "获取失败", errorTranslate, QMessageBox.Ok)
+        else:
+            QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
+            raise
+        return False
     variables['page_number'] -= 1
-    pack_list = get_pack(after = variables['first_pack_pid'])
-    print(pack_list)
     variables['has_next'] = pack_list['pageInfo']['hasPreviousPage']
     pack_list = pack_list['nodes']
     variables['last_pack_pid'] = pack_list[0]['id']

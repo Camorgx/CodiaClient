@@ -60,7 +60,7 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="QPushButton" name="pushButtonGoReset">
+    <widget class="QPushButton" name="pushButtonLoginGoReset">
      <property name="geometry">
       <rect>
        <x>370</x>
@@ -108,7 +108,7 @@
       <number>10</number>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit0Username">
+    <widget class="QLineEdit" name="lineEditLoginUsername">
      <property name="geometry">
       <rect>
        <x>260</x>
@@ -142,7 +142,7 @@
       <number>10</number>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit0Password">
+    <widget class="QLineEdit" name="lineEditLoginPassword">
      <property name="geometry">
       <rect>
        <x>260</x>
@@ -157,7 +157,7 @@
       </font>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButtonGoRegister">
+    <widget class="QPushButton" name="pushButtonLoginGoRegister">
      <property name="geometry">
       <rect>
        <x>160</x>
@@ -199,7 +199,7 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="QLineEdit" name="lineEdit1Password">
+    <widget class="QLineEdit" name="lineEditRegisterPassword">
      <property name="geometry">
       <rect>
        <x>260</x>
@@ -227,7 +227,7 @@
       <string>注册</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit1Checkpassword">
+    <widget class="QLineEdit" name="lineEditRegisterCheckPassword">
      <property name="geometry">
       <rect>
        <x>260</x>
@@ -299,7 +299,7 @@
       <number>10</number>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit1Userphone">
+    <widget class="QLineEdit" name="lineEditRegisterUserphone">
      <property name="geometry">
       <rect>
        <x>260</x>
@@ -333,7 +333,7 @@
       <number>10</number>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit1Username">
+    <widget class="QLineEdit" name="lineEditRegisterUsername">
      <property name="geometry">
       <rect>
        <x>260</x>
@@ -348,7 +348,7 @@
       </font>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton1Return">
+    <widget class="QPushButton" name="pushButtonRegisterReturn">
      <property name="geometry">
       <rect>
        <x>370</x>
@@ -428,7 +428,7 @@
       <number>10</number>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit2CheckNewPassword">
+    <widget class="QLineEdit" name="lineEditResetCheckNewPassword">
      <property name="geometry">
       <rect>
        <x>260</x>
@@ -462,7 +462,7 @@
       <number>10</number>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit2CheckNum">
+    <widget class="QLineEdit" name="lineEditResetCheckNum">
      <property name="geometry">
       <rect>
        <x>260</x>
@@ -477,7 +477,7 @@
       </font>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit2Account">
+    <widget class="QLineEdit" name="lineEditResetAccount">
      <property name="geometry">
       <rect>
        <x>260</x>
@@ -511,7 +511,7 @@
       <number>10</number>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit2NewPassword">
+    <widget class="QLineEdit" name="lineEditResetNewPassword">
      <property name="geometry">
       <rect>
        <x>260</x>
@@ -526,7 +526,7 @@
       </font>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton2GetCheck">
+    <widget class="QPushButton" name="pushButtonResetGetCheck">
      <property name="geometry">
       <rect>
        <x>389</x>
@@ -539,7 +539,7 @@
       <string>发送验证码</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton2Return">
+    <widget class="QPushButton" name="pushButtonResetReturn">
      <property name="geometry">
       <rect>
        <x>370</x>
@@ -563,7 +563,7 @@
      <x>0</x>
      <y>0</y>
      <width>640</width>
-     <height>29</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
@@ -571,8 +571,8 @@
      <rect>
       <x>270</x>
       <y>156</y>
-      <width>147</width>
-      <height>87</height>
+      <width>137</width>
+      <height>78</height>
      </rect>
     </property>
     <property name="title">

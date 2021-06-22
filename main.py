@@ -16,12 +16,12 @@ from codiaclient.utils import cookie_decrypt, cookie_encrypt
 
 # 开始进行登录操作
 def BeginLogin():
-    loginusername = LoginUi.lineEdit0Username.text()
-    loginpassword = LoginUi.lineEdit0Password.text()
-    if not LoginUi.lineEdit0Username.text():
+    loginusername = LoginUi.lineEditLoginUsername.text()
+    loginpassword = LoginUi.lineEditLoginPassword.text()
+    if not LoginUi.lineEditLoginUsername.text():
         QMessageBox.critical(None, "登录失败", "请输入邮箱或手机号。", QMessageBox.Ok)
         return False
-    if not LoginUi.lineEdit0Password.text():
+    if not LoginUi.lineEditLoginPassword.text():
         QMessageBox.critical(None, "登录失败", "请输入密码。", QMessageBox.Ok)
         return False
     else:
@@ -42,14 +42,14 @@ def BeginLogin():
                     if LoginUi.checkBox.isChecked():
                         config = json.dumps({
                             "password_store_on": True,
-                            "username": LoginUi.lineEdit0Username.text(),
-                            "password": cookie_encrypt(LoginUi.lineEdit0Password.text(), "hdt20040127")
+                            "username": LoginUi.lineEditLoginUsername.text(),
+                            "password": cookie_encrypt(LoginUi.lineEditLoginPassword.text(), "hdt20040127")
                         }).encode()
                         configfile.write(b64encode(config))
                     else:
                         config = json.dumps({
                             "password_store_on": False,
-                            "username": LoginUi.lineEdit0Username.text(),
+                            "username": LoginUi.lineEditLoginUsername.text(),
                             "password": None
                         }).encode()
                         configfile.write(b64encode(config))
@@ -74,10 +74,10 @@ def BeginFunction():
 
 # 获取重置密码的验证码
 def GetCheck():
-    if not LoginUi.lineEdit2Account.text():
+    if not LoginUi.lineEditResetAccount.text():
         QMessageBox.information(None, "消息", "请输入邮箱或手机号。", QMessageBox.Ok)
     try:
-        ret = _acquire_verification(LoginUi.lineEdit2Account.text())[1]
+        ret = _acquire_verification(LoginUi.lineEditResetAccount.text())[1]
     except codiaError as e:
         errorTranslate = error_translate(e)
         if errorTranslate:
@@ -98,16 +98,16 @@ def GetCheck():
 def ShowRegister():
     LoginUi.loginFrame.hide()
     LoginUi.registerFrame.show()
-    if LoginUi.lineEdit0Username.text():
-        LoginUi.lineEdit1Username.setText(LoginUi.lineEdit0Username.text())
+    if LoginUi.lineEditLoginUsername.text():
+        LoginUi.lineEditRegisterUsername.setText(LoginUi.lineEditLoginUsername.text())
 
 
 # 打开重置密码界面
 def ShowReset():
     LoginUi.loginFrame.hide()
     LoginUi.resetFrame.show()
-    if LoginUi.lineEdit0Username.text():
-        LoginUi.lineEdit2Account.setText(LoginUi.lineEdit0Username.text())
+    if LoginUi.lineEditLoginUsername.text():
+        LoginUi.lineEditResetAccount.setText(LoginUi.lineEditLoginUsername.text())
 
 
 # 初始化任务，为登陆窗口信号绑定槽函数
@@ -117,21 +117,21 @@ def BeginTask():
     from codiaclientgui.utils import Font
     LoginWindow.setFont(Font["main"])
 
+    LoginUi.lineEditLoginPassword.setEchoMode(QLineEdit.Password)
     LoginUi.pushButtonLogin.clicked.connect(BeginLogin)
-    LoginUi.lineEdit0Password.setEchoMode(QLineEdit.Password)
-    LoginUi.pushButtonGoReset.clicked.connect(ShowReset)
-    LoginUi.pushButtonGoRegister.clicked.connect(ShowRegister)
+    LoginUi.pushButtonLoginGoReset.clicked.connect(ShowReset)
+    LoginUi.pushButtonLoginGoRegister.clicked.connect(ShowRegister)
 
     LoginUi.pushButtonRegister.clicked.connect(Register)
-    LoginUi.pushButton1Return.clicked.connect(ReturnHomeFromReg)
-    LoginUi.lineEdit1Password.setEchoMode(QLineEdit.Password)
-    LoginUi.lineEdit1Checkpassword.setEchoMode(QLineEdit.Password)
+    LoginUi.pushButtonRegisterReturn.clicked.connect(ReturnHomeFromReg)
+    LoginUi.lineEditRegisterPassword.setEchoMode(QLineEdit.Password)
+    LoginUi.lineEditRegisterCheckPassword.setEchoMode(QLineEdit.Password)
 
-    LoginUi.pushButton2GetCheck.clicked.connect(GetCheck)
+    LoginUi.lineEditResetNewPassword.setEchoMode(QLineEdit.Password)
+    LoginUi.lineEditResetCheckNewPassword.setEchoMode(QLineEdit.Password)
     LoginUi.pushButtonReset.clicked.connect(Reset)
-    LoginUi.lineEdit2NewPassword.setEchoMode(QLineEdit.Password)
-    LoginUi.lineEdit2CheckNewPassword.setEchoMode(QLineEdit.Password)
-    LoginUi.pushButton2Return.clicked.connect(ReturnHomeFromReset)
+    LoginUi.pushButtonResetGetCheck.clicked.connect(GetCheck)
+    LoginUi.pushButtonResetReturn.clicked.connect(ReturnHomeFromReset)
 
     LoginUi.loginFrame.show()
     LoginUi.registerFrame.hide()
@@ -140,22 +140,22 @@ def BeginTask():
 
 # 注册函数
 def Register():
-    if not LoginUi.lineEdit1Userphone.text():
+    if not LoginUi.lineEditRegisterUserphone.text():
         QMessageBox.information(None, "消息", "请输入邮箱。", QMessageBox.Ok)
         return
-    if not LoginUi.lineEdit1Username.text():
+    if not LoginUi.lineEditRegisterUsername.text():
         QMessageBox.information(None, "消息", "请输入用户名。", QMessageBox.Ok)
         return
-    if not LoginUi.lineEdit1Password.text():
+    if not LoginUi.lineEditRegisterPassword.text():
         QMessageBox.information(None, "消息", "请输入密码。", QMessageBox.Ok)
         return
-    if ((not LoginUi.lineEdit1Checkpassword.text()) or (not LoginUi.lineEdit1Password.text())
-            or (LoginUi.lineEdit1Password.text() != LoginUi.lineEdit1Checkpassword.text())):
+    if ((not LoginUi.lineEditRegisterCheckPassword.text()) or (not LoginUi.lineEditRegisterPassword.text())
+            or (LoginUi.lineEditRegisterPassword.text() != LoginUi.lineEditRegisterCheckPassword.text())):
         QMessageBox.information(None, "消息", "两次输入的密码不相同, 请重新输入。", QMessageBox.Ok)
         return
     try:
-        ret = register(username = LoginUi.lineEdit1Username.text(), passwd = LoginUi.lineEdit1Password.text(),
-                       email = LoginUi.lineEdit1Userphone.text())
+        ret = register(username = LoginUi.lineEditRegisterUsername.text(), passwd = LoginUi.lineEditRegisterPassword.text(),
+                       email = LoginUi.lineEditRegisterUserphone.text())
     except codiaError as e:
         errorTranslate = error_translate(e)
         if errorTranslate:
@@ -173,23 +173,23 @@ def Register():
 
 # 信息获取完成，开始重置密码
 def Reset():
-    if not LoginUi.lineEdit2Account.text():
+    if not LoginUi.lineEditResetAccount.text():
         QMessageBox.information(None, "消息", "请输入邮箱或手机号。", QMessageBox.Ok)
         return
-    if not LoginUi.lineEdit2CheckNum.text():
+    if not LoginUi.lineEditResetCheckNum.text():
         QMessageBox.information(None, "消息", "请输入验证码。", QMessageBox.Ok)
         return
-    if not LoginUi.lineEdit2NewPassword.text():
+    if not LoginUi.lineEditResetNewPassword.text():
         QMessageBox.information(None, "消息", "请输入新密码。", QMessageBox.Ok)
         return
-    if ((not LoginUi.lineEdit2CheckNewPassword.text()) or (not LoginUi.lineEdit2NewPassword.text())
-            or (LoginUi.lineEdit2NewPassword.text() != LoginUi.lineEdit2CheckNewPassword.text())):
+    if ((not LoginUi.lineEditResetCheckNewPassword.text()) or (not LoginUi.lineEditResetNewPassword.text())
+            or (LoginUi.lineEditResetNewPassword.text() != LoginUi.lineEditResetCheckNewPassword.text())):
         QMessageBox.information(None, "消息", "两次输入的密码不相同, 请重新输入。", QMessageBox.Ok)
         return
     try:
-        change_password(identifier = LoginUi.lineEdit2Account.text(), vercode = LoginUi.lineEdit2CheckNum.text(),
-                        passwd = LoginUi.lineEdit2NewPassword.text(),
-                        passwordconfirm = LoginUi.lineEdit2CheckNewPassword.text())
+        change_password(identifier = LoginUi.lineEditResetAccount.text(), vercode = LoginUi.lineEditResetCheckNum.text(),
+                        passwd = LoginUi.lineEditResetNewPassword.text(),
+                        passwordconfirm = LoginUi.lineEditResetCheckNewPassword.text())
     except codiaError as e:
         errorTranslate = error_translate(e)
         if errorTranslate:
@@ -222,11 +222,11 @@ def PasswordStoreRead():
             config = configfile.read()
         config = json.loads(b64decode(config).decode())
         if config["password_store_on"]:
-            LoginUi.lineEdit0Username.setText(config["username"])
-            LoginUi.lineEdit0Password.setText(cookie_decrypt(config["password"], "hdt20040127"))
+            LoginUi.lineEditLoginUsername.setText(config["username"])
+            LoginUi.lineEditLoginPassword.setText(cookie_decrypt(config["password"], "hdt20040127"))
             LoginUi.checkBox.setChecked(True)
         else:
-            LoginUi.lineEdit0Username.setText(config["username"])
+            LoginUi.lineEditLoginUsername.setText(config["username"])
     except FileNotFoundError:
         print("Config file not found")
     except:
@@ -254,6 +254,6 @@ if __name__ == "__main__":
 容器名称采用 name + Type, 例如:
     loginWindow, packFrame
 其余控件名称采用 type (+ id) + Name, 例如:
-    lineEdit0Username, pushButtonLogin
+    lineEditLoginUsername, pushButtonLogin
 
 '''
