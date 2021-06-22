@@ -126,7 +126,6 @@
      <property name="font">
       <font>
        <family>Consolas</family>
-       <pointsize>10</pointsize>
       </font>
      </property>
     </widget>
@@ -161,7 +160,6 @@
      <property name="font">
       <font>
        <family>Consolas</family>
-       <pointsize>10</pointsize>
       </font>
      </property>
     </widget>
@@ -219,7 +217,6 @@
      <property name="font">
       <font>
        <family>Consolas</family>
-       <pointsize>10</pointsize>
       </font>
      </property>
     </widget>
@@ -248,7 +245,6 @@
      <property name="font">
       <font>
        <family>Consolas</family>
-       <pointsize>10</pointsize>
       </font>
      </property>
     </widget>
@@ -321,7 +317,6 @@
      <property name="font">
       <font>
        <family>Consolas</family>
-       <pointsize>10</pointsize>
       </font>
      </property>
     </widget>
@@ -356,7 +351,6 @@
      <property name="font">
       <font>
        <family>Consolas</family>
-       <pointsize>10</pointsize>
       </font>
      </property>
     </widget>
@@ -452,7 +446,6 @@
      <property name="font">
       <font>
        <family>Consolas</family>
-       <pointsize>10</pointsize>
       </font>
      </property>
     </widget>
@@ -487,7 +480,6 @@
      <property name="font">
       <font>
        <family>Consolas</family>
-       <pointsize>10</pointsize>
       </font>
      </property>
     </widget>
@@ -503,7 +495,6 @@
      <property name="font">
       <font>
        <family>Consolas</family>
-       <pointsize>10</pointsize>
       </font>
      </property>
     </widget>
@@ -538,7 +529,6 @@
      <property name="font">
       <font>
        <family>Consolas</family>
-       <pointsize>10</pointsize>
       </font>
      </property>
     </widget>

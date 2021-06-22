@@ -234,21 +234,15 @@ def PasswordStoreRead():
         QMessageBox.critical(None, '错误', '缓存文件损坏', QMessageBox.Ok)
 
 def ConfigInit():
-    pass
-    screenRect = QApplication.desktop().screenGeometry()
-    screenheight = screenRect.height()
-    screenwidth = screenRect.width()
+    screen = app.screens()[0]
+    dpi = screen.physicalDotsPerInch()
     from codiaclientgui.utils import Font
     Font['main'].setFamily("Microsoft YaHei")
-    if screenheight * screenwidth < 1280 * 720: Font['main'].setPointSize(9)
-    elif screenheight * screenwidth < 2048 * 1080: Font['main'].setPointSize(10)
-    elif screenheight * screenwidth < 4096 * 2160: Font['main'].setPointSize(13)
+    if dpi <= 150: Font['main'].setPointSize(10)
+    elif dpi <= 300: Font['main'].setPointSize(13)
     else: Font['main'].setPointSize(15)
 
-
 if __name__ == '__main__':
-    from PyQt5.QtCore import Qt
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     app = QApplication(sys.argv)
     ConfigInit()
     LoginWindow = QMainWindow()

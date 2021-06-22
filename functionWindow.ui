@@ -29,12 +29,6 @@
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <property name="font">
-    <font>
-     <family>Microsoft YaHei</family>
-     <pointsize>10</pointsize>
-    </font>
-   </property>
    <widget class="QFrame" name="frame_packlist">
     <property name="geometry">
      <rect>
