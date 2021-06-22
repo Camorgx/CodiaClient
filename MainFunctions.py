@@ -3,13 +3,14 @@ import datetime
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
 from PyQt5.QtWidgets import QListWidgetItem, QWidget, QListWidget
+from PyQt5 import QtGui
 
 import functionWindow
 from codiaclient.network import *
 
 
 def functionWindow_init(ui: functionWindow.Ui_functionWindow):
-    packlist = get_pack()
+    packlist = get_pack(lastcnt = 12)
     ui.frame_questionlist.hide()
     ui.frame_packlist.show()
     for dic in packlist:
@@ -26,14 +27,24 @@ def getpackwidget(data: dict):
     hasdone = data['codingExercises']['viewerPassedCount']
     if total == hasdone:
         label_finish = QLabel('已完成')
+        greenPalette = QtGui.QPalette()
+        brush = QtGui.QBrush(QtGui.QColor(80, 160, 30))
+        brush.setStyle(Qt.SolidPattern)
+        greenPalette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Text, brush)
+        label_finish.setPalette(greenPalette)
     else:
         label_finish = QLabel('未完成')
+        redPalette = QtGui.QPalette()
+        brush = QtGui.QBrush(QtGui.QColor(160, 0, 30))
+        brush.setStyle(Qt.SolidPattern)
+        redPalette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.Text, brush)
+        label_finish.setPalette(redPalette)
     layout_main.addWidget(label_finish)
     layout_main.setStretchFactor(label_finish, 1)
     label_name = QLabel(data['name'])
     label_start = QLabel('开始时间')
     label_end = QLabel('截止时间')
-    label_hasdone_total = QLabel('已完成/总计： ' + str(hasdone) + '/' + str(total))
+    label_hasdone_total = QLabel('已完成/总计： {}/{}'.format(hasdone, total))
     layout_right_up.addWidget(label_name)
     layout_right_up.addWidget(label_start)
     layout_right_up.addWidget(label_end)
@@ -43,17 +54,17 @@ def getpackwidget(data: dict):
     layout_right_down.addWidget(label_hasdone_total)
     layout_right_down.setStretchFactor(label_hasdone_total, 4)
     if data['due']:
-        time = (datetime.datetime.strptime(data['due'].replace('T', " ")[:-5], "%Y-%m-%d %H:%M:%S")
+        end = (datetime.datetime.strptime(data['due'].replace('T', " ")[:-5], "%Y-%m-%d %H:%M:%S")
                 + datetime.timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
     else:
-        time = '无限制'
-    if data['start']:
-        start = (datetime.datetime.strptime(data['start'].replace('T', " ")[:-5], "%Y-%m-%d %H:%M:%S")
+        end = '无限制'
+    if data['createdAt']:
+        start = (datetime.datetime.strptime(data['createdAt'].replace('T', " ")[:-5], "%Y-%m-%d %H:%M:%S")
                  + datetime.timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
     else:
         start = '无限制'
     label_start_time = QLabel(start)
-    label_end_time = QLabel(time)
+    label_end_time = QLabel(end)
     layout_right_down.addWidget(label_start_time)
     layout_right_down.addWidget(label_end_time)
     layout_right_down.setStretchFactor(label_start_time, 4)
@@ -75,3 +86,4 @@ def add_item_to_pack_list(packlist: QListWidget, data: dict):
     widget = getpackwidget(data)
     packlist.addItem(item)
     packlist.setItemWidget(item, widget)
+    # print(show_pack(data['id']))
