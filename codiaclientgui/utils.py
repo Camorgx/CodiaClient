@@ -11,10 +11,15 @@ Palette = {
     "gray": QPalette(),
 }
 import sys
-if sys.platform == 'win32': Font['main'].setFamily("Microsoft YaHei")
-elif sys.platform == 'darwin': Font['main'].setFamily("SimSun")
-else: Font['main'].setFamily("SimSun")
-Font['main'].setPointSize(10)
+if sys.platform == 'win32':
+    Font['main'].setFamily("Microsoft YaHei")
+    Font['main'].setPointSize(10)
+elif sys.platform == 'darwin':
+    Font['main'].setFamily("Microsoft YaHei")
+    Font['main'].setPointSize(13)
+else:
+    Font['main'].setFamily("SimSun")
+    Font['main'].setPointSize(13)
 
 greenBrush = QBrush(QColor(80, 160, 30))
 greenBrush.setStyle(Qt.SolidPattern)
