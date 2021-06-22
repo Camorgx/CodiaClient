@@ -21,7 +21,7 @@ redBrush.setStyle(Qt.SolidPattern)
 Palette['red'].setBrush(QPalette.Active, QPalette.Text, redBrush)
 
 def functionWindow_init(ui: functionWindow.Ui_functionWindow):
-    packlist = get_pack(lastcnt = 12)
+    packlist = get_pack()
     ui.frame_questionlist.hide()
     ui.frame_packlist.show()
     for dic in packlist:
@@ -33,14 +33,15 @@ def getpackwidget(data: dict):
     layout_right = QVBoxLayout()
     layout_right_up = QHBoxLayout()
     layout_right_down = QHBoxLayout()
-    total = data['codingExercises']['totalCount']
-    hasdone = data['codingExercises']['viewerPassedCount']
-    if total == hasdone:
-        label_finish = QLabel('已完成')
-        label_finish.setPalette(Palette['green'])
-    else:
-        label_finish = QLabel('未完成')
-        label_finish.setPalette(Palette['red'])
+    if data['codingExercises']:
+        total = data['codingExercises']['totalCount']
+        hasdone = data['codingExercises']['viewerPassedCount']
+        if total == hasdone:
+            label_finish = QLabel('已完成')
+            label_finish.setPalette(Palette['green'])
+        else:
+            label_finish = QLabel('未完成')
+            label_finish.setPalette(Palette['red'])
     layout_main.addWidget(label_finish)
     layout_main.setStretchFactor(label_finish, 1)
     label_name = QLabel(data['name'])
