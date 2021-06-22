@@ -19,8 +19,7 @@ if sys.platform == 'win32':
     Font['main'].setFamily("Microsoft YaHei")
     Font['main'].setPointSize(10)
 elif sys.platform == 'darwin':
-    Font['main'].setFamily("Microsoft YaHei")
-    Font['main'].setPointSize(13)
+    pass
 else:
     Font['main'].setFamily("Microsoft YaHei")
     Font['main'].setPointSize(13)

@@ -22,12 +22,6 @@
     <height>420</height>
    </size>
   </property>
-  <property name="font">
-   <font>
-    <family>Microsoft YaHei</family>
-    <pointsize>10</pointsize>
-   </font>
-  </property>
   <property name="windowTitle">
    <string>欢迎使用Codia——登录</string>
   </property>
