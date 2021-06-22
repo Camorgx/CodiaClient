@@ -56,11 +56,12 @@ def BeginLogin():
                         configfile.write(b64encode(config))
             except Exception as e:
                 QMessageBox.critical(None, '未知错误', str(e), QMessageBox.Ok)
-            QMessageBox.information(None, '登录成功', '已登录用户: ' + loginusernickname, QMessageBox.Ok)
             if not variables['me']['verified']:
-                QMessageBox.information(None, '消息', '当前账号功能受限，请尽快完成联系方式验证。', QMessageBox.Ok)
+                verified = False
+            else:
+                verified = True
             FunctionUi.setupUi(FunctionWindow)
-            MainFunctions.functionWindow_init(FunctionUi)
+            MainFunctions.functionWindow_init(FunctionUi, loginusernickname, verified)
             LoginWindow.hide()
             FunctionWindow.show()
             return True
