@@ -33,7 +33,7 @@
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QFrame" name="frame_packlist">
+   <widget class="QFrame" name="packFrame">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -104,7 +104,7 @@
      </property>
     </widget>
    </widget>
-   <widget class="QFrame" name="frame_questionlist">
+   <widget class="QFrame" name="exerciseFrame">
     <property name="geometry">
      <rect>
       <x>0</x>

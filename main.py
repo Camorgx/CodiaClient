@@ -256,10 +256,16 @@ if __name__ == "__main__":
     sys.exit(app.exec_())
 
 '''
-我修改了你的命名。
-命名规则如下：
-比较容易混淆的，在其类型后标注其隶属窗体：
-    0代表主窗体
-    1代表注册窗体
-    2代表重置密码窗体
+我修改了你的命名.
+命名规则如下:
+对于此窗体 (Login) 比较容易混淆的, 在其类型后标注其隶属窗体:
+    0 代表主窗体
+    1 代表注册窗体
+    2 代表重置密码窗体
+
+容器名称采用 name + Type, 例如:
+    loginWindow, packFrame
+其余控件名称采用 type (+ id) + Name, 例如:
+    lineEdit0Username, pushButtonLogin
+
 '''
