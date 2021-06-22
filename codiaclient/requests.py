@@ -100,7 +100,7 @@ class Requests:
                         except Exception as e: report(e, 1)
                     elif conf[2] == 'to':
                         try: res = get_data(eid = variables['e'], pid = variables['p'], codecnt = int(conf[1]))
-                        except ValueError: report('Invalid request: type(lastcnt) should be int.', 1)
+                        except ValueError: report('Invalid request: type(codecnt) should be int.', 1)
                         else:
                             try:
                                 with open('./tmp.txt', 'w', encoding = 'utf-8') as f: f.write(res[0]['solution']['asset']['content'])
@@ -127,8 +127,8 @@ class Requests:
                     if not res: report("No result.", 1)
                     else: self.show_msg(json.dumps(res['nodes']))
                 elif len(conf) == 2:
-                    try: res = get_pack(lastcnt = int(conf[1]))
-                    except ValueError: report('Invalid request: type(lastcnt) should be int.', 1)
+                    try: res = get_pack(cnt = int(conf[1]))
+                    except ValueError: report('Invalid request: type(cnt) should be int.', 1)
                     else:
                         if not res: report("No result.", 1)
                         else: self.show_msg(json.dumps(res['nodes']))
@@ -144,14 +144,14 @@ class Requests:
                     else: report('Invalid request.', 1)
                 elif len(conf) == 4:
                     if conf[2] in ['bf', 'before']:
-                        try: res = get_pack(before = conf[3], lastcnt = int(conf[1]))
-                        except ValueError: report('Invalid request: type(lastcnt) should be int.', 1)
+                        try: res = get_pack(before = conf[3], cnt = int(conf[1]))
+                        except ValueError: report('Invalid request: type(cnt) should be int.', 1)
                         else:
                             if not res: report("No result.", 1)
                             else: self.show_msg(json.dumps(res['nodes']))
                     if conf[2] in ['af', 'after']:
-                        try: res = get_pack(after = conf[3], lastcnt = int(conf[1]))
-                        except ValueError: report('Invalid request: type(lastcnt) should be int.', 1)
+                        try: res = get_pack(after = conf[3], cnt = int(conf[1]))
+                        except ValueError: report('Invalid request: type(cnt) should be int.', 1)
                         else:
                             if not res: report("No result.", 1)
                             else: self.show_msg(json.dumps(res['nodes']))

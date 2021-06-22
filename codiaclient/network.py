@@ -341,13 +341,13 @@ def get_exercise(eid, pid, lang, feedback = 'dict'):
     if pid: return _get_exercise_from_pack(eid, pid, lang, feedback)
     else: return _get_exercise_not_from_pack(eid, lang, feedback)
 
-def get_pack(before = None, after = None, lastcnt = None):
-    if lastcnt == None: lastcnt = 8
-    if type(lastcnt) == str:
-        try: lastcnt = int(lastcnt)
+def get_pack(before = None, after = None, cnt = None):
+    if cnt == None: cnt = 8
+    if type(cnt) == str:
+        try: cnt = int(cnt)
         except: pass
-    if type(lastcnt) != int:
-        report('get_pack: Variable `lastcnt` type error. (should be `int`, not `{}`)'.format(type(lastcnt)), 1)
+    if type(cnt) != int:
+        report('get_pack: Variable `cnt` type error. (should be `int`, not `{}`)'.format(type(cnt)), 1)
         return False
     if before and after:
         report('get_pack: Argument `before` should not be used with `after`.', 1)
@@ -359,16 +359,16 @@ def get_pack(before = None, after = None, lastcnt = None):
     }
     if before:
         data['variables']['before'] = before
-        data['variables']['lastcnt'] = lastcnt
+        data['variables']['lastcnt'] = cnt
         queryargs = r"$lastcnt: Int!, $before: String"
         funargs = r"last: $lastcnt, before: $before"
     elif after:
         data['variables']['after'] = after
-        data['variables']['firstcnt'] = lastcnt
+        data['variables']['firstcnt'] = cnt
         queryargs = r"$firstcnt: Int!, $after: String"
         funargs = r"first: $firstcnt, after: $after"
     else:
-        data['variables']['lastcnt'] = lastcnt
+        data['variables']['lastcnt'] = cnt
         queryargs = r"$lastcnt: Int!, $before: String"
         funargs = r"last: $lastcnt, before: $before"
     data['query'] = f'''
