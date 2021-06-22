@@ -10,79 +10,69 @@ import functionWindow
 from codiaclientgui.utils import Font, Palette
 from codiaclient.network import get_pack, show_pack
 
-page_number = 0
-is_last_page = False
-last_pack_pid = None
-pages = []
-max_page_number = 1
-has_next = True
-last_page_number = -1
+variables = {
+    "page_number": 0,
+    "last_pack_pid": None,
+    "max_page_number": 1,
+    "has_next": True,
+}
 
 
-def functionWindow_init(ui: functionWindow.Ui_functionWindow, nickname="UNDEFINED", verified=True):
-    global page_number, is_last_page
-    global last_pack_pid
+def functionWindow_init(UI: functionWindow.Ui_functionWindow, nickname = "UNDEFINED", verified=True):
     pack_list = get_pack()['nodes']
-    pages.append(pack_list)
-    ui.exerciseFrame.hide()
-    ui.packFrame.show()
+    UI.exerciseFrame.hide()
+    UI.packFrame.show()
     if verified:
         status_bar_label = QLabel(f"当前用户: {nickname}")
     else:
         status_bar_label = QLabel(f"当前用户: {nickname}(未验证)")
         QMessageBox.information(None, "消息", "当前账号功能受限，请尽快完成联系方式验证。", QMessageBox.Ok)
     status_bar_label.setFont(Font["status"])
-    ui.statusbar.addWidget(status_bar_label)
+    UI.statusbar.addWidget(status_bar_label)
     for dic in pack_list:
-        add_item_to_pack_list(ui.listWidget_packs, dic)
-    page_number = 1
-    last_pack_pid = pack_list[0]['id']
-    ui.pushButton_last.setEnabled(False)
-    ui.pushButton_next.clicked.connect(lambda: nextPage(ui))
-    ui.pushButton_last.clicked.connect(lambda: lastPage(ui))
+        add_item_to_pack_list(UI.listWidget_packs, dic)
+    variables['page_number'] = 1
+    variables['last_pack_pid'] = pack_list[0]['id']
+    variables['first_pack_pid'] = pack_list[-1]['id']
+    UI.pushButton_last.setEnabled(False)
+    UI.pushButton_next.clicked.connect(lambda: nextPage(UI))
+    UI.pushButton_last.clicked.connect(lambda: previousPage(UI))
 
 
-def nextPage(ui: functionWindow.Ui_functionWindow):
-    global page_number, pages, max_page_number, last_pack_pid, has_next
-    global last_page_number
-    page_number += 1
-    if page_number > max_page_number:
-        pack_list = get_pack(before=last_pack_pid)
-        has_next = pack_list['pageInfo']['hasPreviousPage']
-        pack_list = pack_list['nodes']
-        last_pack_pid = pack_list[0]['id']
-        max_page_number += 1
-        if not has_next:
-            last_page_number = page_number
-    else:
-        pack_list = pages[page_number - 1]
-        if page_number == last_page_number:
-            has_next = False
-    if pack_list not in pages:
-        pages.append(pack_list)
-    if not has_next:
-        ui.pushButton_next.setEnabled(False)
-    ui.pushButton_last.setEnabled(True)
-    ui.label_page.setText(f'第 {page_number} 页')
-    for i in range(0, ui.listWidget_packs.count()):
-        ui.listWidget_packs.takeItem(0)
+def nextPage(UI: functionWindow.Ui_functionWindow):
+    variables['page_number'] += 1
+    pack_list = get_pack(before = variables['last_pack_pid'])
+    print(pack_list)
+    variables['has_next'] = pack_list['pageInfo']['hasPreviousPage']
+    pack_list = pack_list['nodes']
+    variables['last_pack_pid'] = pack_list[0]['id']
+    variables['first_pack_pid'] = pack_list[-1]['id']
+    if not variables['has_next']:
+        UI.pushButton_next.setEnabled(False)
+    UI.pushButton_last.setEnabled(True)
+    UI.label_page.setText('第 {} 页'.format(variables['page_number']))
+    for i in range(0, UI.listWidget_packs.count()):
+        UI.listWidget_packs.takeItem(0)
     for dic in pack_list:
-        add_item_to_pack_list(ui.listWidget_packs, dic)
+        add_item_to_pack_list(UI.listWidget_packs, dic)
 
 
-def lastPage(ui: functionWindow.Ui_functionWindow):
-    global page_number, pages, has_next
-    page_number -= 1
-    has_next = True
-    if page_number == 1:
-        ui.pushButton_last.setEnabled(False)
-    ui.pushButton_next.setEnabled(True)
-    pack_list = pages[page_number - 1]
-    ui.label_page.setText(f'第 {page_number} 页')
-    for i in range(0, ui.listWidget_packs.count()):
-        ui.listWidget_packs.takeItem(0)
+def previousPage(UI: functionWindow.Ui_functionWindow):
+    variables['page_number'] -= 1
+    pack_list = get_pack(after = variables['first_pack_pid'])
+    print(pack_list)
+    variables['has_next'] = pack_list['pageInfo']['hasPreviousPage']
+    pack_list = pack_list['nodes']
+    variables['last_pack_pid'] = pack_list[0]['id']
+    variables['first_pack_pid'] = pack_list[-1]['id']
+    if not variables['has_next']:
+        UI.pushButton_next.setEnabled(False)
+    UI.pushButton_last.setEnabled(True)
+    UI.label_page.setText('第 {} 页'.format(variables['page_number']))
+    for i in range(0, UI.listWidget_packs.count()):
+        UI.listWidget_packs.takeItem(0)
     for dic in pack_list:
-        add_item_to_pack_list(ui.listWidget_packs, dic)
+        add_item_to_pack_list(UI.listWidget_packs, dic)
 
 
 def get_pack_widget(data: dict):
