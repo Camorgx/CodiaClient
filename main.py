@@ -1,36 +1,31 @@
 import sys
 
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication
 
 from mainFunctions import MainInit
-from loginFunctions import PasswordStoreRead, BeginLogin
-from loginWindow import Ui_windowLogin
-from mainWindow import Ui_windowMain
-
-def LoginInit():
-    global windowLogin
-    windowLogin = QMainWindow()
-    from codiaclientgui.utils import Font
-    windowLogin.setFont(Font["main"])
-    uiLogin = Ui_windowLogin()
-    uiLogin.setupUi(windowLogin)
-    PasswordStoreRead(uiLogin)
-    BeginLogin(uiLogin = uiLogin, callback = lambda: MainInit(callback = lambda: windowLogin.close()))
-    windowLogin.show()
+from loginFunctions import LoginInit
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    LoginInit()
+    LoginInit(callback = MainInit)
     sys.exit(app.exec_())
 
 '''
-命名规则如下:
-对于此窗体 (Login) 比较容易混淆的, 在其类型后标注其隶属窗体:
-    0 代表主窗体
-    1 代表注册窗体
-    2 代表重置密码窗体
-
-控件名称采用 type (+ id) + Name, 例如:
-    lineEditLoginUsername, pushButtonLogin
-
+命名规则:
+    1. 变量
+        变量命名的基本规则是首字母小写的驼峰命名.
+        i. 控件
+            type (+ Container) + Name.
+            例如:
+                uiLogin, windowLogin;
+                lineEditLoginUsername, lineEditRegisterPassword
+        ii. 其余变量
+            name1 + Name2 + ... .
+            例如:
+                errorTranslate, config
+    2. 函数 / 类
+        函数 / 类命名的基本规则是首字母大写的驼峰命名.
+        Name1 + Name2 + ... .
+        例如:
+            LoginInit, PasswordStoreRead
 '''

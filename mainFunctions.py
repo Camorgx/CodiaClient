@@ -11,82 +11,88 @@ from mainWindow import Ui_windowMain
 
 from codiaclient import net_var
 from codiaclient.network import get_pack, show_pack, logined
+from codiaclient.report import Error as codiaError, error_translate as ErrorTranslate
 from codiaclientgui.utils import Font, Palette
 
 variables = {
-    "page_number": 0,
-    "last_pack_pid": None,
-    "first_pack_pid": None,
-    "has_next": True,
+    "pageNumber": 0,
+    "lastPid": None,
+    "firstPid": None,
+    "hasNext": True,
+    "packInfo": {},
 }
 
-# 打开做题界面
+# 初始化任务，新建一个做题窗体和对应的ui
 def MainInit(callback = None):
-    global windowMain
+    global windowMain, uiMain
     windowMain = QMainWindow()
-    uiMain = Ui_windowMain()
-    loginUserNickname = logined()[1]
-    verified = bool(net_var["me"]["verified"])
-    uiMain.setupUi(windowMain)
-    BeginMain(uiMain, loginUserNickname, verified)
-
-    from codiaclientgui.utils import Font
     windowMain.setFont(Font["main"])
-
+    uiMain = Ui_windowMain()
+    uiMain.setupUi(windowMain)
+    BeginMain(callback = callback)
+    #注意此处（下面）的顺序
+    GetPage(callback = UpdatePage)
     windowMain.show()
-    callback and callback()
 
-def BeginMain(uiMain: Ui_windowMain, nickname = "UNDEFINED", verified = True):
+# 初始化任务，为做题窗口信号绑定槽函数
+def BeginMain(callback = None):
+    nickname = logined()[1]
+    if not nickname: nickname = "UNDEFINED"
+    verified = net_var["me"]["verified"]
     if verified:
         labelStatusbarUser = QLabel(f"当前用户: {nickname}")
     else:
         labelStatusbarUser = QLabel(f"当前用户: {nickname}(未验证)")
         QMessageBox.information(None, "消息", "当前账号功能受限，请尽快完成联系方式验证。", QMessageBox.Ok)
     labelStatusbarUser.setFont(Font["status"])
+
+    uiMain.pushButtonPackNext.clicked.connect(lambda: GetPage(before = variables["lastPid"], callback = UpdatePage))
+    uiMain.pushButtonPackPrevious.clicked.connect(lambda: GetPage(after = variables["firstPid"], callback = UpdatePage))
     uiMain.statusbar.addWidget(labelStatusbarUser)
-    uiMain.pushButtonPackNext.clicked.connect(lambda: NextPage(uiMain))
-    uiMain.pushButtonPackPrevious.clicked.connect(lambda: PreviousPage(uiMain))
-    NextPage(uiMain)
+
     uiMain.frameExercise.hide()
     uiMain.framePack.show()
+    callback and callback()
 
 # 在翻页后更新页面
-def UpdatePage(uiMain: Ui_windowMain, packInfo):
-    variables["has_next"] = packInfo["pageInfo"]["hasPreviousPage"]
-    packList = packInfo["nodes"]
-    variables["last_pack_pid"] = packList[0]["id"]
-    variables["first_pack_pid"] = packList[-1]["id"]
-    uiMain.pushButtonPackNext.setEnabled(variables["has_next"])
-    uiMain.pushButtonPackPrevious.setEnabled(variables["page_number"] > 1)
-    uiMain.labelPackPage.setText("第 {} 页".format(variables["page_number"]))
+def UpdatePage():
+    variables["hasNext"] = variables["packInfo"]["pageInfo"]["hasPreviousPage"]
+    packList = variables["packInfo"]["nodes"]
+    variables["lastPid"] = packList[0]["id"]
+    variables["firstPid"] = packList[-1]["id"]
+    uiMain.pushButtonPackNext.setEnabled(variables["hasNext"])
+    uiMain.pushButtonPackPrevious.setEnabled(variables["pageNumber"] > 1)
+    uiMain.labelPackPage.setText("第 {} 页".format(variables["pageNumber"]))
     for i in range(0, uiMain.listWidgetPack.count()): uiMain.listWidgetPack.takeItem(0)
     for dic in packList: AddItemToPackList(uiMain.listWidgetPack, dic)
 
-# 下一页，时间更早
-def NextPage(uiMain: Ui_windowMain):
+import threading
+# 翻页
+def GetPage(before = None, after = None, callback = None):
+    if before and after: return False
     uiMain.pushButtonPackNext.setEnabled(False)
     uiMain.pushButtonPackPrevious.setEnabled(False)
-    try: packInfo = get_pack(before = variables["last_pack_pid"])
+    try: variables["packInfo"] = get_pack(before = before, after = after)
     except codiaError as e:
         errorTranslate = error_translate(e)
         if errorTranslate: QMessageBox.critical(None, "获取失败", errorTranslate, QMessageBox.Ok)
         else: QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
         return False
-    variables["page_number"] += 1
-    UpdatePage(uiMain, packInfo)
-
-# 上一页，时间更近
-def PreviousPage(uiMain: Ui_windowMain):
-    uiMain.pushButtonPackNext.setEnabled(False)
-    uiMain.pushButtonPackPrevious.setEnabled(False)
-    try: packInfo = get_pack(after = variables["first_pack_pid"])
-    except codiaError as e:
-        errorTranslate = error_translate(e)
-        if errorTranslate: QMessageBox.critical(None, "获取失败", errorTranslate, QMessageBox.Ok)
-        else: QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
-        return False
-    variables["page_number"] -= 1
-    UpdatePage(uiMain, packInfo)
+    # def GetPack():
+    #     try: variables["packInfo"] = get_pack(before = before, after = after)
+    #     except codiaError as e:
+    #         errorTranslate = error_translate(e)
+    #         if errorTranslate: QMessageBox.critical(None, "获取失败", errorTranslate, QMessageBox.Ok)
+    #         else: QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
+    #         return False
+    # tr = threading.Thread(target = GetPack)
+    # tr.start()
+    # # QMessageBox.information(None, "消息", "测试", QMessageBox.Ok)
+    # tr.join()
+    if before: variables["pageNumber"] += 1
+    elif after: variables["pageNumber"] -= 1
+    else: variables["pageNumber"] = 1
+    callback and callback()
 
 def GetPackWidget(data: dict):
     widget = QWidget()
