@@ -14,17 +14,22 @@ Palette = {
     "gray": QPalette(),
 }
 
+Style = {
+    "progressBar": "",
+}
+
 import sys
 if sys.platform == 'win32':
     Font['main'].setFamily("Microsoft YaHei")
     Font['main'].setPointSize(10)
     Font['status'].setFamily("FangSong")
-    Font['main'].setPointSize(9)
+    Font['status'].setPointSize(9)
+    Style['progressBar'] = "QProgressBar { border: 2px solid grey; border-radius: 5px; background-color: #FFFFFF;}QProgressBar::chunk { background-color: #007FFF; width: 10px;}QProgressBar { border: 2px solid grey; border-radius: 5px; text-align: center;}"
 elif sys.platform == 'darwin':
     Font['main'].setFamily(".AppleSystemUIFont")
     Font['main'].setPointSize(13)
     Font['status'].setFamily(".AppleSystemUIFont")
-    Font['main'].setPointSize(12)
+    Font['status'].setPointSize(12)
     pass
 else:
     Font['main'].setFamily("Microsoft YaHei")

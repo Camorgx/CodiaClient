@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QListWidgetItem, QWidget, QListWidget
 from PyQt5.QtWidgets import QMessageBox, QMainWindow, QApplication
 
 import functionWindow
-from codiaclientgui.utils import Font, Palette
+from codiaclientgui.utils import Font, Palette, Style
 from codiaclient.network import get_pack, show_pack
 
 page_number = 0
@@ -70,8 +70,8 @@ def function_Window_init(ui: functionWindow.Ui_functionWindow, nickname="UNDEFIN
     global last_pack_pid
     ui.progressBar_pack_frame.hide()
     ui.progressBar_question_frame.hide()
-    ui.progressBar_pack_frame.setStyleSheet("QProgressBar { border: 2px solid grey; border-radius: 5px; background-color: #FFFFFF;}QProgressBar::chunk { background-color: #007FFF; width: 10px;}QProgressBar { border: 2px solid grey; border-radius: 5px; text-align: center;}")
-    ui.progressBar_question_frame.setStyleSheet("QProgressBar { border: 2px solid grey; border-radius: 5px; background-color: #FFFFFF;}QProgressBar::chunk { background-color: #007FFF; width: 10px;}QProgressBar { border: 2px solid grey; border-radius: 5px; text-align: center;}")
+    ui.progressBar_pack_frame.setStyleSheet(Style["progressBar"])
+    ui.progressBar_question_frame.setStyleSheet(Style["progressBar"])
     pack_list = get_pack()['nodes']
     pages.append(pack_list)
     ui.exerciseFrame.hide()

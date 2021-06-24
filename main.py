@@ -12,13 +12,13 @@ from codiaclient.network import *
 from codiaclient.network import _acquire_verification
 from codiaclient.report import Error as codiaError, error_translate
 from codiaclient.utils import cookie_decrypt, cookie_encrypt
-
+from codiaclientgui.utils import Style, Font
 
 # 开始进行登录操作
 def BeginLogin():
     LoginUi.progressBar_Login.setValue(0)
     LoginUi.progressBar_Login.show()
-    LoginUi.progressBar_Login.setStyleSheet("QProgressBar { border: 2px solid grey; border-radius: 5px; background-color: #FFFFFF;}QProgressBar::chunk { background-color: #007FFF; width: 10px;}QProgressBar { border: 2px solid grey; border-radius: 5px; text-align: center;}")
+    LoginUi.progressBar_Login.setStyleSheet(Style["progressBar"])
     QApplication.processEvents()
     loginusername = LoginUi.lineEdit0Username.text()
     loginpassword = LoginUi.lineEdit0Password.text()
