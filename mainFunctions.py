@@ -50,9 +50,10 @@ def frameExerciseInit():
         uiMain.pushButtonExerciseBegin.hide()
 
 def getSelectedPid():
-    selected = uiMain.listWidgetPack.selectedIndexes()[0]
-    variables["currentPackRow"] = selected.row()
-    requests_var["p"] = variables["packInfo"]["nodes"][variables["currentPackRow"]]["id"]
+    if uiMain.listWidgetPack.selectedIndexes():
+        selected = uiMain.listWidgetPack.selectedIndexes()[0]
+        variables["currentPackRow"] = selected.row()
+        requests_var["p"] = variables["packInfo"]["nodes"][variables["currentPackRow"]]["id"]
 
 
 def ExerciseReturn():
@@ -251,8 +252,10 @@ def GetPackWidget(data: dict):
 
 def AddItemToPackList(packList: QListWidget, data: dict):
     item = QListWidgetItem()
-    item.setSizeHint(QSize(1060, 69))
+    item.setSizeHint(QSize(960, 65))
     widget = GetPackWidget(data)
+    if not widget.isEnabled():
+        item.setFlags(item.flags() & ~Qt.ItemIsEnabled & ~Qt.ItemIsSelectable)
     packList.addItem(item)
     packList.setItemWidget(item, widget)
     widget.setCursor(Qt.PointingHandCursor)

@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1280</width>
+    <width>1080</width>
     <height>768</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>1280</width>
+    <width>1080</width>
     <height>768</height>
    </size>
   </property>
@@ -38,13 +38,13 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>1280</width>
+      <width>1080</width>
       <height>768</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>1280</width>
+      <width>1080</width>
       <height>768</height>
      </size>
     </property>
@@ -63,10 +63,10 @@
     <widget class="QListWidget" name="listWidgetPack">
      <property name="geometry">
       <rect>
-       <x>100</x>
-       <y>50</y>
-       <width>1080</width>
-       <height>560</height>
+       <x>28</x>
+       <y>30</y>
+       <width>1024</width>
+       <height>540</height>
       </rect>
      </property>
      <property name="maximumSize">
@@ -79,8 +79,8 @@
     <widget class="QPushButton" name="pushButtonPackOK">
      <property name="geometry">
       <rect>
-       <x>410</x>
-       <y>670</y>
+       <x>650</x>
+       <y>660</y>
        <width>120</width>
        <height>40</height>
       </rect>
@@ -92,8 +92,8 @@
     <widget class="QPushButton" name="pushButtonPackNext">
      <property name="geometry">
       <rect>
-       <x>770</x>
-       <y>670</y>
+       <x>520</x>
+       <y>660</y>
        <width>120</width>
        <height>40</height>
       </rect>
@@ -105,8 +105,8 @@
     <widget class="QPushButton" name="pushButtonPackPrevious">
      <property name="geometry">
       <rect>
-       <x>590</x>
-       <y>670</y>
+       <x>390</x>
+       <y>660</y>
        <width>120</width>
        <height>40</height>
       </rect>
@@ -118,8 +118,8 @@
     <widget class="QLabel" name="labelPackPage">
      <property name="geometry">
       <rect>
-       <x>90</x>
-       <y>670</y>
+       <x>50</x>
+       <y>660</y>
        <width>120</width>
        <height>40</height>
       </rect>
@@ -134,9 +134,9 @@
     <widget class="QProgressBar" name="progressBarPack">
      <property name="geometry">
       <rect>
-       <x>100</x>
-       <y>640</y>
-       <width>1080</width>
+       <x>40</x>
+       <y>610</y>
+       <width>1000</width>
        <height>20</height>
       </rect>
      </property>
@@ -153,13 +153,13 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>1280</width>
+      <width>1080</width>
       <height>768</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>1280</width>
+      <width>1080</width>
       <height>768</height>
      </size>
     </property>
@@ -178,8 +178,8 @@
     <widget class="QPushButton" name="pushButtonExerciseOK">
      <property name="geometry">
       <rect>
-       <x>410</x>
-       <y>670</y>
+       <x>650</x>
+       <y>660</y>
        <width>120</width>
        <height>40</height>
       </rect>
@@ -191,8 +191,8 @@
     <widget class="QPushButton" name="pushButtonExerciseReturn">
      <property name="geometry">
       <rect>
-       <x>590</x>
-       <y>670</y>
+       <x>445</x>
+       <y>660</y>
        <width>120</width>
        <height>40</height>
       </rect>
@@ -204,18 +204,18 @@
     <widget class="QListWidget" name="listWidgetExercise">
      <property name="geometry">
       <rect>
-       <x>100</x>
-       <y>50</y>
-       <width>1080</width>
-       <height>560</height>
+       <x>28</x>
+       <y>30</y>
+       <width>1024</width>
+       <height>540</height>
       </rect>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButtonExerciseBegin">
      <property name="geometry">
       <rect>
-       <x>90</x>
-       <y>670</y>
+       <x>50</x>
+       <y>660</y>
        <width>120</width>
        <height>40</height>
       </rect>
@@ -227,8 +227,8 @@
     <widget class="QLabel" name="labelDeadline">
      <property name="geometry">
       <rect>
-       <x>900</x>
-       <y>670</y>
+       <x>780</x>
+       <y>660</y>
        <width>280</width>
        <height>40</height>
       </rect>
@@ -246,9 +246,9 @@
     <widget class="QProgressBar" name="progressBarExercise">
      <property name="geometry">
       <rect>
-       <x>100</x>
-       <y>640</y>
-       <width>1080</width>
+       <x>40</x>
+       <y>610</y>
+       <width>1000</width>
        <height>20</height>
       </rect>
      </property>
@@ -260,13 +260,15 @@
      </property>
     </widget>
    </widget>
+   <zorder>frameExercise</zorder>
+   <zorder>framePack</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1280</width>
+     <width>1080</width>
      <height>26</height>
     </rect>
    </property>
