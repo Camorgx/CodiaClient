@@ -103,7 +103,7 @@
        <x>810</x>
        <y>150</y>
        <width>113</width>
-       <height>32</height>
+       <height>64</height>
       </rect>
      </property>
      <property name="text">
@@ -113,6 +113,25 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
+    <widget class="QProgressBar" name="progressBar_pack_frame">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>600</y>
+       <width>751</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="value">
+      <number>24</number>
+     </property>
+    </widget>
+    <zorder>label_page</zorder>
+    <zorder>listWidget_packs</zorder>
+    <zorder>pushButton_pack_OK</zorder>
+    <zorder>pushButton_next</zorder>
+    <zorder>pushButton_last</zorder>
+    <zorder>progressBar_pack_frame</zorder>
    </widget>
    <widget class="QFrame" name="exerciseFrame">
     <property name="geometry">
@@ -146,7 +165,7 @@
      <property name="geometry">
       <rect>
        <x>810</x>
-       <y>420</y>
+       <y>330</y>
        <width>113</width>
        <height>32</height>
       </rect>
@@ -169,7 +188,7 @@
      <property name="geometry">
       <rect>
        <x>810</x>
-       <y>150</y>
+       <y>420</y>
        <width>113</width>
        <height>32</height>
       </rect>
@@ -178,9 +197,42 @@
       <string>开始题包</string>
      </property>
     </widget>
+    <widget class="QLabel" name="label_deadline">
+     <property name="geometry">
+      <rect>
+       <x>800</x>
+       <y>150</y>
+       <width>140</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;截止日期：&lt;/p&gt;&lt;p&gt;无限制</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QProgressBar" name="progressBar_question_frame">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>600</y>
+       <width>751</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="value">
+      <number>24</number>
+     </property>
+    </widget>
+    <zorder>listWidget_questions</zorder>
+    <zorder>pushButton_questionlist_OK</zorder>
+    <zorder>pushButton_questionlist_Back</zorder>
+    <zorder>pushButton_Beginpack</zorder>
+    <zorder>label_deadline</zorder>
+    <zorder>progressBar_question_frame</zorder>
    </widget>
-   <zorder>exerciseFrame</zorder>
-   <zorder>packFrame</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

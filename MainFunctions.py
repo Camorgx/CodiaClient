@@ -1,10 +1,11 @@
 from datetime import datetime, timedelta
 from re import search
+from dateutil.parser import parse
 
 from PyQt5.QtCore import QSize
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
 from PyQt5.QtWidgets import QListWidgetItem, QWidget, QListWidget
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QMainWindow, QApplication
 
 import functionWindow
 from codiaclientgui.utils import Font, Palette
@@ -17,11 +18,58 @@ pages = []
 max_page_number = 1
 has_next = True
 last_page_number = -1
+selected_pid = None
+selected_row = 0
 
 
-def functionWindow_init(ui: functionWindow.Ui_functionWindow, nickname="UNDEFINED", verified=True):
+def question_list_init(ui: functionWindow.Ui_functionWindow, window: QMainWindow):
+    global pages
+    if not ui.listWidget_packs.selectedIndexes():
+        QMessageBox.information(None, '提示', '请选中一个题包。', QMessageBox.Ok)
+        return
+    ui.packFrame.hide()
+    ui.exerciseFrame.show()
+    question_list_information = show_pack(pid=selected_pid)
+    time_now = datetime.now()
+    if question_list_information["due"]:
+        end = (datetime.strptime(search(r"^[^.]*", question_list_information["due"].replace("T", " ")).group(),
+                                 "%Y-%m-%d %H:%M:%S") + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
+        end_time = parse(end)
+    else:
+        end = "无限制"
+        end_time = parse("2100-01-01 00:00:00")
+    createdAt = pages[page_number - 1][selected_row]['createdAt']
+    if createdAt:
+        start = (datetime.strptime(search(r"^[^.]*", createdAt.replace("T", " ")).group(), "%Y-%m-%d %H:%M:%S")
+                 + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
+        start_time = parse(start)
+    else:
+        start_time = parse("1900-01-01 00:00:00")
+    ui.label_deadline.setText('截止时间:\n' + end)
+    window.setWindowTitle(question_list_information['name'])
+    if not (start_time < time_now < end_time and (not question_list_information['viewerStatus']['ongoing'])):
+        ui.pushButton_Beginpack.hide()
+
+
+def get_pack_pid(ui: functionWindow.Ui_functionWindow):
+    global selected_pid, selected_row
+    selected = ui.listWidget_packs.selectedIndexes()[0]
+    selected_row = selected.row()
+    selected_pid = pages[page_number - 1][selected_row]['id']
+
+
+def back_to_pack_list(ui: functionWindow.Ui_functionWindow):
+    ui.exerciseFrame.hide()
+    ui.packFrame.show()
+    ui.pushButton_Beginpack.show()
+
+
+def function_Window_init(ui: functionWindow.Ui_functionWindow, nickname="UNDEFINED", verified=True,
+                         window=None):
     global page_number, is_last_page
     global last_pack_pid
+    ui.progressBar_pack_frame.hide()
+    ui.progressBar_question_frame.hide()
     pack_list = get_pack()['nodes']
     pages.append(pack_list)
     ui.exerciseFrame.hide()
@@ -40,14 +88,23 @@ def functionWindow_init(ui: functionWindow.Ui_functionWindow, nickname="UNDEFINE
     ui.pushButton_last.setEnabled(False)
     ui.pushButton_next.clicked.connect(lambda: nextPage(ui))
     ui.pushButton_last.clicked.connect(lambda: lastPage(ui))
+    ui.listWidget_packs.itemClicked.connect(lambda: get_pack_pid(ui))
+    ui.listWidget_packs.itemDoubleClicked.connect(lambda: question_list_init(ui, window))
+    ui.pushButton_pack_OK.clicked.connect(lambda: question_list_init(ui, window))
+    ui.pushButton_questionlist_Back.clicked.connect(lambda: back_to_pack_list(ui))
 
 
 def nextPage(ui: functionWindow.Ui_functionWindow):
     global page_number, pages, max_page_number, last_pack_pid, has_next
     global last_page_number
     page_number += 1
+    ui.progressBar_pack_frame.show()
+    ui.progressBar_pack_frame.setValue(0)
+    QApplication.processEvents()
     if page_number > max_page_number:
         pack_list = get_pack(before=last_pack_pid)
+        ui.progressBar_pack_frame.setValue(50)
+        QApplication.processEvents()
         has_next = pack_list['pageInfo']['hasPreviousPage']
         pack_list = pack_list['nodes']
         last_pack_pid = pack_list[0]['id']
@@ -64,10 +121,15 @@ def nextPage(ui: functionWindow.Ui_functionWindow):
         ui.pushButton_next.setEnabled(False)
     ui.pushButton_last.setEnabled(True)
     ui.label_page.setText('第 ' + str(page_number) + ' 页')
+    ui.progressBar_pack_frame.setValue(60)
+    QApplication.processEvents()
     for i in range(0, ui.listWidget_packs.count()):
         ui.listWidget_packs.takeItem(0)
     for dic in pack_list:
         add_item_to_pack_list(ui.listWidget_packs, dic)
+    ui.progressBar_pack_frame.setValue(100)
+    QApplication.processEvents()
+    ui.progressBar_pack_frame.hide()
 
 
 def lastPage(ui: functionWindow.Ui_functionWindow):

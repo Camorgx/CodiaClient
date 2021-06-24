@@ -16,6 +16,9 @@ from codiaclient.utils import cookie_decrypt, cookie_encrypt
 
 # 开始进行登录操作
 def BeginLogin():
+    LoginUi.progressBar_Login.setValue(0)
+    LoginUi.progressBar_Login.show()
+    QApplication.processEvents()
     loginusername = LoginUi.lineEdit0Username.text()
     loginpassword = LoginUi.lineEdit0Password.text()
     if not LoginUi.lineEdit0Username.text():
@@ -27,6 +30,8 @@ def BeginLogin():
     else:
         try:
             client_login(username = loginusername, password = loginpassword)
+            LoginUi.progressBar_Login.setValue(75)
+            QApplication.processEvents()
         except codiaError as e:
             errorTranslate = error_translate(e)
             if errorTranslate:
@@ -56,6 +61,8 @@ def BeginLogin():
             except Exception as e:
                 QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
             finally:
+                LoginUi.progressBar_Login.setValue(100)
+                QApplication.processEvents()
                 BeginFunction()
                 return True
 
@@ -64,7 +71,7 @@ def BeginFunction():
     loginusernickname = logined()[1]
     verified = bool(net_var["me"]["verified"])
     FunctionUi.setupUi(FunctionWindow)
-    MainFunctions.functionWindow_init(FunctionUi, loginusernickname, verified)
+    MainFunctions.function_Window_init(FunctionUi, loginusernickname, verified, FunctionWindow)
 
     from codiaclientgui.utils import Font
     FunctionWindow.setFont(Font["main"])
@@ -139,6 +146,8 @@ def BeginTask():
     LoginUi.loginFrame.show()
     LoginUi.registerFrame.hide()
     LoginUi.resetFrame.hide()
+
+    LoginUi.progressBar_Login.hide()
 
 
 # 注册函数
