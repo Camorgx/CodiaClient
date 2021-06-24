@@ -93,6 +93,7 @@ def Login(callback = None):
         return False
     else:
         uiLogin.pushButtonLogin.setEnabled(False)
+        uiLogin.pushButtonLoginGoReset.setEnabled(False)
         uiLogin.pushButtonLoginGoRegister.hide()
         uiLogin.progressBarLogin.setValue(0)
         uiLogin.progressBarLogin.show()
@@ -101,8 +102,9 @@ def Login(callback = None):
             if errorTranslate: QMessageBox.critical(None, "登录失败", errorTranslate, QMessageBox.Ok)
             else: QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
             uiLogin.progressBarLogin.hide()
-            uiLogin.pushButtonLoginGoRegister.show()
             uiLogin.pushButtonLogin.setEnabled(True)
+            uiLogin.pushButtonLoginGoReset.setEnabled(True)
+            uiLogin.pushButtonLoginGoRegister.show()
             return False
 
         def LoginInfoRecv():
