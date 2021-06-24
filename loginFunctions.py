@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtWidgets import QMainWindow, QApplication
 from PyQt5.QtWidgets import QMessageBox, QLineEdit
 
 from loginWindow import Ui_windowLogin
@@ -8,7 +9,7 @@ from codiaclient.network import *
 from codiaclient.network import _acquire_verification as AcquireVerification
 from codiaclient.report import Error as codiaError, error_translate as ErrorTranslate
 from codiaclient.utils import cookie_decrypt as Decrypt, cookie_encrypt as Encrypt
-from codiaclientgui.utils import Font
+from codiaclientgui.utils import Font, Style
 
 # 初始化任务，新建一个登录窗体和对应的ui
 def LoginInit(callback = None):
@@ -18,17 +19,23 @@ def LoginInit(callback = None):
     uiLogin = Ui_windowLogin()
     uiLogin.setupUi(windowLogin)
     PasswordStoreRead()
-    windowLogin.show()
     BeginLogin(callback = callback)
+    windowLogin.show()
 
 # 初始化任务，为登陆窗口信号绑定槽函数
 def BeginLogin(callback = None):
+    QApplication.processEvents()
     reportVar["allow_error_deg"] = 1
 
     uiLogin.pushButtonLogin.clicked.connect(lambda: Login(callback))
+    uiLogin.pushButtonLogin.setFocus()
+    uiLogin.pushButtonLogin.setDefault(True)
     uiLogin.pushButtonLoginGoReset.clicked.connect(ShowReset)
     uiLogin.pushButtonLoginGoRegister.clicked.connect(ShowRegister)
     uiLogin.lineEditLoginPassword.setEchoMode(QLineEdit.Password)
+    uiLogin.lineEditLoginPassword.returnPressed.connect(lambda: Login(callback))
+    uiLogin.progressBarLogin.hide()
+    uiLogin.progressBarLogin.setStyleSheet(Style["progressBar"])
 
     uiLogin.pushButtonRegister.clicked.connect(Register)
     uiLogin.pushButtonRegisterReturn.clicked.connect(RegisterReturn)
@@ -45,6 +52,35 @@ def BeginLogin(callback = None):
     uiLogin.frameRegister.hide()
     uiLogin.frameReset.hide()
 
+#登录客户端的网络通信
+class _ClientLogin(QThread):
+    infoSignal = pyqtSignal()
+    errorSignal = pyqtSignal(codiaError)
+
+    def __init__(self, username, password):
+        super(_ClientLogin, self).__init__()
+        self.working = True
+        self.username = username
+        self.password = password
+
+    def __del__(self):
+        self.working = False
+        self.wait()
+
+    def run(self):
+        try: client_login(username = self.username, password = self.password)
+        except codiaError as e: self.errorSignal.emit(e)
+        else: self.infoSignal.emit()
+
+#登录客户端的多线程准备
+def ClientLogin(username, password, InfoRecv = lambda: None, ErrorRecv = lambda: None):
+    global threadClientLogin
+    threadClientLogin = _ClientLogin(username = username, password = password)
+    threadClientLogin.infoSignal.connect(InfoRecv)
+    threadClientLogin.errorSignal.connect(ErrorRecv)
+    uiLogin.progressBarLogin.setValue(75)
+    threadClientLogin.start()
+
 # 开始进行登录操作
 def Login(callback = None):
     loginUsername = uiLogin.lineEditLoginUsername.text()
@@ -52,21 +88,22 @@ def Login(callback = None):
     if not uiLogin.lineEditLoginUsername.text():
         QMessageBox.critical(None, "登录失败", "请输入邮箱或手机号。", QMessageBox.Ok)
         return False
-    if not uiLogin.lineEditLoginPassword.text():
+    elif not uiLogin.lineEditLoginPassword.text():
         QMessageBox.critical(None, "登录失败", "请输入密码。", QMessageBox.Ok)
         return False
     else:
-        try:
-            client_login(username = loginUsername, password = loginPassword)
-        except codiaError as e:
+        uiLogin.pushButtonLoginGoRegister.hide()
+        uiLogin.progressBarLogin.setValue(0)
+        uiLogin.progressBarLogin.show()
+        def ErrorRecv(e: codiaError):
             errorTranslate = ErrorTranslate(e)
-            if errorTranslate:
-                QMessageBox.critical(None, "登录失败", errorTranslate, QMessageBox.Ok)
-            else:
-                QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
-                raise
+            if errorTranslate: QMessageBox.critical(None, "登录失败", errorTranslate, QMessageBox.Ok)
+            else: QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
+            uiLogin.progressBarLogin.hide()
+            uiLogin.pushButtonLoginGoRegister.show()
             return False
-        else:
+
+        def LoginInfoRecv():
             from base64 import b64encode
             try:
                 with open("config.sav", "wb") as configfile:
@@ -87,9 +124,13 @@ def Login(callback = None):
             except Exception as e:
                 QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
             finally:
+                uiLogin.progressBarLogin.setValue(100)
+                uiLogin.progressBarLogin.hide()
+                uiLogin.pushButtonLoginGoRegister.show()
+                windowLogin.hide()
                 callback and callback()
                 windowLogin.close()
-                return True
+        ClientLogin(username = loginUsername, password = loginPassword, InfoRecv = LoginInfoRecv, ErrorRecv = ErrorRecv)
 
 # 获取重置密码的验证码
 def AcquireVerification():
