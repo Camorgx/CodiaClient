@@ -8,8 +8,9 @@ from PyQt5.QtWidgets import QListWidgetItem, QWidget, QListWidget
 from PyQt5.QtWidgets import QMessageBox, QMainWindow, QApplication
 
 import functionWindow
+from codiaclient.report import Error as codiaerror, error_translate
 from codiaclientgui.utils import Font, Palette, Style
-from codiaclient.network import get_pack, show_pack
+from codiaclient.network import get_pack, show_pack, start_pack
 
 page_number = 0
 is_last_page = False
@@ -63,6 +64,20 @@ def back_to_pack_list(ui: functionWindow.Ui_functionWindow):
     ui.packFrame.show()
     ui.pushButton_Beginpack.show()
 
+def BeginPack(ui: functionWindow.Ui_functionWindow):
+    try:
+        start_pack(selected_pid)
+    except codiaerror as e:
+        Trans = error_translate(e)
+        if Trans:
+            QMessageBox.critical(None, "错误", Trans, QMessageBox.Ok)
+        else:
+            QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
+            raise
+    else:
+        QMessageBox.information(None, '消息', '成功开始题包', QMessageBox.Ok)
+        ui.pushButton_Beginpack.hide()
+
 
 def function_Window_init(ui: functionWindow.Ui_functionWindow, nickname="UNDEFINED", verified=True,
                          window=None):
@@ -94,6 +109,7 @@ def function_Window_init(ui: functionWindow.Ui_functionWindow, nickname="UNDEFIN
     ui.listWidget_packs.itemDoubleClicked.connect(lambda: question_list_init(ui, window))
     ui.pushButton_pack_OK.clicked.connect(lambda: question_list_init(ui, window))
     ui.pushButton_questionlist_Back.clicked.connect(lambda: back_to_pack_list(ui))
+    ui.pushButton_Beginpack.clicked.connect(lambda: BeginPack(ui))
 
 
 def nextPage(ui: functionWindow.Ui_functionWindow):
