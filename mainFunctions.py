@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from re import search
 
-from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QSize, QThread, pyqtSignal
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
 from PyQt5.QtWidgets import QListWidgetItem, QWidget, QListWidget
@@ -66,33 +66,52 @@ def UpdatePage():
     for i in range(0, uiMain.listWidgetPack.count()): uiMain.listWidgetPack.takeItem(0)
     for dic in packList: AddItemToPackList(uiMain.listWidgetPack, dic)
 
-import threading
+#获取题包信息的网络通信
+class _GetPack(QThread):
+    infoSignal = pyqtSignal(dict)
+    errorSignal = pyqtSignal()
+
+    def __init__(self, before = None, after = None, parent = None):
+        super(_GetPack, self).__init__(parent)
+        self.working = True
+        self.before = before
+        self.after = after
+
+    def __del__(self):
+        self.working = False
+        self.wait()
+
+    def run(self):
+        try: self.packInfo = get_pack(before = self.before, after = self.after)
+        except codiaError as e:
+            errorTranslate = error_translate(e)
+            if errorTranslate: QMessageBox.critical(None, "获取失败", errorTranslate, QMessageBox.Ok)
+            else: QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
+            self.errorSignal.emit()
+            return
+        self.infoSignal.emit(self.packInfo)
+        return
+
+#获取题包信息
+def GetPack(before = None, after = None, InfoRecv = lambda: None, ErrorRecv = lambda: None):
+    threadGetPack = _GetPack(before = before, after = after)
+    threadGetPack.infoSignal.connect(InfoRecv)
+    threadGetPack.errorSignal.connect(ErrorRecv)
+    threadGetPack.start()
+
 # 翻页
 def GetPage(before = None, after = None, callback = None):
     if before and after: return False
     uiMain.pushButtonPackNext.setEnabled(False)
     uiMain.pushButtonPackPrevious.setEnabled(False)
-    try: variables["packInfo"] = get_pack(before = before, after = after)
-    except codiaError as e:
-        errorTranslate = error_translate(e)
-        if errorTranslate: QMessageBox.critical(None, "获取失败", errorTranslate, QMessageBox.Ok)
-        else: QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
-        return False
-    # def GetPack():
-    #     try: variables["packInfo"] = get_pack(before = before, after = after)
-    #     except codiaError as e:
-    #         errorTranslate = error_translate(e)
-    #         if errorTranslate: QMessageBox.critical(None, "获取失败", errorTranslate, QMessageBox.Ok)
-    #         else: QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
-    #         return False
-    # tr = threading.Thread(target = GetPack)
-    # tr.start()
-    # # QMessageBox.information(None, "消息", "测试", QMessageBox.Ok)
-    # tr.join()
-    if before: variables["pageNumber"] += 1
-    elif after: variables["pageNumber"] -= 1
-    else: variables["pageNumber"] = 1
-    callback and callback()
+    def PackInfoRecv(packInfo):
+        if not packInfo: return
+        variables["packInfo"] = packInfo
+        if before: variables["pageNumber"] += 1
+        elif after: variables["pageNumber"] -= 1
+        else: variables["pageNumber"] = 1
+        callback and callback()
+    GetPack(before = before, after = after, InfoRecv = PackInfoRecv)
 
 def GetPackWidget(data: dict):
     widget = QWidget()
@@ -159,7 +178,6 @@ def GetPackWidget(data: dict):
 
     widget.setLayout(layoutPackmain)
     return widget
-
 
 def AddItemToPackList(packList: QListWidget, data: dict):
     item = QListWidgetItem()
