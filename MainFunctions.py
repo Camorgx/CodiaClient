@@ -1,16 +1,16 @@
 from datetime import datetime, timedelta
 from re import search
-from dateutil.parser import parse
 
-from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
 from PyQt5.QtWidgets import QListWidgetItem, QWidget, QListWidget
 from PyQt5.QtWidgets import QMessageBox, QMainWindow, QApplication
+from dateutil.parser import parse
 
 import functionWindow
+from codiaclient.network import get_pack, show_pack, start_pack, get_exercise
 from codiaclient.report import Error as codiaerror, error_translate
 from codiaclientgui.utils import Font, Palette, Style
-from codiaclient.network import get_pack, show_pack, start_pack
 
 page_number = 0
 is_last_page = False
@@ -54,15 +54,17 @@ def question_list_init(ui: functionWindow.Ui_functionWindow, window: QMainWindow
 
 def get_pack_pid(ui: functionWindow.Ui_functionWindow):
     global selected_pid, selected_row
-    selected = ui.listWidget_packs.selectedIndexes()[0]
-    selected_row = selected.row()
-    selected_pid = pages[page_number - 1][selected_row]['id']
+    if ui.listWidget_packs.selectedIndexes():
+        selected = ui.listWidget_packs.selectedIndexes()[0]
+        selected_row = selected.row()
+        selected_pid = pages[page_number - 1][selected_row]['id']
 
 
 def back_to_pack_list(ui: functionWindow.Ui_functionWindow):
     ui.exerciseFrame.hide()
     ui.packFrame.show()
     ui.pushButton_Beginpack.show()
+
 
 def BeginPack(ui: functionWindow.Ui_functionWindow):
     global pages
@@ -241,5 +243,7 @@ def add_item_to_pack_list(pack_list: QListWidget, data: dict):
     item = QListWidgetItem()
     item.setSizeHint(QSize(651, 68))
     widget = get_pack_widget(data)
+    if not widget.isEnabled():
+        item.setFlags(item.flags() & ~Qt.ItemIsEnabled & ~Qt.ItemIsSelectable)
     pack_list.addItem(item)
     pack_list.setItemWidget(item, widget)

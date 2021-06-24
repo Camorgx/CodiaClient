@@ -12,12 +12,18 @@ if __name__ == "__main__":
 
     if args.request_string:
         try:
-            if not variables['origin']: print(str(cc.requests(args.request_string.split())).encode('utf-8').decode('unicode-escape'), end = '')
-            else: print(str(cc.requests(args.request_string.split())), end = '')
-        except (KeyboardInterrupt, EOFError): exit()
+            if not variables['origin']:
+                print(str(cc.requests(args.request_string.split())).encode('utf-8').decode('unicode-escape'), end='')
+            else:
+                print(str(cc.requests(args.request_string.split())), end='')
+        except (KeyboardInterrupt, EOFError):
+            exit()
     else:
         while True:
             try:
-                if not variables['origin']: print(str(cc.requests(input().split())).encode('utf-8').decode('unicode-escape'), end = '')
-                else: print(str(cc.requests(input().split())), end = '')
-            except (KeyboardInterrupt, EOFError): break
+                if not variables['origin']:
+                    print(str(cc.requests(input().split())).encode('utf-8').decode('unicode-escape'), end='')
+                else:
+                    print(str(cc.requests(input().split())), end='')
+            except (KeyboardInterrupt, EOFError):
+                break

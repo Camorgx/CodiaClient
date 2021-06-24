@@ -4,15 +4,15 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtWidgets import QMessageBox, QLineEdit
 
 import MainFunctions
-import loginWindow
 import functionWindow
-
+import loginWindow
 from codiaclient import report_var, net_var
 from codiaclient.network import *
 from codiaclient.network import _acquire_verification
 from codiaclient.report import Error as codiaError, error_translate
 from codiaclient.utils import cookie_decrypt, cookie_encrypt
-from codiaclientgui.utils import Style, Font
+from codiaclientgui.utils import Style
+
 
 # 开始进行登录操作
 def BeginLogin():
@@ -30,7 +30,7 @@ def BeginLogin():
         return False
     else:
         try:
-            client_login(username = loginusername, password = loginpassword)
+            client_login(username=loginusername, password=loginpassword)
             LoginUi.progressBar_Login.setValue(75)
             QApplication.processEvents()
         except codiaError as e:
@@ -67,6 +67,7 @@ def BeginLogin():
                 BeginFunction()
                 return True
 
+
 # 打开做题界面
 def BeginFunction():
     loginusernickname = logined()[1]
@@ -79,6 +80,7 @@ def BeginFunction():
 
     LoginWindow.hide()
     FunctionWindow.show()
+
 
 # 获取重置密码的验证码
 def GetCheck():
@@ -167,8 +169,8 @@ def Register():
         QMessageBox.information(None, "消息", "两次输入的密码不相同, 请重新输入。", QMessageBox.Ok)
         return
     try:
-        ret = register(username = LoginUi.lineEdit1Username.text(), passwd = LoginUi.lineEdit1Password.text(),
-                       email = LoginUi.lineEdit1Userphone.text())
+        ret = register(username=LoginUi.lineEdit1Username.text(), passwd=LoginUi.lineEdit1Password.text(),
+                       email=LoginUi.lineEdit1Userphone.text())
     except codiaError as e:
         errorTranslate = error_translate(e)
         if errorTranslate:
@@ -200,9 +202,9 @@ def Reset():
         QMessageBox.information(None, "消息", "两次输入的密码不相同, 请重新输入。", QMessageBox.Ok)
         return
     try:
-        change_password(identifier = LoginUi.lineEdit2Account.text(), vercode = LoginUi.lineEdit2CheckNum.text(),
-                        passwd = LoginUi.lineEdit2NewPassword.text(),
-                        passwordconfirm = LoginUi.lineEdit2CheckNewPassword.text())
+        change_password(identifier=LoginUi.lineEdit2Account.text(), vercode=LoginUi.lineEdit2CheckNum.text(),
+                        passwd=LoginUi.lineEdit2NewPassword.text(),
+                        passwordconfirm=LoginUi.lineEdit2CheckNewPassword.text())
     except codiaError as e:
         errorTranslate = error_translate(e)
         if errorTranslate:
@@ -244,6 +246,7 @@ def PasswordStoreRead():
         print("Config file not found")
     except:
         QMessageBox.critical(None, "错误", "缓存文件损坏", QMessageBox.Ok)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
