@@ -86,12 +86,13 @@ def Login(callback = None):
     loginUsername = uiLogin.lineEditLoginUsername.text()
     loginPassword = uiLogin.lineEditLoginPassword.text()
     if not uiLogin.lineEditLoginUsername.text():
-        QMessageBox.critical(None, "登录失败", "请输入邮箱或手机号。", QMessageBox.Ok)
+        QMessageBox.information(None, "提示", "请输入邮箱或手机号。", QMessageBox.Ok)
         return False
     elif not uiLogin.lineEditLoginPassword.text():
-        QMessageBox.critical(None, "登录失败", "请输入密码。", QMessageBox.Ok)
+        QMessageBox.information(None, "提示", "请输入密码。", QMessageBox.Ok)
         return False
     else:
+        uiLogin.pushButtonLogin.setEnabled(False)
         uiLogin.pushButtonLoginGoRegister.hide()
         uiLogin.progressBarLogin.setValue(0)
         uiLogin.progressBarLogin.show()
@@ -101,6 +102,7 @@ def Login(callback = None):
             else: QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
             uiLogin.progressBarLogin.hide()
             uiLogin.pushButtonLoginGoRegister.show()
+            uiLogin.pushButtonLogin.setEnabled(True)
             return False
 
         def LoginInfoRecv():
@@ -135,7 +137,7 @@ def Login(callback = None):
 # 获取重置密码的验证码
 def AcquireVerification():
     if not uiLogin.lineEditResetAccount.text():
-        QMessageBox.information(None, "消息", "请输入邮箱或手机号。", QMessageBox.Ok)
+        QMessageBox.information(None, "提示", "请输入邮箱或手机号。", QMessageBox.Ok)
     try:
         res = _AcquireVerification(uiLogin.lineEditResetAccount.text())[1]
     except codiaError as e:
@@ -173,17 +175,17 @@ def ShowReset():
 # 注册函数
 def Register():
     if not uiLogin.lineEditRegisterUserphone.text():
-        QMessageBox.information(None, "消息", "请输入邮箱。", QMessageBox.Ok)
+        QMessageBox.information(None, "提示", "请输入邮箱。", QMessageBox.Ok)
         return
     if not uiLogin.lineEditRegisterUsername.text():
-        QMessageBox.information(None, "消息", "请输入用户名。", QMessageBox.Ok)
+        QMessageBox.information(None, "提示", "请输入用户名。", QMessageBox.Ok)
         return
     if not uiLogin.lineEditRegisterPassword.text():
-        QMessageBox.information(None, "消息", "请输入密码。", QMessageBox.Ok)
+        QMessageBox.information(None, "提示", "请输入密码。", QMessageBox.Ok)
         return
     if ((not uiLogin.lineEditRegisterCheckPassword.text()) or (not uiLogin.lineEditRegisterPassword.text())
             or (uiLogin.lineEditRegisterPassword.text() != uiLogin.lineEditRegisterCheckPassword.text())):
-        QMessageBox.information(None, "消息", "两次输入的密码不相同, 请重新输入。", QMessageBox.Ok)
+        QMessageBox.critical(None, "错误", "两次输入的密码不相同, 请重新输入。", QMessageBox.Ok)
         return
     try:
         res = register(username = uiLogin.lineEditRegisterUsername.text(), passwd = uiLogin.lineEditRegisterPassword.text(),
@@ -206,17 +208,17 @@ def Register():
 # 信息获取完成，开始重置密码
 def Reset():
     if not uiLogin.lineEditResetAccount.text():
-        QMessageBox.information(None, "消息", "请输入邮箱或手机号。", QMessageBox.Ok)
+        QMessageBox.information(None, "提示", "请输入邮箱或手机号。", QMessageBox.Ok)
         return
     if not uiLogin.lineEditResetCheckNum.text():
-        QMessageBox.information(None, "消息", "请输入验证码。", QMessageBox.Ok)
+        QMessageBox.information(None, "提示", "请输入验证码。", QMessageBox.Ok)
         return
     if not uiLogin.lineEditResetNewPassword.text():
-        QMessageBox.information(None, "消息", "请输入新密码。", QMessageBox.Ok)
+        QMessageBox.information(None, "提示", "请输入新密码。", QMessageBox.Ok)
         return
     if ((not uiLogin.lineEditResetCheckNewPassword.text()) or (not uiLogin.lineEditResetNewPassword.text())
             or (uiLogin.lineEditResetNewPassword.text() != uiLogin.lineEditResetCheckNewPassword.text())):
-        QMessageBox.information(None, "消息", "两次输入的密码不相同, 请重新输入。", QMessageBox.Ok)
+        QMessageBox.critical(None, "错误", "两次输入的密码不相同, 请重新输入。", QMessageBox.Ok)
         return
     try:
         change_password(identifier = uiLogin.lineEditResetAccount.text(), vercode = uiLogin.lineEditResetCheckNum.text(),

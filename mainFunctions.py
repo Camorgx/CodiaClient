@@ -25,7 +25,7 @@ variables = {
 
 def frameExerciseInit():
     if not uiMain.listWidgetPack.selectedIndexes():
-        QMessageBox.information(None, "提示", "请选中一个题包。", QMessageBox.Ok)
+        QMessageBox.information(None, "提示", "请选择题包。", QMessageBox.Ok)
         return
     uiMain.framePack.hide()
     uiMain.frameExercise.show()
