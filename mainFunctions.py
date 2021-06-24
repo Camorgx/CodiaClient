@@ -20,7 +20,7 @@ variables = {
     "firstPid": None,
     "hasNext": True,
     "packInfo": {},
-    "currentPid": None
+    "currentPackRow": None
 }
 
 def frameExerciseInit():
@@ -38,7 +38,7 @@ def frameExerciseInit():
     else:
         endTime = datetime.strptime("2100-01-01 00:00:00", "%Y-%m-%d %H:%M:%S")
         endTimeText = "无限制"
-    createdAt = variables["packInfo"]["nodes"][variables["currentPid"]]["createdAt"]
+    createdAt = variables["packInfo"]["nodes"][variables["currentPackRow"]]["createdAt"]
     if createdAt:
         beginTime = datetime.strptime(search(r"^[^.]*", createdAt.replace("T", " ")).group(), "%Y-%m-%d %H:%M:%S")\
                   + timedelta(hours = 8)
@@ -51,8 +51,8 @@ def frameExerciseInit():
 
 def getSelectedPid():
     selected = uiMain.listWidgetPack.selectedIndexes()[0]
-    variables["currentPid"] = selected.row()
-    requests_var["p"] = variables["packInfo"]["nodes"][variables["currentPid"]]["id"]
+    variables["currentPackRow"] = selected.row()
+    requests_var["p"] = variables["packInfo"]["nodes"][variables["currentPackRow"]]["id"]
 
 
 def ExerciseReturn():
@@ -69,6 +69,7 @@ def BeginPack():
     else:
         QMessageBox.information(None, "消息", "成功开始题包", QMessageBox.Ok)
         uiMain.pushButtonExerciseBegin.hide()
+        variables["packInfo"]["nodes"][variables["currentPackRow"]]['ongoing'] = True
 
 # 初始化任务，新建一个做题窗体和对应的ui
 def MainInit(callback = None):
