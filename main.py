@@ -121,6 +121,9 @@ def BeginTask():
     LoginUi.lineEdit0Password.setEchoMode(QLineEdit.Password)
     LoginUi.pushButtonGoReset.clicked.connect(ShowReset)
     LoginUi.pushButtonGoRegister.clicked.connect(ShowRegister)
+    LoginUi.pushButtonLogin.setFocus()
+    LoginUi.pushButtonLogin.setDefault(True)
+    LoginUi.lineEdit0Password.returnPressed.connect(BeginLogin)
 
     LoginUi.pushButtonRegister.clicked.connect(Register)
     LoginUi.pushButton1Return.clicked.connect(ReturnHomeFromReg)
