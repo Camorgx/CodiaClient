@@ -65,6 +65,7 @@ def back_to_pack_list(ui: functionWindow.Ui_functionWindow):
     ui.pushButton_Beginpack.show()
 
 def BeginPack(ui: functionWindow.Ui_functionWindow):
+    global pages
     try:
         start_pack(selected_pid)
     except codiaerror as e:
@@ -77,6 +78,7 @@ def BeginPack(ui: functionWindow.Ui_functionWindow):
     else:
         QMessageBox.information(None, '消息', '成功开始题包', QMessageBox.Ok)
         ui.pushButton_Beginpack.hide()
+        pages[page_number - 1][selected_row]['ongoing'] = True
 
 
 def function_Window_init(ui: functionWindow.Ui_functionWindow, nickname="UNDEFINED", verified=True,
