@@ -18,6 +18,7 @@ from codiaclient.utils import cookie_decrypt, cookie_encrypt
 def BeginLogin():
     LoginUi.progressBar_Login.setValue(0)
     LoginUi.progressBar_Login.show()
+    LoginUi.progressBar_Login.setStyleSheet("QProgressBar { border: 2px solid grey; border-radius: 5px; background-color: #FFFFFF;}QProgressBar::chunk { background-color: #007FFF; width: 10px;}QProgressBar { border: 2px solid grey; border-radius: 5px; text-align: center;}")
     QApplication.processEvents()
     loginusername = LoginUi.lineEdit0Username.text()
     loginpassword = LoginUi.lineEdit0Password.text()
