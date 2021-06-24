@@ -164,7 +164,7 @@ def GetPage(before = None, after = None):
     def PackInfoRecv(packInfo):
         if not packInfo:
             uiMain.progressBarPack.hide()
-            return False
+            return
         variables["packInfo"] = packInfo
         if before: variables["pageNumber"] += 1
         elif after: variables["pageNumber"] -= 1
