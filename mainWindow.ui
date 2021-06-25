@@ -76,7 +76,7 @@
       </size>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButtonPackOK">
+    <widget class="NewPushButton" name="pushButtonPackOK">
      <property name="geometry">
       <rect>
        <x>260</x>
@@ -89,7 +89,7 @@
       <string>确认</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButtonPackNext">
+    <widget class="NewPushButton" name="pushButtonPackNext">
      <property name="geometry">
       <rect>
        <x>520</x>
@@ -102,7 +102,7 @@
       <string>下一页</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButtonPackPrevious">
+    <widget class="NewPushButton" name="pushButtonPackPrevious">
      <property name="geometry">
       <rect>
        <x>390</x>
@@ -121,7 +121,7 @@
        <x>50</x>
        <y>610</y>
        <width>120</width>
-       <height>40</height>
+       <height>32</height>
       </rect>
      </property>
      <property name="text">
@@ -175,7 +175,7 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="QPushButton" name="pushButtonExerciseOK">
+    <widget class="NewPushButton" name="pushButtonExerciseOK">
      <property name="geometry">
       <rect>
        <x>260</x>
@@ -188,7 +188,7 @@
       <string>确认</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButtonExerciseReturn">
+    <widget class="NewPushButton" name="pushButtonExerciseReturn">
      <property name="geometry">
       <rect>
        <x>445</x>
@@ -211,7 +211,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButtonExerciseBegin">
+    <widget class="NewPushButton" name="pushButtonExerciseBegin">
      <property name="geometry">
       <rect>
        <x>50</x>
@@ -230,7 +230,7 @@
        <x>780</x>
        <y>610</y>
        <width>280</width>
-       <height>40</height>
+       <height>32</height>
       </rect>
      </property>
      <property name="text">
@@ -286,6 +286,13 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>NewPushButton</class>
+   <extends>QPushButton</extends>
+   <header location="global">codiaclientgui/utils</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

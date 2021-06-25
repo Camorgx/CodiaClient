@@ -28,8 +28,8 @@ def BeginLogin(callback = None):
     reportVar["allow_error_deg"] = 1
 
     uiLogin.pushButtonLogin.clicked.connect(lambda: Login(callback))
-    uiLogin.pushButtonLogin.setFocus()
-    uiLogin.pushButtonLogin.setDefault(True)
+    # uiLogin.pushButtonLogin.setFocus()
+    # uiLogin.pushButtonLogin.setDefault(True)
     uiLogin.pushButtonLoginGoReset.clicked.connect(ShowReset)
     uiLogin.pushButtonLoginGoRegister.clicked.connect(ShowRegister)
     uiLogin.lineEditLoginPassword.setEchoMode(QLineEdit.Password)
