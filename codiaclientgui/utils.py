@@ -41,7 +41,7 @@ if sys.platform == 'win32':
     Font['status'].setPointSize(10)
     Style['progressBar'] = "QProgressBar { border: 1px solid grey; border-radius: 2px; text-align: center; background-color: #FFFFFF;}QProgressBar::chunk { background-color: #30A132; width: 10px;}"
 elif sys.platform == 'darwin':
-    Font['main'].setFamily(".AppleSystemUIFont")
+    Font['main'].setFamily("PingFang SC")
     Font['main'].setPointSize(13)
     Font['status'].setFamily(".AppleSystemUIFont")
     Font['status'].setPointSize(13)
