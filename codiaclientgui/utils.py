@@ -34,8 +34,45 @@ Style = {
     "progressBar": "",
 }
 
+if sys.platform == 'win32':
+    Font['main'].setFamily("Microsoft YaHei")
+    Font['main'].setPointSize(10)
+    Font['status'].setFamily("KaiTi")
+    Font['status'].setPointSize(10)
+    Style['progressBar'] = "QProgressBar { border: 1px solid grey; border-radius: 2px; text-align: center; background-color: #FFFFFF;}QProgressBar::chunk { background-color: #30A132; width: 10px;}"
+elif sys.platform == 'darwin':
+    Font['main'].setFamily(".AppleSystemUIFont")
+    Font['main'].setPointSize(13)
+    Font['status'].setFamily(".AppleSystemUIFont")
+    Font['status'].setPointSize(13)
+    NewPushButton = QPushButton
+else:
+    Font['main'].setFamily("Microsoft YaHei")
+    Font['main'].setPointSize(13)
+
+greenBrush = QBrush(Color['green'])
+greenBrush.setStyle(Qt.SolidPattern)
+Palette[QPalette.Text]['green'].setBrush(QPalette.Active, QPalette.Text, greenBrush)
+Palette[QPalette.Text]['green'].setBrush(QPalette.Inactive, QPalette.Text, greenBrush)
+greenBrush.setColor(Color['disabled'])
+Palette[QPalette.Text]['green'].setBrush(QPalette.Disabled, QPalette.Text, greenBrush)
+
+redBrush = QBrush(Color['red'])
+redBrush.setStyle(Qt.SolidPattern)
+Palette[QPalette.Text]['red'].setBrush(QPalette.Active, QPalette.Text, redBrush)
+Palette[QPalette.Text]['red'].setBrush(QPalette.Inactive, QPalette.Text, redBrush)
+redBrush.setColor(Color['disabled'])
+Palette[QPalette.Text]['red'].setBrush(QPalette.Disabled, QPalette.Text, redBrush)
+
+grayBrush = QBrush(Color['gray'])
+grayBrush.setStyle(Qt.SolidPattern)
+Palette[QPalette.Text]['gray'].setBrush(QPalette.Active, QPalette.Text, grayBrush)
+Palette[QPalette.Text]['gray'].setBrush(QPalette.Inactive, QPalette.Text, grayBrush)
+grayBrush.setColor(Color['disabled'])
+Palette[QPalette.Text]['gray'].setBrush(QPalette.Disabled, QPalette.Text, grayBrush)
+
 class MyObject(QLabel):
-    defaultColor = QColor(241, 242, 243)
+    defaultColor = Color['white']
     hoverColor = QColor(227, 240, 255)
     pressColor = QColor(213, 224, 240)
 
@@ -249,40 +286,9 @@ class _NewPushButton(MyObject):
         super(_NewPushButton, self).LoadAnime()
 
 if sys.platform == 'win32':
-    Font['main'].setFamily("Microsoft YaHei")
-    Font['main'].setPointSize(10)
-    Font['status'].setFamily("KaiTi")
-    Font['status'].setPointSize(10)
-    Style['progressBar'] = "QProgressBar { border: 1px solid grey; border-radius: 2px; text-align: center; background-color: #FFFFFF;}QProgressBar::chunk { background-color: #30A132; width: 10px;}"
     NewPushButton = _NewPushButton
 elif sys.platform == 'darwin':
-    Font['main'].setFamily(".AppleSystemUIFont")
-    Font['main'].setPointSize(13)
-    Font['status'].setFamily(".AppleSystemUIFont")
-    Font['status'].setPointSize(13)
     NewPushButton = QPushButton
 else:
-    Font['main'].setFamily("Microsoft YaHei")
-    Font['main'].setPointSize(13)
-
-greenBrush = QBrush(Color['green'])
-greenBrush.setStyle(Qt.SolidPattern)
-Palette[QPalette.Text]['green'].setBrush(QPalette.Active, QPalette.Text, greenBrush)
-Palette[QPalette.Text]['green'].setBrush(QPalette.Inactive, QPalette.Text, greenBrush)
-greenBrush.setColor(Color['disabled'])
-Palette[QPalette.Text]['green'].setBrush(QPalette.Disabled, QPalette.Text, greenBrush)
-
-redBrush = QBrush(Color['red'])
-redBrush.setStyle(Qt.SolidPattern)
-Palette[QPalette.Text]['red'].setBrush(QPalette.Active, QPalette.Text, redBrush)
-Palette[QPalette.Text]['red'].setBrush(QPalette.Inactive, QPalette.Text, redBrush)
-redBrush.setColor(Color['disabled'])
-Palette[QPalette.Text]['red'].setBrush(QPalette.Disabled, QPalette.Text, redBrush)
-
-grayBrush = QBrush(Color['gray'])
-grayBrush.setStyle(Qt.SolidPattern)
-Palette[QPalette.Text]['gray'].setBrush(QPalette.Active, QPalette.Text, grayBrush)
-Palette[QPalette.Text]['gray'].setBrush(QPalette.Inactive, QPalette.Text, grayBrush)
-grayBrush.setColor(Color['disabled'])
-Palette[QPalette.Text]['gray'].setBrush(QPalette.Disabled, QPalette.Text, grayBrush)
+    NewPushButton = _NewPushButton
 
