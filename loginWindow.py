@@ -188,7 +188,7 @@ class Ui_windowLogin(object):
         self.lineEditResetNewPassword.setFont(font)
         self.lineEditResetNewPassword.setObjectName("lineEditResetNewPassword")
         self.pushButtonResetAcquire = NewPushButton(self.frameReset)
-        self.pushButtonResetAcquire.setGeometry(QtCore.QRect(350, 70, 110, 30))
+        self.pushButtonResetAcquire.setGeometry(QtCore.QRect(340, 70, 120, 32))
         self.pushButtonResetAcquire.setObjectName("pushButtonResetAcquire")
         self.pushButtonResetReturn = NewPushButton(self.frameReset)
         self.pushButtonResetReturn.setGeometry(QtCore.QRect(315, 190, 120, 32))
