@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QListWidgetItem, QWidget, QListWidget
 from PyQt5.QtWidgets import QMessageBox, QMainWindow, QApplication
 
 from codiaclient import net_var
-from codiaclient.network import get_pack, show_pack, start_pack, logined
+from codiaclient.network import get_pack, show_pack, start_pack, logined, get_data, get_exercise
 from codiaclient.report import Error as codiaError, error_translate
 from codiaclient.requests import variables as requests_var
 from codiaclientgui.utils import QPalette, Font, Palette, Style, Color
@@ -114,6 +114,7 @@ def ExerciseReturn():
     uiMain.frameExercise.hide()
     uiMain.framePack.show()
     uiMain.pushButtonExerciseBegin.show()
+    windowMain.setWindowTitle('题包列表')
 
 
 def BeginPack():
@@ -143,6 +144,27 @@ def MainInit(callback=None):
     GetPage()
 
 
+def frameQuestionInit():
+    if not uiMain.listWidgetExercise.selectedIndexes():
+        QMessageBox.information(None, '消息', '请选择一个题包', QMessageBox.Ok)
+        return
+    questionInfo = get_exercise(eid=requests_var['e'], pid=requests_var['p'], lang='CPP')
+    windowMain.setWindowTitle(questionInfo['title'])
+    uiMain.statusbar.clearMessage()
+    uiMain.statusbar.showMessage("标签：" + ", ".join(questionInfo['tags']))
+    md = ('### 题目描述 \n  \n' + questionInfo['description-content'] + '\n' +
+          '### 输入描述 \n  \n' + questionInfo['inputDescription-content'] + '\n' +
+          '### 输出描述 \n  \n' + questionInfo['outputDescription-content'] + '\n' +
+          '### 输入样例 \n  \n```\n' + questionInfo['sampleData'][0]['input'] + '```\n' +
+          '### 输出样例 \n  \n```\n' + questionInfo['sampleData'][0]['output'] + '```\n')
+    uiMain.textEditQuestionDiscription.setMarkdown(md)
+    uiMain.labelQuestionStatus.setText(uiMain.labelQuestionStatus.text() +
+                                       str(questionInfo['viewerStatus']['passedCount']) +
+                                       str(questionInfo['viewerStatus']['totalCount']))
+    uiMain.frameExercise.hide()
+    uiMain.frameQuestion.show()
+
+
 # 初始化任务，为做题窗口信号绑定槽函数
 def BeginMain(callback=None):
     QApplication.processEvents()
@@ -151,17 +173,19 @@ def BeginMain(callback=None):
         nickname = "UNDEFINED"
     verified = net_var["me"]["verified"]
     if verified:
-        labelStatusbarUser = QLabel(f"当前用户: {nickname}")
+        uiMain.statusbar.showMessage(f"当前用户: {nickname}", 0)
     else:
-        labelStatusbarUser = QLabel(f"当前用户: {nickname}(未验证)")
+        uiMain.statusbar.showMessage(f"当前用户: {nickname}（未验证）", 0)
         QMessageBox.information(None, "消息", "当前账号功能受限，请尽快完成联系方式验证。", QMessageBox.Ok)
-    labelStatusbarUser.setFont(Font["status"])
 
+    uiMain.statusbar.setFont(Font["status"])
     uiMain.pushButtonPackNext.clicked.connect(lambda: GetPage(before=variables["lastPid"]))
     uiMain.pushButtonPackPrevious.clicked.connect(lambda: GetPage(after=variables["firstPid"]))
-    uiMain.statusbar.addWidget(labelStatusbarUser)
     uiMain.progressBarPack.hide()
     uiMain.progressBarExercise.hide()
+    uiMain.frameQuestion.hide()
+    uiMain.frameHistory.hide()
+    uiMain.frameSubmit.hide()
     uiMain.progressBarPack.setStyleSheet(Style["progressBar"])
     uiMain.progressBarExercise.setStyleSheet(Style["progressBar"])
     uiMain.listWidgetPack.itemClicked.connect(getSelectedPid)
@@ -170,12 +194,23 @@ def BeginMain(callback=None):
     uiMain.pushButtonExerciseReturn.clicked.connect(ExerciseReturn)
     uiMain.pushButtonExerciseBegin.clicked.connect(BeginPack)
     uiMain.listWidgetExercise.itemClicked.connect(getSelectedEid)
+    uiMain.listWidgetExercise.itemDoubleClicked.connect(frameQuestionInit)
+    uiMain.pushButtonExerciseOK.clicked.connect(frameQuestionInit)
+    uiMain.pushButtonQuestionReturn.clicked.connect(QuestionReturn)
     for i in range(0, variables['packPerPage']):
         AddItemToPackList(uiMain.listWidgetPack, colorName=['white', 'lightgray'][i % 2])
 
     uiMain.frameExercise.hide()
     uiMain.framePack.show()
     callback and callback()
+
+
+def QuestionReturn():
+    uiMain.statusbar.clearMessage()
+    uiMain.statusbar.showMessage("当前用户:" + net_var['me']['nickname'])
+    uiMain.frameQuestion.hide()
+    uiMain.frameExercise.show()
+    windowMain.setWindowTitle(variables['packInfo']['nodes'][variables['currentPackRow']]['name'])
 
 
 # 在翻页后更新页面
@@ -287,8 +322,8 @@ def GetPackWidget(data: dict):
         labelPackHasDoneDivTotal = QLabel(f"已完成/总计: {hasDone}/{total}")
         if data["due"]:
             endTimeText = (
-                        datetime.strptime(search(r"^[^.]*", data["due"].replace("T", " ")).group(), "%Y-%m-%d %H:%M:%S")
-                        + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
+                    datetime.strptime(search(r"^[^.]*", data["due"].replace("T", " ")).group(), "%Y-%m-%d %H:%M:%S")
+                    + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
         else:
             endTimeText = "无限制"
 
