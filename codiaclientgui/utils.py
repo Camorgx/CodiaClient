@@ -78,14 +78,15 @@ class MyObject(QLabel):
         self.isEnabledChanged.emit()
         if self.linkedObject and self.linkedObject.isEnabled() != status:
             self.linkedObject.setEnabled(status)
+        if not status: self.leaveSignal.emit()
 
     def enterEvent(self, e):
-        if not self.isVisible(): return
+        print(self.objectName(), "enterEvent")
         self.enterSignal.emit()
         self.linkedObject and self.linkedObject.enterSignal.emit()
 
     def leaveEvent(self, e):
-        # print("leaveEvent")
+        print(self.objectName(), "leaveEvent")
         self.leaveSignal.emit()
         self.linkedObject and self.linkedObject.leaveSignal.emit()
 
@@ -129,7 +130,7 @@ class MyObject(QLabel):
         self.Anime['press'].start()
 
     def LeaveAnime(self):
-        if not self.isEnabled(): return
+        # if not self.isEnabled(): return
         self.setAutoFillBackground(True)
         self.Anime['leave'].setStartValue(self.nowColor)
         for x in self.Anime: self.Anime[x].stop()
