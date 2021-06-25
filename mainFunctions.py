@@ -6,13 +6,12 @@ from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
 from PyQt5.QtWidgets import QListWidgetItem, QWidget, QListWidget
 from PyQt5.QtWidgets import QMessageBox, QMainWindow, QApplication
 
-from mainWindow import Ui_windowMain
-
 from codiaclient import net_var
-from codiaclient.report import Error as codiaError, error_translate
-from codiaclientgui.utils import Font, Palette, Style
 from codiaclient.network import get_pack, show_pack, start_pack, logined
+from codiaclient.report import Error as codiaError, error_translate
 from codiaclient.requests import variables as requests_var
+from codiaclientgui.utils import Font, Palette, Style
+from mainWindow import Ui_windowMain
 
 variables = {
     "pageNumber": 0,
@@ -23,31 +22,79 @@ variables = {
     "currentPackRow": None
 }
 
+
 def frameExerciseInit():
     if not uiMain.listWidgetPack.selectedIndexes():
         QMessageBox.information(None, "提示", "请选择题包。", QMessageBox.Ok)
         return
     uiMain.framePack.hide()
     uiMain.frameExercise.show()
-    exerciseListInfo = show_pack(pid = requests_var["p"])
+    uiMain.listWidgetExercise.clear()
+    exerciseListInfo = show_pack(pid=requests_var["p"])
     presentTime = datetime.now()
     if exerciseListInfo["due"]:
-        endTime = datetime.strptime(search(r"^[^.]*", exerciseListInfo["due"].replace("T", " ")).group(),"%Y-%m-%d %H:%M:%S")\
-                + timedelta(hours = 8)
+        endTime = datetime.strptime(search(r"^[^.]*", exerciseListInfo["due"].replace("T", " ")).group(),
+                                    "%Y-%m-%d %H:%M:%S") + timedelta(hours=8)
         endTimeText = endTime.strftime("%Y-%m-%d %H:%M:%S")
     else:
         endTime = datetime.strptime("2100-01-01 00:00:00", "%Y-%m-%d %H:%M:%S")
         endTimeText = "无限制"
     createdAt = variables["packInfo"]["nodes"][variables["currentPackRow"]]["createdAt"]
     if createdAt:
-        beginTime = datetime.strptime(search(r"^[^.]*", createdAt.replace("T", " ")).group(), "%Y-%m-%d %H:%M:%S")\
-                  + timedelta(hours = 8)
+        beginTime = datetime.strptime(search(r"^[^.]*", createdAt.replace("T", " ")).group(), "%Y-%m-%d %H:%M:%S") \
+                    + timedelta(hours=8)
     else:
         beginTime = datetime.strptime("1900-01-01 00:00:00", "%Y-%m-%d %H:%M:%S")
     uiMain.labelDeadline.setText(f"截止时间: {endTimeText}")
     windowMain.setWindowTitle(exerciseListInfo["name"])
     if not (beginTime < presentTime < endTime and (not exerciseListInfo["viewerStatus"]["ongoing"])):
         uiMain.pushButtonExerciseBegin.hide()
+    if exerciseListInfo['description']:
+        uiMain.textEdit_QuestionDiscription.setMarkdown(exerciseListInfo['description']['content'])
+    else:
+        uiMain.textEdit_QuestionDiscription.setText('本题包未设置题包描述')
+    variables['exerciseInfo'] = exerciseListInfo['codingExercises']['nodes']
+    if variables['exerciseInfo']:
+        for exercise in variables['exerciseInfo']:
+            AddItemToQuestionList(exercise)
+
+
+def AddItemToQuestionList(data: dict):
+    item = QListWidgetItem()
+    item.setSizeHint(QSize(960, 65))
+    widget = GetExerciseWidget(data)
+    widget.setCursor(Qt.PointingHandCursor)
+    uiMain.listWidgetExercise.addItem(item)
+    uiMain.listWidgetExercise.setItemWidget(item, widget)
+
+
+def GetExerciseWidget(data: dict):
+    if data['viewerStatus']['passedCount'] > 0:
+        label_status = QLabel('已通过')
+        label_status.setPalette(Palette['green'])
+    else:
+        label_status = QLabel('未通过')
+        label_status.setPalette(Palette['red'])
+    label_name = QLabel(str(data['title']))
+    label_passed = QLabel(f"通过数：{data['viewerStatus']['passedCount']}")
+    label_submit = QLabel(f"提交数：{data['viewerStatus']['totalCount']}")
+    layout_main = QHBoxLayout()
+    layout_right = QVBoxLayout()
+
+    layout_main.addWidget(label_status)
+    layout_main.addWidget(label_name)
+    layout_right.addWidget(label_submit)
+    layout_right.addWidget(label_passed)
+    layout_main.addLayout(layout_right)
+
+    layout_main.setStretchFactor(label_status, 1)
+    layout_main.setStretchFactor(label_name, 3)
+    layout_main.setStretchFactor(layout_right, 2)
+
+    widget = QWidget()
+    widget.setLayout(layout_main)
+    return widget
+
 
 def getSelectedPid():
     if uiMain.listWidgetPack.selectedIndexes():
@@ -56,38 +103,51 @@ def getSelectedPid():
         requests_var["p"] = variables["packInfo"]["nodes"][variables["currentPackRow"]]["id"]
 
 
+def getSelectedEid():
+    selected = uiMain.listWidgetExercise.selectedIndexes()[0]
+    variables['currentExerciseRow'] = selected.row()
+    requests_var['e'] = variables['exerciseInfo'][selected.row()]['id']
+
+
 def ExerciseReturn():
     uiMain.frameExercise.hide()
     uiMain.framePack.show()
     uiMain.pushButtonExerciseBegin.show()
 
+
 def BeginPack():
-    try: start_pack(requests_var["p"])
+    try:
+        start_pack(requests_var["p"])
     except codiaError as e:
         errorTranslate = error_translate(e)
-        if errorTranslate: QMessageBox.critical(None, "错误", errorTranslate, QMessageBox.Ok)
-        else: QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
+        if errorTranslate:
+            QMessageBox.critical(None, "错误", errorTranslate, QMessageBox.Ok)
+        else:
+            QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
     else:
         QMessageBox.information(None, "消息", "成功开始题包", QMessageBox.Ok)
         uiMain.pushButtonExerciseBegin.hide()
         variables["packInfo"]["nodes"][variables["currentPackRow"]]['ongoing'] = True
 
+
 # 初始化任务，新建一个做题窗体和对应的ui
-def MainInit(callback = None):
+def MainInit(callback=None):
     global windowMain, uiMain
     windowMain = QMainWindow()
     windowMain.setFont(Font["main"])
     uiMain = Ui_windowMain()
     uiMain.setupUi(windowMain)
-    BeginMain(callback = callback)
+    BeginMain(callback=callback)
     windowMain.show()
     GetPage()
 
+
 # 初始化任务，为做题窗口信号绑定槽函数
-def BeginMain(callback = None):
+def BeginMain(callback=None):
     QApplication.processEvents()
     nickname = logined()[1]
-    if not nickname: nickname = "UNDEFINED"
+    if not nickname:
+        nickname = "UNDEFINED"
     verified = net_var["me"]["verified"]
     if verified:
         labelStatusbarUser = QLabel(f"当前用户: {nickname}")
@@ -96,8 +156,8 @@ def BeginMain(callback = None):
         QMessageBox.information(None, "消息", "当前账号功能受限，请尽快完成联系方式验证。", QMessageBox.Ok)
     labelStatusbarUser.setFont(Font["status"])
 
-    uiMain.pushButtonPackNext.clicked.connect(lambda: GetPage(before = variables["lastPid"]))
-    uiMain.pushButtonPackPrevious.clicked.connect(lambda: GetPage(after = variables["firstPid"]))
+    uiMain.pushButtonPackNext.clicked.connect(lambda: GetPage(before=variables["lastPid"]))
+    uiMain.pushButtonPackPrevious.clicked.connect(lambda: GetPage(after=variables["firstPid"]))
     uiMain.statusbar.addWidget(labelStatusbarUser)
     uiMain.progressBarPack.hide()
     uiMain.progressBarExercise.hide()
@@ -108,10 +168,12 @@ def BeginMain(callback = None):
     uiMain.pushButtonPackOK.clicked.connect(frameExerciseInit)
     uiMain.pushButtonExerciseReturn.clicked.connect(ExerciseReturn)
     uiMain.pushButtonExerciseBegin.clicked.connect(BeginPack)
+    uiMain.listWidgetExercise.itemClicked.connect(getSelectedEid)
 
     uiMain.frameExercise.hide()
     uiMain.framePack.show()
     callback and callback()
+
 
 # 在翻页后更新页面
 def UpdatePage():
@@ -122,15 +184,18 @@ def UpdatePage():
     uiMain.pushButtonPackNext.setEnabled(variables["hasNext"])
     uiMain.pushButtonPackPrevious.setEnabled(variables["pageNumber"] > 1)
     uiMain.labelPackPage.setText("第 {} 页".format(variables["pageNumber"]))
-    for i in range(0, uiMain.listWidgetPack.count()): uiMain.listWidgetPack.takeItem(0)
-    for dic in packList: AddItemToPackList(uiMain.listWidgetPack, dic)
+    for i in range(0, uiMain.listWidgetPack.count()):
+        uiMain.listWidgetPack.takeItem(0)
+    for dic in packList:
+        AddItemToPackList(uiMain.listWidgetPack, dic)
 
-#获取题包信息的网络通信
+
+# 获取题包信息的网络通信
 class _GetPack(QThread):
     infoSignal = pyqtSignal(dict)
     errorSignal = pyqtSignal(codiaError)
 
-    def __init__(self, before = None, after = None, parent = None):
+    def __init__(self, before=None, after=None, parent=None):
         super(_GetPack, self).__init__(parent)
         self.working = True
         self.before = before
@@ -141,24 +206,30 @@ class _GetPack(QThread):
         self.wait()
 
     def run(self):
-        try: self.packInfo = get_pack(before = self.before, after = self.after)
-        except codiaError as e: self.errorSignal.emit(e)
-        else: self.infoSignal.emit(self.packInfo)
+        try:
+            self.packInfo = get_pack(before=self.before, after=self.after)
+        except codiaError as e:
+            self.errorSignal.emit(e)
+        else:
+            self.infoSignal.emit(self.packInfo)
 
-#获取题包信息的多线程准备
-def GetPack(before = None, after = None, InfoRecv = lambda: None, ErrorRecv = lambda: None):
-    global threadGetPack #extremely essential!
-    threadGetPack = _GetPack(before = before, after = after)
+
+# 获取题包信息的多线程准备
+def GetPack(before=None, after=None, InfoRecv=lambda: None, ErrorRecv=lambda: None):
+    global threadGetPack  # extremely essential!
+    threadGetPack = _GetPack(before=before, after=after)
     threadGetPack.infoSignal.connect(InfoRecv)
     threadGetPack.errorSignal.connect(ErrorRecv)
     uiMain.progressBarPack.setValue(30)
     threadGetPack.start()
 
+
 # 翻页
-def GetPage(before = None, after = None):
+def GetPage(before=None, after=None):
     uiMain.progressBarPack.setValue(0)
     uiMain.progressBarPack.show()
-    if before and after: return False
+    if before and after:
+        return False
     uiMain.pushButtonPackNext.setEnabled(False)
     uiMain.pushButtonPackPrevious.setEnabled(False)
     uiMain.progressBarPack.setValue(10)
@@ -168,21 +239,30 @@ def GetPage(before = None, after = None):
             uiMain.progressBarPack.hide()
             return
         variables["packInfo"] = packInfo
-        if before: variables["pageNumber"] += 1
-        elif after: variables["pageNumber"] -= 1
-        else: variables["pageNumber"] = 1
+        if before:
+            variables["pageNumber"] += 1
+        elif after:
+            variables["pageNumber"] -= 1
+        else:
+            variables["pageNumber"] = 1
         uiMain.progressBarPack.setValue(100)
         uiMain.progressBarPack.hide()
         UpdatePage()
 
     def ErrorRecv(e: codiaError):
         errorTranslate = error_translate(e)
-        if errorTranslate: QMessageBox.critical(None, "获取失败", errorTranslate, QMessageBox.Ok)
-        else: QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
+        if errorTranslate:
+            QMessageBox.critical(None, "获取失败", errorTranslate, QMessageBox.Ok)
+        else:
+            QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
         uiMain.progressBarPack.hide()
-        try: UpdatePage()
-        except: pass
-    GetPack(before = before, after = after, InfoRecv = PackInfoRecv, ErrorRecv = ErrorRecv)
+        try:
+            UpdatePage()
+        except:
+            pass
+
+    GetPack(before=before, after=after, InfoRecv=PackInfoRecv, ErrorRecv=ErrorRecv)
+
 
 def GetPackWidget(data: dict):
     widget = QWidget()
@@ -201,14 +281,18 @@ def GetPackWidget(data: dict):
             labelPackFinish.setPalette(Palette["red"])
         labelPackHasDoneDivTotal = QLabel(f"已完成/总计: {has_done}/{total}")
         if data["due"]:
-            endTimeText = (datetime.strptime(search(r"^[^.]*", data["due"].replace("T", " ")).group(), "%Y-%m-%d %H:%M:%S")
-                + timedelta(hours = 8)).strftime("%Y-%m-%d %H:%M:%S")
-        else: endTimeText = "无限制"
+            endTimeText = (
+                        datetime.strptime(search(r"^[^.]*", data["due"].replace("T", " ")).group(), "%Y-%m-%d %H:%M:%S")
+                        + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            endTimeText = "无限制"
 
         if data["createdAt"]:
-            beginTimeText = (datetime.strptime(search(r"^[^.]*", data["createdAt"].replace("T", " ")).group(), "%Y-%m-%d %H:%M:%S")
-                  + timedelta(hours = 8)).strftime("%Y-%m-%d %H:%M:%S")
-        else: beginTimeText = "无限制"
+            beginTimeText = (datetime.strptime(search(r"^[^.]*", data["createdAt"].replace("T", " ")).group(),
+                                               "%Y-%m-%d %H:%M:%S")
+                             + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            beginTimeText = "无限制"
     else:
         endTimeText = ""
         beginTimeText = ""
@@ -249,6 +333,7 @@ def GetPackWidget(data: dict):
 
     widget.setLayout(layoutPackmain)
     return widget
+
 
 def AddItemToPackList(packList: QListWidget, data: dict):
     item = QListWidgetItem()
