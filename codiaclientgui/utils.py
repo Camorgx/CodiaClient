@@ -78,12 +78,15 @@ class NewPushButton(QLabel):
 
     def __init__(self, parent):
         super(NewPushButton, self).__init__(parent)
-        self.setStyleSheet("NewPushButton { border: 1px solid gray; border-radius: 5px }")
+        # self.setFrameShadow(QFrame.Raised)
+        # self.setFrameShape(QFrame.StyledPanel)
+        self.setStyleSheet("NewPushButton { border: 1px solid gray; border-radius: 5px } NewPushButton::hover { border: 1px solid blue }")
         self.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
         self.mouseHovered.connect(self.hoveredAnimeStart)
         self.mouseLeft.connect(self.leftAnimeStart)
 
     def hoveredAnimeStart(self):
+        if not self.isEnabled(): return
         self.setAutoFillBackground(True)
         self.hoveredAnime = QPropertyAnimation(self, b"color")
         self.hoveredAnime.setDuration(400)
@@ -93,6 +96,7 @@ class NewPushButton(QLabel):
         self.hoveredAnime.start()
 
     def leftAnimeStart(self):
+        if not self.isEnabled(): return
         self.setAutoFillBackground(True)
         self.leftAnime = QPropertyAnimation(self, b"color")
         self.leftAnime.setDuration(400)
