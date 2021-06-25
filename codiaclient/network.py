@@ -474,6 +474,10 @@ query pack($pid: ID!) {
                 nodes {
                     id
                     title
+                    viewerStatus {
+                        passedCount
+                        totalCount
+                    }
                 }
             }
             viewerStatus {
