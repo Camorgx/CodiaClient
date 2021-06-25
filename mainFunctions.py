@@ -152,12 +152,17 @@ def frameQuestionInit():
     windowMain.setWindowTitle(questionInfo['title'])
     uiMain.statusbar.clearMessage()
     uiMain.statusbar.showMessage("标签：" + ", ".join(questionInfo['tags']))
-    md = ('### 题目描述 \n  \n' + questionInfo['description-content'] + '\n' +
-          '### 输入描述 \n  \n' + questionInfo['inputDescription-content'] + '\n' +
-          '### 输出描述 \n  \n' + questionInfo['outputDescription-content'] + '\n' +
-          '### 输入样例 \n  \n```\n' + questionInfo['sampleData'][0]['input'] + '```\n' +
-          '### 输出样例 \n  \n```\n' + questionInfo['sampleData'][0]['output'] + '```\n')
-    uiMain.textEditQuestionDiscription.setMarkdown(md)
+    sampleDataMdText = ""
+    for i in range(0, len(questionInfo['sampleData'])):
+        sampleDataMdText += f'### 样例{i + 1}\n'
+        sampleDataMdText += f'#### 输入 \n```\n' + questionInfo['sampleData'][i]['input'] + '\n```\n'
+        sampleDataMdText += f'#### 输出 \n```\n' + questionInfo['sampleData'][i]['output'] + '\n```\n'
+
+    mdText = ('### 题目描述 \n' + questionInfo['description-content'] + '\n' +
+          '### 输入描述 \n' + questionInfo['inputDescription-content'] + '\n' +
+          '### 输出描述 \n' + questionInfo['outputDescription-content'] + '\n' +
+          sampleDataMdText)
+    uiMain.textEditQuestionDiscription.setMarkdown(mdText)
     uiMain.labelQuestionStatus.setText(uiMain.labelQuestionStatus.text() +
                                        str(questionInfo['viewerStatus']['passedCount']) +
                                        str(questionInfo['viewerStatus']['totalCount']))

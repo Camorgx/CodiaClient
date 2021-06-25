@@ -301,7 +301,7 @@
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButtonSubmit">
+    <widget class="NewPushButton" name="pushButtonSubmit">
      <property name="geometry">
       <rect>
        <x>490</x>
@@ -314,7 +314,7 @@
       <string>提交</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButtonHistory">
+    <widget class="NewPushButton" name="pushButtonHistory">
      <property name="geometry">
       <rect>
        <x>635</x>
@@ -327,7 +327,7 @@
       <string>历史记录</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButtonQuestionReturn">
+    <widget class="NewPushButton" name="pushButtonQuestionReturn">
      <property name="geometry">
       <rect>
        <x>780</x>
@@ -398,7 +398,7 @@
      <x>0</x>
      <y>0</y>
      <width>1080</width>
-     <height>24</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>
