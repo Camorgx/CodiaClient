@@ -259,7 +259,7 @@
       <bool>false</bool>
      </property>
     </widget>
-    <widget class="QTextEdit" name="textEdit_QuestionDiscription">
+    <widget class="QTextEdit" name="textEditExerciseDiscription">
      <property name="geometry">
       <rect>
        <x>28</x>

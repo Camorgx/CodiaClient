@@ -10,11 +10,12 @@ from codiaclient import net_var
 from codiaclient.network import get_pack, show_pack, start_pack, logined
 from codiaclient.report import Error as codiaError, error_translate
 from codiaclient.requests import variables as requests_var
-from codiaclientgui.utils import Font, Palette, Style
+from codiaclientgui.utils import QPalette, Font, Palette, Style, Color
 from mainWindow import Ui_windowMain
 
 variables = {
     "pageNumber": 0,
+    "packPerPage": 8,
     "lastPid": None,
     "firstPid": None,
     "hasNext": True,
@@ -50,9 +51,9 @@ def frameExerciseInit():
     if not (beginTime < presentTime < endTime and (not exerciseListInfo["viewerStatus"]["ongoing"])):
         uiMain.pushButtonExerciseBegin.hide()
     if exerciseListInfo['description']:
-        uiMain.textEdit_QuestionDiscription.setMarkdown(exerciseListInfo['description']['content'])
+        uiMain.textEditExerciseDiscription.setMarkdown(exerciseListInfo['description']['content'])
     else:
-        uiMain.textEdit_QuestionDiscription.setText('本题包未设置题包描述')
+        uiMain.textEditExerciseDiscription.setText('本题包未设置题包描述')
     variables['exerciseInfo'] = exerciseListInfo['codingExercises']['nodes']
     if variables['exerciseInfo']:
         for exercise in variables['exerciseInfo']:
@@ -71,10 +72,10 @@ def AddItemToQuestionList(data: dict):
 def GetExerciseWidget(data: dict):
     if data['viewerStatus']['passedCount'] > 0:
         label_status = QLabel('已通过')
-        label_status.setPalette(Palette['green'])
+        label_status.setPalette(Palette[QPalette.Text]['green'])
     else:
         label_status = QLabel('未通过')
-        label_status.setPalette(Palette['red'])
+        label_status.setPalette(Palette[QPalette.Text]['red'])
     label_name = QLabel(str(data['title']))
     label_passed = QLabel(f"通过数：{data['viewerStatus']['passedCount']}")
     label_submit = QLabel(f"提交数：{data['viewerStatus']['totalCount']}")
@@ -169,6 +170,8 @@ def BeginMain(callback=None):
     uiMain.pushButtonExerciseReturn.clicked.connect(ExerciseReturn)
     uiMain.pushButtonExerciseBegin.clicked.connect(BeginPack)
     uiMain.listWidgetExercise.itemClicked.connect(getSelectedEid)
+    for i in range(0, variables['packPerPage']):
+        AddItemToPackList(uiMain.listWidgetPack, colorName=['white', 'lightgray'][i % 2])
 
     uiMain.frameExercise.hide()
     uiMain.framePack.show()
@@ -186,8 +189,10 @@ def UpdatePage():
     uiMain.labelPackPage.setText("第 {} 页".format(variables["pageNumber"]))
     for i in range(0, uiMain.listWidgetPack.count()):
         uiMain.listWidgetPack.takeItem(0)
-    for dic in packList:
-        AddItemToPackList(uiMain.listWidgetPack, dic)
+    packList.reverse()
+    packList += [None] * (variables['packPerPage'] - len(packList))
+    for i in range(0, len(packList)):
+        AddItemToPackList(uiMain.listWidgetPack, packList[i], colorName=['white', 'lightgray'][i % 2])
 
 
 # 获取题包信息的网络通信
@@ -207,7 +212,7 @@ class _GetPack(QThread):
 
     def run(self):
         try:
-            self.packInfo = get_pack(before=self.before, after=self.after)
+            self.packInfo = get_pack(cnt=variables['packPerPage'], before=self.before, after=self.after)
         except codiaError as e:
             self.errorSignal.emit(e)
         else:
@@ -272,14 +277,14 @@ def GetPackWidget(data: dict):
     layoutPackRightDown = QHBoxLayout()
     if data["codingExercises"]:
         total = data["codingExercises"]["totalCount"]
-        has_done = data["codingExercises"]["viewerPassedCount"]
-        if total == has_done:
+        hasDone = data["codingExercises"]["viewerPassedCount"]
+        if total == hasDone:
             labelPackFinish = QLabel("已完成")
-            labelPackFinish.setPalette(Palette["green"])
+            labelPackFinish.setPalette(Palette[QPalette.Text]["green"])
         else:
             labelPackFinish = QLabel("未完成")
-            labelPackFinish.setPalette(Palette["red"])
-        labelPackHasDoneDivTotal = QLabel(f"已完成/总计: {has_done}/{total}")
+            labelPackFinish.setPalette(Palette[QPalette.Text]["red"])
+        labelPackHasDoneDivTotal = QLabel(f"已完成/总计: {hasDone}/{total}")
         if data["due"]:
             endTimeText = (
                         datetime.strptime(search(r"^[^.]*", data["due"].replace("T", " ")).group(), "%Y-%m-%d %H:%M:%S")
@@ -297,7 +302,7 @@ def GetPackWidget(data: dict):
         endTimeText = ""
         beginTimeText = ""
         labelPackFinish = QLabel("无权限")
-        labelPackFinish.setPalette(Palette["gray"])
+        labelPackFinish.setPalette(Palette[QPalette.Text]["gray"])
         labelPackHasDoneDivTotal = QLabel("")
         widget.setEnabled(False)
 
@@ -323,24 +328,30 @@ def GetPackWidget(data: dict):
 
     layoutPackRight.addLayout(layoutPackRightUp)
     layoutPackRight.addLayout(layoutPackRightDown)
-    layoutPackRight.setStretchFactor(layoutPackRightUp, 12)
-    layoutPackRight.setStretchFactor(layoutPackRightDown, 12)
+    layoutPackRight.setStretchFactor(layoutPackRightUp, 8)
+    layoutPackRight.setStretchFactor(layoutPackRightDown, 8)
 
+    labelPackFinish.setAlignment(Qt.AlignCenter)
     layoutPackmain.addWidget(labelPackFinish)
     layoutPackmain.addLayout(layoutPackRight)
     layoutPackmain.setStretchFactor(labelPackFinish, 1)
-    layoutPackmain.setStretchFactor(layoutPackRight, 12)
+    layoutPackmain.setStretchFactor(layoutPackRight, 8)
 
     widget.setLayout(layoutPackmain)
     return widget
 
 
-def AddItemToPackList(packList: QListWidget, data: dict):
+def AddItemToPackList(packList: QListWidget, data: dict = {}, colorName: str = "white"):
     item = QListWidgetItem()
     item.setSizeHint(QSize(960, 65))
-    widget = GetPackWidget(data)
+    item.setBackground(Color[colorName])
+    if not data:
+        widget = QWidget()
+        widget.setEnabled(False)
+    else:
+        widget = GetPackWidget(data)
+    widget.setCursor(Qt.PointingHandCursor)
     if not widget.isEnabled():
         item.setFlags(item.flags() & ~Qt.ItemIsEnabled & ~Qt.ItemIsSelectable)
     packList.addItem(item)
     packList.setItemWidget(item, widget)
-    widget.setCursor(Qt.PointingHandCursor)

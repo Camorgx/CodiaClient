@@ -8,10 +8,26 @@ Font = {
     'status': QFont(),
 }
 
-Palette = {
+Color = {
+    'lightgray': QColor(229, 230, 231),
+    'gray': QColor(150, 151, 152),
+    'green': QColor(80, 160, 30),
+    'red': QColor(160, 0, 30),
+    'white': QColor(255, 255, 255),
+    'disabled': QColor(120, 120, 120)
+}
+
+Palette = {}
+
+Palette[QPalette.Text] = {
     "green": QPalette(),
     "red": QPalette(),
     "gray": QPalette(),
+}
+
+Palette[QPalette.Window] = {
+    "white": QPalette(),
+    "lightgray": QPalette(),
 }
 
 Style = {
@@ -248,32 +264,24 @@ else:
     Font['main'].setFamily("Microsoft YaHei")
     Font['main'].setPointSize(13)
 
-greenBrush = QBrush(QColor(80, 160, 30))
+greenBrush = QBrush(Color['green'])
 greenBrush.setStyle(Qt.SolidPattern)
-Palette['green'].setBrush(QPalette.Active, QPalette.Text, greenBrush)
-greenBrush = QBrush(QColor(80, 160, 30))
-greenBrush.setStyle(Qt.SolidPattern)
-Palette['green'].setBrush(QPalette.Inactive, QPalette.Text, greenBrush)
-greenBrush = QBrush(QColor(120, 120, 120))
-greenBrush.setStyle(Qt.SolidPattern)
-Palette['green'].setBrush(QPalette.Disabled, QPalette.Text, greenBrush)
+Palette[QPalette.Text]['green'].setBrush(QPalette.Active, QPalette.Text, greenBrush)
+Palette[QPalette.Text]['green'].setBrush(QPalette.Inactive, QPalette.Text, greenBrush)
+greenBrush.setColor(Color['disabled'])
+Palette[QPalette.Text]['green'].setBrush(QPalette.Disabled, QPalette.Text, greenBrush)
 
-redBrush = QBrush(QColor(160, 0, 30))
+redBrush = QBrush(Color['red'])
 redBrush.setStyle(Qt.SolidPattern)
-Palette['red'].setBrush(QPalette.Active, QPalette.Text, redBrush)
-redBrush = QBrush(QColor(160, 0, 30))
-redBrush.setStyle(Qt.SolidPattern)
-Palette['red'].setBrush(QPalette.Inactive, QPalette.Text, redBrush)
-redBrush = QBrush(QColor(120, 120, 120))
-redBrush.setStyle(Qt.SolidPattern)
-Palette['red'].setBrush(QPalette.Disabled, QPalette.Text, redBrush)
+Palette[QPalette.Text]['red'].setBrush(QPalette.Active, QPalette.Text, redBrush)
+Palette[QPalette.Text]['red'].setBrush(QPalette.Inactive, QPalette.Text, redBrush)
+redBrush.setColor(Color['disabled'])
+Palette[QPalette.Text]['red'].setBrush(QPalette.Disabled, QPalette.Text, redBrush)
 
-grayBrush = QBrush(QColor(150, 151, 152))
+grayBrush = QBrush(Color['gray'])
 grayBrush.setStyle(Qt.SolidPattern)
-Palette['gray'].setBrush(QPalette.Active, QPalette.Text, grayBrush)
-grayBrush = QBrush(QColor(150, 151, 152))
-grayBrush.setStyle(Qt.SolidPattern)
-Palette['gray'].setBrush(QPalette.Inactive, QPalette.Text, grayBrush)
-grayBrush = QBrush(QColor(120, 120, 120))
-grayBrush.setStyle(Qt.SolidPattern)
-Palette['gray'].setBrush(QPalette.Disabled, QPalette.Text, grayBrush)
+Palette[QPalette.Text]['gray'].setBrush(QPalette.Active, QPalette.Text, grayBrush)
+Palette[QPalette.Text]['gray'].setBrush(QPalette.Inactive, QPalette.Text, grayBrush)
+grayBrush.setColor(Color['disabled'])
+Palette[QPalette.Text]['gray'].setBrush(QPalette.Disabled, QPalette.Text, grayBrush)
+
