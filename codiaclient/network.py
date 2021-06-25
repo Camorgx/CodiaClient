@@ -474,6 +474,10 @@ query pack($pid: ID!) {
                 nodes {
                     id
                     title
+                    viewerStatus {
+                        passedCount
+                        totalCount
+                    }
                 }
             }
             viewerStatus {
@@ -778,7 +782,7 @@ query codingExercise($eid: ID!, $lang: Language!) {
     res_dic = {}
     res_dic['title'] = res_data['title']
     res_dic['tags'] = res_data['tags']
-    res_dic['description-content'] = res_data['description']['content'].replace("\n\n", '\n')
+    # res_dic['description-content'] = res_data['description']['content'].replace("\n\n", '\n')
     res_dic['inputDescription-content'] = res_data['inputDescription']['content']
     res_dic['outputDescription-content'] = res_data['outputDescription']['content']
     res_dic['sampleData'] = []
@@ -866,7 +870,7 @@ query codingExercise($eid: ID!, $pid: ID, $lang: Language!) {
     res_dic = {}
     res_dic['title'] = res_data['title']
     res_dic['tags'] = res_data['tags']
-    res_dic['description-content'] = res_data['description']['content'].replace("\n\n", '\n')
+    # res_dic['description-content'] = res_data['description']['content'].replace("\n\n", '\n')
     res_dic['inputDescription-content'] = res_data['inputDescription']['content']
     res_dic['outputDescription-content'] = res_data['outputDescription']['content']
     res_dic['sampleData'] = []
