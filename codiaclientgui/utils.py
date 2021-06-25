@@ -1,7 +1,7 @@
 import sys
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont, QPalette, QBrush, QColor
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtCore import Qt, QPropertyAnimation, pyqtSignal, QRect, pyqtProperty, QObject, QEasingCurve
+from PyQt5.QtGui import QFont, QPalette, QBrush, QColor, QPainterPath, QPainter
+from PyQt5.QtWidgets import QApplication, QPushButton, QLabel, QFrame
 
 Font = {
     'main': QFont(),
@@ -63,3 +63,63 @@ Palette['gray'].setBrush(QPalette.Inactive, QPalette.Text, grayBrush)
 grayBrush = QBrush(QColor(120, 120, 120))
 grayBrush.setStyle(Qt.SolidPattern)
 Palette['gray'].setBrush(QPalette.Disabled, QPalette.Text, grayBrush)
+
+class NewPushButton(QLabel):
+    mouseHovered = pyqtSignal()
+    mouseLeft = pyqtSignal()
+    clicked = pyqtSignal()
+    nowColor = QColor(241, 242, 243)
+    def setColor(self, col):
+        palette = self.palette()
+        palette.setColor(QPalette.Background, col)
+        self.setPalette(palette)
+        self.nowColor = col
+    color = pyqtProperty(QColor, fset=setColor)
+
+    def __init__(self, parent):
+        super(NewPushButton, self).__init__(parent)
+        self.setStyleSheet("NewPushButton { border: 1px solid gray; border-radius: 5px }")
+        self.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        self.mouseHovered.connect(self.hoveredAnimeStart)
+        self.mouseLeft.connect(self.leftAnimeStart)
+
+    def hoveredAnimeStart(self):
+        self.setAutoFillBackground(True)
+        self.hoveredAnime = QPropertyAnimation(self, b"color")
+        self.hoveredAnime.setDuration(400)
+        self.hoveredAnime.setStartValue(self.nowColor)
+        self.hoveredAnime.setEndValue(QColor(227, 240, 255))
+        self.hoveredAnime.setEasingCurve(QEasingCurve.OutCubic)
+        self.hoveredAnime.start()
+
+    def leftAnimeStart(self):
+        self.setAutoFillBackground(True)
+        self.leftAnime = QPropertyAnimation(self, b"color")
+        self.leftAnime.setDuration(400)
+        self.leftAnime.setStartValue(self.nowColor)
+        self.leftAnime.setEndValue(QColor(241, 242, 243))
+        self.leftAnime.setEasingCurve(QEasingCurve.OutCubic)
+        self.leftAnime.start()
+
+    def enterEvent(self, e):
+        # print("enterEvent")
+        self.mouseHovered.emit()
+
+    def leaveEvent(self, e):
+        # print("leaveEvent")
+        self.mouseLeft.emit()
+
+    def mouseReleaseEvent(self, e):
+        # print("mouseReleaseEvent")
+        if 0 <= e.x() <= self.width() and 0 <= e.y() <= self.height():
+            self.clicked.emit()
+        self.mouseHovered.emit()
+
+    def mousePressEvent(self, e):
+        self.setAutoFillBackground(True)
+        self.pressedAnime = QPropertyAnimation(self, b"color")
+        self.pressedAnime.setDuration(400)
+        self.pressedAnime.setStartValue(self.nowColor)
+        self.pressedAnime.setEndValue(QColor(207, 220, 235))
+        self.pressedAnime.setEasingCurve(QEasingCurve.OutCubic)
+        self.pressedAnime.start()

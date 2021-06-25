@@ -60,7 +60,7 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="QPushButton" name="pushButtonLoginGoReset">
+    <widget class="NewPushButton" name="pushButtonLoginGoReset">
      <property name="geometry">
       <rect>
        <x>315</x>
@@ -157,7 +157,7 @@
       </font>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButtonLoginGoRegister">
+    <widget class="NewPushButton" name="pushButtonLoginGoRegister">
      <property name="geometry">
       <rect>
        <x>105</x>
@@ -170,7 +170,7 @@
       <string>没有codia账号？点击这里注册</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButtonLogin">
+    <widget class="NewPushButton" name="pushButtonLogin">
      <property name="geometry">
       <rect>
        <x>105</x>
@@ -239,7 +239,7 @@
       </font>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButtonRegister">
+    <widget class="NewPushButton" name="pushButtonRegister">
      <property name="geometry">
       <rect>
        <x>105</x>
@@ -373,7 +373,7 @@
       </font>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButtonRegisterReturn">
+    <widget class="NewPushButton" name="pushButtonRegisterReturn">
      <property name="geometry">
       <rect>
        <x>315</x>
@@ -402,7 +402,7 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="QPushButton" name="pushButtonReset">
+    <widget class="NewPushButton" name="pushButtonReset">
      <property name="geometry">
       <rect>
        <x>105</x>
@@ -551,7 +551,7 @@
       </font>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButtonResetAcquire">
+    <widget class="NewPushButton" name="pushButtonResetAcquire">
      <property name="geometry">
       <rect>
        <x>349</x>
@@ -564,7 +564,7 @@
       <string>发送验证码</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButtonResetReturn">
+    <widget class="NewPushButton" name="pushButtonResetReturn">
      <property name="geometry">
       <rect>
        <x>315</x>
@@ -628,6 +628,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>NewPushButton</class>
+   <extends>QPushButton</extends>
+   <header location="global">codiaclientgui/utils</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
  <slots>
