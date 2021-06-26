@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtCore import Qt, QPropertyAnimation, pyqtSignal, pyqtProperty, QEasingCurve
 from PyQt5.QtGui import QFont, QPalette, QBrush, QColor, QPainterPath, QPainter, QPen
-from PyQt5.QtWidgets import QPushButton, QLabel
+from PyQt5.QtWidgets import QPushButton, QLabel, QProgressBar
 
 Font = {
     'main': QFont(),
@@ -45,7 +45,6 @@ elif sys.platform == 'darwin':
     Font['main'].setPointSize(13)
     Font['status'].setFamily(".AppleSystemUIFont")
     Font['status'].setPointSize(13)
-    NewPushButton = QPushButton
 else:
     Font['main'].setFamily("Microsoft YaHei")
     Font['main'].setPointSize(13)
@@ -283,10 +282,36 @@ class _NewPushButton(MyObject):
         self.raise_()
         super(_NewPushButton, self).LoadAnime()
 
+class _NewProgressBar(QProgressBar):
+    def setValue(self, value):
+        QPropertyAnimation(self, b"value")
+        for x in self.Anime: self.Anime[x].stop()
+        self.Anime['progress'].setStartValue(self.value())
+        self.Anime['progress'].setEndValue(value)
+        if self.value() != value:
+            self.Anime['progress'].start()
+
+    def hide(self):
+        super(_NewProgressBar, self).hide()
+        for x in self.Anime: self.Anime[x].stop()
+        super(_NewProgressBar, self).setValue(0)
+
+    def __init__(self, *args, **kargs):
+        super(_NewProgressBar, self).__init__(*args, **kargs)
+        self.Anime = {
+            "progress": QPropertyAnimation(self, b"value")
+        }
+        self.Anime['progress'].setDuration(1500)
+        self.Anime['progress'].setEasingCurve(QEasingCurve.OutQuart)
+
+
 if sys.platform == 'win32':
     NewPushButton = _NewPushButton
+    NewProgressBar = _NewProgressBar
 elif sys.platform == 'darwin':
     NewPushButton = QPushButton
+    NewProgressBar = QProgressBar
 else:
     NewPushButton = _NewPushButton
+    NewProgressBar = _NewProgressBar
 

@@ -64,7 +64,7 @@ class Ui_windowLogin(object):
         self.pushButtonLogin = NewPushButton(self.frameLogin)
         self.pushButtonLogin.setGeometry(QtCore.QRect(105, 190, 120, 32))
         self.pushButtonLogin.setObjectName("pushButtonLogin")
-        self.progressBarLogin = QtWidgets.QProgressBar(self.frameLogin)
+        self.progressBarLogin = NewProgressBar(self.frameLogin)
         self.progressBarLogin.setGeometry(QtCore.QRect(78, 240, 384, 12))
         self.progressBarLogin.setProperty("value", 0)
         self.progressBarLogin.setTextVisible(False)
@@ -245,4 +245,4 @@ class Ui_windowLogin(object):
         self.action.setText(_translate("windowLogin", "关于"))
         self.actionsd.setText(_translate("windowLogin", "登陆"))
         self.action_2.setText(_translate("windowLogin", "关于"))
-from codiaclientgui.utils import NewPushButton
+from codiaclientgui.utils import NewProgressBar, NewPushButton

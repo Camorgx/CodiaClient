@@ -78,7 +78,7 @@ def ClientLogin(username, password, InfoRecv = lambda: None, ErrorRecv = lambda:
     threadClientLogin = _ClientLogin(username = username, password = password)
     threadClientLogin.infoSignal.connect(InfoRecv)
     threadClientLogin.errorSignal.connect(ErrorRecv)
-    uiLogin.progressBarLogin.setValue(75)
+    uiLogin.progressBarLogin.setValue(90)
     threadClientLogin.start()
 
 # 开始进行登录操作
@@ -128,7 +128,6 @@ def Login(callback = None):
             except Exception as e:
                 QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
             finally:
-                uiLogin.progressBarLogin.setValue(100)
                 uiLogin.progressBarLogin.hide()
                 uiLogin.pushButtonLoginGoRegister.show()
                 windowLogin.hide()

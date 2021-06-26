@@ -183,7 +183,7 @@
       <string>登陆</string>
      </property>
     </widget>
-    <widget class="QProgressBar" name="progressBarLogin">
+    <widget class="NewProgressBar" name="progressBarLogin">
      <property name="geometry">
       <rect>
        <x>78</x>
@@ -638,6 +638,11 @@
   <customwidget>
    <class>NewPushButton</class>
    <extends>QPushButton</extends>
+   <header location="global">codiaclientgui/utils</header>
+  </customwidget>
+  <customwidget>
+   <class>NewProgressBar</class>
+   <extends>QProgressBar</extends>
    <header location="global">codiaclientgui/utils</header>
   </customwidget>
  </customwidgets>
