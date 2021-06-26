@@ -311,7 +311,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>提交</string>
+      <string>提交代码</string>
      </property>
     </widget>
     <widget class="NewPushButton" name="pushButtonHistory">
@@ -340,6 +340,47 @@
       <string>返回</string>
      </property>
     </widget>
+    <widget class="QLabel" name="labelQuestionStatus">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>10</y>
+       <width>171</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>通过/尝试：</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonSubmitFile">
+     <property name="geometry">
+      <rect>
+       <x>345</x>
+       <y>620</y>
+       <width>113</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>提交文件</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="comboBoxLanguage">
+     <property name="geometry">
+      <rect>
+       <x>920</x>
+       <y>0</y>
+       <width>141</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>请选择提交语言</string>
+      </property>
+     </item>
+    </widget>
    </widget>
    <widget class="QFrame" name="frameSubmit">
     <property name="geometry">
@@ -356,6 +397,73 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
+    <widget class="QComboBox" name="comboBoxLanguageSubmit">
+     <property name="geometry">
+      <rect>
+       <x>920</x>
+       <y>0</y>
+       <width>141</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>请选择提交语言</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="labelSubmitStatus">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>10</y>
+       <width>171</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>通过/尝试</string>
+     </property>
+    </widget>
+    <widget class="QTextEdit" name="textEditSubmit">
+     <property name="geometry">
+      <rect>
+       <x>28</x>
+       <y>30</y>
+       <width>1024</width>
+       <height>531</height>
+      </rect>
+     </property>
+     <property name="tabStopWidth">
+      <number>40</number>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonSubmitCode">
+     <property name="geometry">
+      <rect>
+       <x>320</x>
+       <y>620</y>
+       <width>120</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>提交</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonSubmitBack">
+     <property name="geometry">
+      <rect>
+       <x>670</x>
+       <y>620</y>
+       <width>113</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>返回</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QFrame" name="frameHistory">
     <property name="geometry">
@@ -372,25 +480,12 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="QLabel" name="labelQuestionStatus">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>10</y>
-       <width>171</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>通过/尝试：</string>
-     </property>
-    </widget>
    </widget>
    <zorder>frameExercise</zorder>
    <zorder>framePack</zorder>
-   <zorder>frameQuestion</zorder>
-   <zorder>frameSubmit</zorder>
    <zorder>frameHistory</zorder>
+   <zorder>frameSubmit</zorder>
+   <zorder>frameQuestion</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -398,7 +493,7 @@
      <x>0</x>
      <y>0</y>
      <width>1080</width>
-     <height>26</height>
+     <height>24</height>
     </rect>
    </property>
   </widget>

@@ -2,12 +2,15 @@ from datetime import datetime, timedelta
 from re import search
 
 from PyQt5.QtCore import Qt, QSize, QThread, pyqtSignal
+from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
 from PyQt5.QtWidgets import QListWidgetItem, QWidget, QListWidget
 from PyQt5.QtWidgets import QMessageBox, QMainWindow, QApplication
 
 from codiaclient import net_var
-from codiaclient.network import get_pack, show_pack, start_pack, logined, get_data, get_exercise
+from codiaclient.network import get_pack, show_pack, start_pack, logined, get_exercise
+from codiaclient.network import submit
 from codiaclient.report import Error as codiaError, error_translate
 from codiaclient.requests import variables as requests_var
 from codiaclientgui.utils import QPalette, Font, Palette, Style, Color
@@ -20,7 +23,18 @@ variables = {
     "firstPid": None,
     "hasNext": True,
     "packInfo": {},
-    "currentPackRow": None
+    "currentPackRow": None,
+    "exerciseInfo": None
+}
+
+translation = {
+    'CPP': 'C++',
+    'C': 'C',
+    'JAVA': 'Java',
+    'JAVASCRIPT': 'JavaScript',
+    'GO': 'Go',
+    'RUST': 'Rust',
+    'PYTHON': 'Python'
 }
 
 
@@ -54,9 +68,9 @@ def frameExerciseInit():
         uiMain.textEditExerciseDiscription.setMarkdown(exerciseListInfo['description']['content'])
     else:
         uiMain.textEditExerciseDiscription.setText('本题包未设置题包描述')
-    variables['exerciseInfo'] = exerciseListInfo['codingExercises']['nodes']
-    if variables['exerciseInfo']:
-        for exercise in variables['exerciseInfo']:
+    variables['exerciseListInfo'] = exerciseListInfo['codingExercises']['nodes']
+    if variables['exerciseListInfo']:
+        for exercise in variables['exerciseListInfo']:
             AddItemToQuestionList(exercise)
 
 
@@ -105,9 +119,9 @@ def getSelectedPid():
 
 
 def getSelectedEid():
-    selected = uiMain.listWidgetExercise.selectedIndexes()[0]
-    variables['currentExerciseRow'] = selected.row()
-    requests_var['e'] = variables['exerciseInfo'][selected.row()]['id']
+    selected = uiMain.listWidgetExercise.currentIndex().row()
+    variables['currentExerciseRow'] = selected
+    requests_var['e'] = variables['exerciseListInfo'][selected]['id']
 
 
 def ExerciseReturn():
@@ -149,9 +163,13 @@ def frameQuestionInit():
         QMessageBox.information(None, '消息', '请选择一个题包', QMessageBox.Ok)
         return
     questionInfo = get_exercise(eid=requests_var['e'], pid=requests_var['p'], lang='CPP')
+    variables['exerciseInfo'] = questionInfo
     windowMain.setWindowTitle(questionInfo['title'])
     uiMain.statusbar.clearMessage()
-    uiMain.statusbar.showMessage("标签：" + ", ".join(questionInfo['tags']))
+    if questionInfo['tags']:
+        uiMain.statusbar.showMessage("标签：" + ", ".join(questionInfo['tags']))
+    else:
+        uiMain.statusbar.showMessage('标签：无')
     sampleDataMdText = ""
     for i in range(0, len(questionInfo['sampleData'])):
         sampleDataMdText += f'### 样例{i + 1}\n'
@@ -159,13 +177,18 @@ def frameQuestionInit():
         sampleDataMdText += f'#### 输出 \n```\n' + questionInfo['sampleData'][i]['output'] + '\n```\n'
 
     mdText = ('### 题目描述 \n' + questionInfo['description-content'] + '\n' +
-          '### 输入描述 \n' + questionInfo['inputDescription-content'] + '\n' +
-          '### 输出描述 \n' + questionInfo['outputDescription-content'] + '\n' +
-          sampleDataMdText)
+              '### 输入描述 \n' + questionInfo['inputDescription-content'] + '\n' +
+              '### 输出描述 \n' + questionInfo['outputDescription-content'] + '\n' +
+              sampleDataMdText)
     uiMain.textEditQuestionDiscription.setMarkdown(mdText)
-    uiMain.labelQuestionStatus.setText(uiMain.labelQuestionStatus.text() +
-                                       str(questionInfo['viewerStatus']['passedCount']) +
+    uiMain.labelQuestionStatus.setText('通过/尝试： ' +
+                                       str(questionInfo['viewerStatus']['passedCount']) + '/' +
                                        str(questionInfo['viewerStatus']['totalCount']))
+    uiMain.comboBoxLanguage.clear()
+    languages = [translation[lan] for lan in variables['exerciseInfo']['supportedLanguages']]
+    uiMain.comboBoxLanguage.addItems(languages)
+    uiMain.labelSubmitStatus.setText(uiMain.labelQuestionStatus.text())
+    uiMain.textEditSubmit.setText(variables['exerciseInfo']['codeSnippet'])
     uiMain.frameExercise.hide()
     uiMain.frameQuestion.show()
 
@@ -193,6 +216,11 @@ def BeginMain(callback=None):
     uiMain.frameSubmit.hide()
     uiMain.progressBarPack.setStyleSheet(Style["progressBar"])
     uiMain.progressBarExercise.setStyleSheet(Style["progressBar"])
+    uiMain.textEditSubmit.setTabStopWidth(uiMain.textEditSubmit.font().pointSize() * 2)
+    codeFont = QFont()
+    codeFont.setFamily('Consolas')
+    uiMain.textEditSubmit.setFont(codeFont)
+
     uiMain.listWidgetPack.itemClicked.connect(getSelectedPid)
     uiMain.listWidgetPack.itemDoubleClicked.connect(frameExerciseInit)
     uiMain.pushButtonPackOK.clicked.connect(frameExerciseInit)
@@ -202,12 +230,80 @@ def BeginMain(callback=None):
     uiMain.listWidgetExercise.itemDoubleClicked.connect(frameQuestionInit)
     uiMain.pushButtonExerciseOK.clicked.connect(frameQuestionInit)
     uiMain.pushButtonQuestionReturn.clicked.connect(QuestionReturn)
+    uiMain.pushButtonSubmit.clicked.connect(SubmitInit)
+    uiMain.pushButtonSubmitCode.clicked.connect(
+        lambda: SubmitCode(uiMain.comboBoxLanguageSubmit.currentText(),
+                           uiMain.textEditSubmit.toPlainText()))
+    uiMain.pushButtonSubmitBack.clicked.connect(SubmitReturn)
+    uiMain.pushButtonSubmitFile.clicked.connect(SubmitFile)
+
     for i in range(0, variables['packPerPage']):
         AddItemToPackList(uiMain.listWidgetPack, colorName=['white', 'lightgray'][i % 2])
 
     uiMain.frameExercise.hide()
     uiMain.framePack.show()
     callback and callback()
+
+
+def SubmitFile():
+    fileWindow = QFileDialog()
+    if uiMain.comboBoxLanguage.currentText() == 'C++':
+        fileWindow.setNameFilter('C++ 源文件(*.cpp *.cc *.C *.cxx *.c++)')
+    elif uiMain.comboBoxLanguage.currentText() == 'C':
+        fileWindow.setNameFilter('C 源文件(*.c)')
+    elif uiMain.comboBoxLanguage.currentText() == 'Python':
+        fileWindow.setNameFilter('Python 源文件(*.py)')
+    elif uiMain.comboBoxLanguage.currentText() == 'Java':
+        fileWindow.setNameFilter('Java 源文件(*.java)')
+    elif uiMain.comboBoxLanguage.currentText() == 'JavaScript':
+        fileWindow.setNameFilter('JavaScript 源文件(*.js)')
+    elif uiMain.comboBoxLanguage.currentText() == 'Go':
+        fileWindow.setNameFilter('Go 源文件(*.go)')
+    elif uiMain.comboBoxLanguage.currentText() == 'Rust':
+        fileWindow.setNameFilter('Rust 源文件(*.rs)')
+    else:
+        QMessageBox.critical(None, '错误', '未知错误。', QMessageBox.Ok)
+    fileWindow.setDirectory('./')
+    if fileWindow.exec_():
+        fileChosen = fileWindow.selectedFiles()[0]
+    else:
+        QMessageBox.information(None, '提示', '请选择一个文件。', QMessageBox.Ok)
+        return
+    with open(fileChosen, "r") as inputCode:
+        codeSubmit = inputCode.read()
+    SubmitCode(uiMain.comboBoxLanguage.currentText(), codeSubmit)
+
+
+def SubmitReturn():
+    uiMain.frameSubmit.hide()
+    uiMain.frameQuestion.show()
+
+
+def SubmitCode(lang: str, code: str):
+    reverseTranslation = {val: key for key, val in translation.items()}
+    try:
+        submit_result = submit(requests_var['e'], requests_var['p'], reverseTranslation[lang], code)
+    except codiaError as e:
+        rev = error_translate(e)
+        if rev:
+            QMessageBox.critical(None, '提交失败', rev, QMessageBox.Ok)
+        else:
+            QMessageBox.critical(None, '提交失败', '未知错误', QMessageBox.Ok)
+    else:
+        if submit_result:
+            QMessageBox.information(None, '提交成功', '提交成功，请在历史记录中查看评测结果', QMessageBox.Ok)
+            uiMain.frameSubmit.hide()
+            uiMain.frameQuestion.show()
+        else:
+            QMessageBox.critical(None, '提交失败', '请检查语言选择是否正确。', QMessageBox.Ok)
+
+
+def SubmitInit():
+    languages = [translation[lan] for lan in variables['exerciseInfo']['supportedLanguages']]
+    uiMain.comboBoxLanguageSubmit.clear()
+    uiMain.comboBoxLanguageSubmit.addItems(languages)
+    uiMain.frameQuestion.hide()
+    uiMain.frameSubmit.show()
 
 
 def QuestionReturn():
