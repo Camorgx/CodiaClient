@@ -71,21 +71,31 @@ def ShowPack(pid, InfoRecv=lambda: None, ErrorRecv=lambda: None):
 
 
 def frameExerciseInit():
+    global frameExerciseInitWorking
+    try:
+        if frameExerciseInitWorking:
+            return
+    except:
+        pass
     if not uiMain.listWidgetPack.selectedIndexes():
-        QMessageBox.information(None, "提示", "请选择题包。", QMessageBox.Ok)
+        QMessageBox.information(None, "提示", "请选择一个题包。", QMessageBox.Ok)
         return
     uiMain.progressBarPack.setValue(0)
     uiMain.progressBarPack.show()
+    frameExerciseInitWorking = True
 
     def ErrorRecv(e: codiaError):
+        global frameExerciseInitWorking
         errorTranslate = error_translate(e)
         if errorTranslate:
             QMessageBox.critical(None, "获取失败", errorTranslate, QMessageBox.Ok)
         else:
             QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
         uiMain.progressBarPack.hide()
+        frameExerciseInitWorking = False
 
     def exerciseListInfoRecv(exerciseListInfo):
+        global frameExerciseInitWorking
         presentTime = datetime.now()
         if exerciseListInfo["due"]:
             endTime = datetime.strptime(search(r"^[^.]*", exerciseListInfo["due"].replace("T", " ")).group(),
@@ -114,6 +124,7 @@ def frameExerciseInit():
             for exercise in variables['exerciseListInfo']:
                 AddItemToQuestionList(exercise)
         uiMain.progressBarPack.hide()
+        frameExerciseInitWorking = False
         uiMain.framePack.hide()
         uiMain.frameExercise.show()
 
@@ -204,39 +215,112 @@ def MainInit(callback=None):
     GetPage()
 
 
-def frameQuestionInit():
-    if not uiMain.listWidgetExercise.selectedIndexes():
-        QMessageBox.information(None, '消息', '请选择一个题包', QMessageBox.Ok)
-        return
-    questionInfo = get_exercise(eid=requests_var['e'], pid=requests_var['p'], lang='CPP')
-    variables['exerciseInfo'] = questionInfo
-    windowMain.setWindowTitle(questionInfo['title'])
-    uiMain.statusbar.clearMessage()
-    if questionInfo['tags']:
-        uiMain.statusbar.showMessage("标签：" + ", ".join(questionInfo['tags']))
-    else:
-        uiMain.statusbar.showMessage('标签：无')
-    sampleDataMdText = ""
-    for i in range(0, len(questionInfo['sampleData'])):
-        sampleDataMdText += f'### 样例{i + 1}\n'
-        sampleDataMdText += f'#### 输入 \n```\n' + questionInfo['sampleData'][i]['input'] + '\n```\n'
-        sampleDataMdText += f'#### 输出 \n```\n' + questionInfo['sampleData'][i]['output'] + '\n```\n'
+# 获取题目信息的网络通信
+class _GetExercise(QThread):
+    infoSignal = pyqtSignal(dict)
+    errorSignal = pyqtSignal(codiaError)
 
-    mdText = ('### 题目描述 \n' + questionInfo['description-content'] + '\n' +
-              '### 输入描述 \n' + questionInfo['inputDescription-content'] + '\n' +
-              '### 输出描述 \n' + questionInfo['outputDescription-content'] + '\n' +
-              sampleDataMdText)
-    uiMain.textEditQuestionDiscription.setMarkdown(mdText)
-    uiMain.labelQuestionStatus.setText('通过/尝试： ' +
-                                       str(questionInfo['viewerStatus']['passedCount']) + '/' +
-                                       str(questionInfo['viewerStatus']['totalCount']))
-    uiMain.comboBoxLanguage.clear()
-    languages = [translation[lan] for lan in variables['exerciseInfo']['supportedLanguages']]
-    uiMain.comboBoxLanguage.addItems(languages)
-    uiMain.labelSubmitStatus.setText(uiMain.labelQuestionStatus.text())
-    uiMain.textEditSubmit.setText(variables['exerciseInfo']['codeSnippet'])
-    uiMain.frameExercise.hide()
-    uiMain.frameQuestion.show()
+    def __init__(self, *args, pid, eid, lang, **kargs):
+        super(_GetExercise, self).__init__(*args, **kargs)
+        self.working = True
+        self.pid = pid
+        self.eid = eid
+        self.lang = lang
+
+    def __del__(self):
+        self.working = False
+        self.wait()
+
+    def run(self):
+        try:
+            self.exerciseInfo = get_exercise(eid=self.eid, pid=self.pid, lang=self.lang)
+        except codiaError as e:
+            self.errorSignal.emit(e)
+        else:
+            self.infoSignal.emit(self.exerciseInfo)
+
+
+# 获取题目信息的多线程准备
+def GetExercise(pid, eid, lang, InfoRecv=lambda: None, ErrorRecv=lambda: None):
+    global threadGetExercise  # extremely essential!
+    threadGetExercise = _GetExercise(eid=eid, pid=pid, lang=lang)
+    threadGetExercise.infoSignal.connect(InfoRecv)
+    threadGetExercise.errorSignal.connect(ErrorRecv)
+    uiMain.progressBarExercise.setValue(90)
+    threadGetExercise.start()
+
+
+def frameQuestionInit():
+    global frameQuestionInitWorking
+    try:
+        if frameQuestionInitWorking:
+            return
+    except:
+        pass
+
+    if not uiMain.listWidgetExercise.selectedIndexes():
+        QMessageBox.information(None, '消息', '请选择一个题目', QMessageBox.Ok)
+        return
+
+    frameQuestionInitWorking = True
+    uiMain.progressBarExercise.setValue(0)
+    uiMain.progressBarExercise.show()
+
+    def ExerciseInfoRecv(questionInfo):
+        global frameQuestionInitWorking
+        variables['exerciseInfo'] = questionInfo
+        windowMain.setWindowTitle(questionInfo['title'])
+        uiMain.statusbar.clearMessage()
+        if questionInfo['tags']:
+            uiMain.statusbar.showMessage("标签：" + ", ".join(questionInfo['tags']))
+        else:
+            uiMain.statusbar.showMessage('标签：无')
+        sampleDataMdText = ""
+        for i in range(0, len(questionInfo['sampleData'])):
+            sampleDataMdText += f'### 样例{i + 1}\n'
+            '''
+            sampleDataMdText += """
+<table>
+<tr><th>输入</th><th width=30></th><th>输出</th></tr>
+<tr><td><code style="white-space: pre-line">{}</code></td><td></td><td><code style="white-space: pre-line">{}</code></td></tr>
+</table>
+
+""".format(questionInfo['sampleData'][i]['input'], questionInfo['sampleData'][i]['output'])
+            '''
+            sampleDataMdText += f'#### 输入 \n```\n' + questionInfo['sampleData'][i]['input'] + '\n```\n'
+            sampleDataMdText += f'#### 输出 \n```\n' + questionInfo['sampleData'][i]['output'] + '\n```\n'
+
+        mdText = ('### 题目描述 \n' + questionInfo['description-content'] + '\n' +
+                  '### 输入描述 \n' + questionInfo['inputDescription-content'] + '\n' +
+                  '### 输出描述 \n' + questionInfo['outputDescription-content'] + '\n' +
+                  sampleDataMdText)
+        uiMain.textEditQuestionDiscription.setMarkdown(mdText)
+        uiMain.labelQuestionStatus.setText('通过/尝试： ' +
+                                           str(questionInfo['viewerStatus']['passedCount']) + '/' +
+                                           str(questionInfo['viewerStatus']['totalCount']))
+        uiMain.comboBoxLanguage.clear()
+        languages = [translation[lan] for lan in variables['exerciseInfo']['supportedLanguages']]
+        uiMain.comboBoxLanguage.addItems(languages)
+        uiMain.labelSubmitStatus.setText(uiMain.labelQuestionStatus.text())
+        uiMain.textEditSubmit.setText(variables['exerciseInfo']['codeSnippet'])
+        uiMain.progressBarExercise.hide()
+        frameQuestionInitWorking = False
+        uiMain.frameExercise.hide()
+        uiMain.frameQuestion.show()
+
+    def ErrorRecv(e: codiaError):
+        global frameQuestionInitWorking
+        errorTranslate = error_translate(e)
+        if errorTranslate:
+            QMessageBox.critical(None, "获取失败", errorTranslate, QMessageBox.Ok)
+        else:
+            QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
+        uiMain.progressBarExercise.hide()
+        frameQuestionInitWorking = False
+
+    questionInfo = GetExercise(pid=requests_var['p'], eid=requests_var['e'],
+                               lang='CPP', InfoRecv=ExerciseInfoRecv,
+                               ErrorRecv=ErrorRecv)
 
 
 # 初始化任务，为做题窗口信号绑定槽函数
@@ -414,7 +498,7 @@ def GetPack(before=None, after=None, InfoRecv=lambda: None, ErrorRecv=lambda: No
 # 翻页
 def GetPage(before=None, after=None):
     if before and after:
-        return False
+        return False 
     uiMain.progressBarPack.setValue(0)
     uiMain.progressBarPack.show()
     uiMain.pushButtonPackNext.setEnabled(False)
