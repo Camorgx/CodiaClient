@@ -112,7 +112,7 @@ def frameExerciseInit():
             beginTime = datetime.strptime("1900-01-01 00:00:00", "%Y-%m-%d %H:%M:%S")
         uiMain.labelDeadline.setText(f"截止时间: {endTimeText}")
         windowMain.setWindowTitle(exerciseListInfo["name"])
-        if not (beginTime < presentTime < endTime and (not exerciseListInfo["viewerStatus"]["ongoing"])):
+        if exerciseListInfo["viewerStatus"]["ongoing"] or not (beginTime < presentTime < endTime):
             uiMain.pushButtonExerciseBegin.hide()
         if exerciseListInfo['description']:
             uiMain.textEditExerciseDiscription.setMarkdown(exerciseListInfo['description']['content'])
