@@ -39,7 +39,7 @@ if sys.platform == 'win32':
     Font['main'].setPointSize(10)
     Font['status'].setFamily("KaiTi")
     Font['status'].setPointSize(10)
-    Style['progressBar'] = "QProgressBar { border: 1px solid grey; border-radius: 2px; text-align: center; background-color: #FFFFFF;}QProgressBar::chunk { background-color: #30A132; width: 10px;}"
+    Style['progressBar'] = "QProgressBar { max-height: 12px; border: none; border-radius: 6px; text-align: center; background-color: #FFFFFF } QProgressBar::chunk { border: none; border-radius: 6px; background: qlineargradient(spread: pad, x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #05A01E, stop: 1 #75C090) }"
 elif sys.platform == 'darwin':
     Font['main'].setFamily("PingFang SC")
     Font['main'].setPointSize(13)

@@ -189,7 +189,7 @@
        <x>78</x>
        <y>240</y>
        <width>384</width>
-       <height>20</height>
+       <height>12</height>
       </rect>
      </property>
      <property name="value">
@@ -584,9 +584,9 @@
      </property>
     </widget>
    </widget>
-   <zorder>frameLogin</zorder>
    <zorder>frameReset</zorder>
    <zorder>frameRegister</zorder>
+   <zorder>frameLogin</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
