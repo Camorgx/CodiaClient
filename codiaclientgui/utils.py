@@ -118,12 +118,10 @@ class MyObject(QLabel):
         if not status: self.leaveSignal.emit()
 
     def enterEvent(self, e):
-        print(self.objectName(), "enterEvent")
         self.enterSignal.emit()
         self.linkedObject and self.linkedObject.enterSignal.emit()
 
     def leaveEvent(self, e):
-        print(self.objectName(), "leaveEvent")
         self.leaveSignal.emit()
         self.linkedObject and self.linkedObject.leaveSignal.emit()
 
