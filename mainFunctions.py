@@ -37,41 +37,87 @@ translation = {
     'PYTHON': 'Python'
 }
 
+# 获取题包内容信息的网络通信
+class _ShowPack(QThread):
+    infoSignal = pyqtSignal(dict)
+    errorSignal = pyqtSignal(codiaError)
+
+    def __init__(self, *args, pid, **kargs):
+        super(_ShowPack, self).__init__(*args, **kargs)
+        self.working = True
+        self.pid = pid
+
+    def __del__(self):
+        self.working = False
+        self.wait()
+
+    def run(self):
+        try:
+            self.packInfo = show_pack(pid=self.pid)
+        except codiaError as e:
+            self.errorSignal.emit(e)
+        else:
+            self.infoSignal.emit(self.packInfo)
+
+
+# 获取题包内容信息的多线程准备
+def ShowPack(pid, InfoRecv=lambda: None, ErrorRecv=lambda: None):
+    global threadShowPack  # extremely essential!
+    threadShowPack = _ShowPack(pid=pid)
+    threadShowPack.infoSignal.connect(InfoRecv)
+    threadShowPack.errorSignal.connect(ErrorRecv)
+    uiMain.progressBarPack.setValue(90)
+    threadShowPack.start()
+
 
 def frameExerciseInit():
     if not uiMain.listWidgetPack.selectedIndexes():
         QMessageBox.information(None, "提示", "请选择题包。", QMessageBox.Ok)
         return
-    uiMain.framePack.hide()
-    uiMain.frameExercise.show()
-    uiMain.listWidgetExercise.clear()
-    exerciseListInfo = show_pack(pid=requests_var["p"])
-    presentTime = datetime.now()
-    if exerciseListInfo["due"]:
-        endTime = datetime.strptime(search(r"^[^.]*", exerciseListInfo["due"].replace("T", " ")).group(),
-                                    "%Y-%m-%d %H:%M:%S") + timedelta(hours=8)
-        endTimeText = endTime.strftime("%Y-%m-%d %H:%M:%S")
-    else:
-        endTime = datetime.strptime("2100-01-01 00:00:00", "%Y-%m-%d %H:%M:%S")
-        endTimeText = "无限制"
-    createdAt = variables["packInfo"]["nodes"][variables["currentPackRow"]]["createdAt"]
-    if createdAt:
-        beginTime = datetime.strptime(search(r"^[^.]*", createdAt.replace("T", " ")).group(), "%Y-%m-%d %H:%M:%S") \
-                    + timedelta(hours=8)
-    else:
-        beginTime = datetime.strptime("1900-01-01 00:00:00", "%Y-%m-%d %H:%M:%S")
-    uiMain.labelDeadline.setText(f"截止时间: {endTimeText}")
-    windowMain.setWindowTitle(exerciseListInfo["name"])
-    if not (beginTime < presentTime < endTime and (not exerciseListInfo["viewerStatus"]["ongoing"])):
-        uiMain.pushButtonExerciseBegin.hide()
-    if exerciseListInfo['description']:
-        uiMain.textEditExerciseDiscription.setMarkdown(exerciseListInfo['description']['content'])
-    else:
-        uiMain.textEditExerciseDiscription.setText('本题包未设置题包描述')
-    variables['exerciseListInfo'] = exerciseListInfo['codingExercises']['nodes']
-    if variables['exerciseListInfo']:
-        for exercise in variables['exerciseListInfo']:
-            AddItemToQuestionList(exercise)
+    uiMain.progressBarPack.setValue(0)
+    uiMain.progressBarPack.show()
+
+    def ErrorRecv(e: codiaError):
+        errorTranslate = error_translate(e)
+        if errorTranslate:
+            QMessageBox.critical(None, "获取失败", errorTranslate, QMessageBox.Ok)
+        else:
+            QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
+        uiMain.progressBarPack.hide()
+
+    def exerciseListInfoRecv(exerciseListInfo):
+        presentTime = datetime.now()
+        if exerciseListInfo["due"]:
+            endTime = datetime.strptime(search(r"^[^.]*", exerciseListInfo["due"].replace("T", " ")).group(),
+                                        "%Y-%m-%d %H:%M:%S") + timedelta(hours=8)
+            endTimeText = endTime.strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            endTime = datetime.strptime("2100-01-01 00:00:00", "%Y-%m-%d %H:%M:%S")
+            endTimeText = "无限制"
+        createdAt = variables["packInfo"]["nodes"][variables["currentPackRow"]]["createdAt"]
+        if createdAt:
+            beginTime = datetime.strptime(search(r"^[^.]*", createdAt.replace("T", " ")).group(), "%Y-%m-%d %H:%M:%S") \
+                        + timedelta(hours=8)
+        else:
+            beginTime = datetime.strptime("1900-01-01 00:00:00", "%Y-%m-%d %H:%M:%S")
+        uiMain.labelDeadline.setText(f"截止时间: {endTimeText}")
+        windowMain.setWindowTitle(exerciseListInfo["name"])
+        if not (beginTime < presentTime < endTime and (not exerciseListInfo["viewerStatus"]["ongoing"])):
+            uiMain.pushButtonExerciseBegin.hide()
+        if exerciseListInfo['description']:
+            uiMain.textEditExerciseDiscription.setMarkdown(exerciseListInfo['description']['content'])
+        else:
+            uiMain.textEditExerciseDiscription.setText('本题包未设置题包描述')
+        variables['exerciseListInfo'] = exerciseListInfo['codingExercises']['nodes']
+        uiMain.listWidgetExercise.clear()
+        if variables['exerciseListInfo']:
+            for exercise in variables['exerciseListInfo']:
+                AddItemToQuestionList(exercise)
+        uiMain.progressBarPack.hide()
+        uiMain.framePack.hide()
+        uiMain.frameExercise.show()
+
+    ShowPack(pid=requests_var["p"], InfoRecv=exerciseListInfoRecv, ErrorRecv=ErrorRecv)
 
 
 def AddItemToQuestionList(data: dict):
@@ -336,8 +382,8 @@ class _GetPack(QThread):
     infoSignal = pyqtSignal(dict)
     errorSignal = pyqtSignal(codiaError)
 
-    def __init__(self, before=None, after=None, parent=None):
-        super(_GetPack, self).__init__(parent)
+    def __init__(self, *args, before=None, after=None, **kargs):
+        super(_GetPack, self).__init__(*args, **kargs)
         self.working = True
         self.before = before
         self.after = after
@@ -361,19 +407,18 @@ def GetPack(before=None, after=None, InfoRecv=lambda: None, ErrorRecv=lambda: No
     threadGetPack = _GetPack(before=before, after=after)
     threadGetPack.infoSignal.connect(InfoRecv)
     threadGetPack.errorSignal.connect(ErrorRecv)
-    uiMain.progressBarPack.setValue(30)
+    uiMain.progressBarPack.setValue(90)
     threadGetPack.start()
 
 
 # 翻页
 def GetPage(before=None, after=None):
-    uiMain.progressBarPack.setValue(0)
-    uiMain.progressBarPack.show()
     if before and after:
         return False
+    uiMain.progressBarPack.setValue(0)
+    uiMain.progressBarPack.show()
     uiMain.pushButtonPackNext.setEnabled(False)
     uiMain.pushButtonPackPrevious.setEnabled(False)
-    uiMain.progressBarPack.setValue(10)
 
     def PackInfoRecv(packInfo):
         if not packInfo:
@@ -386,7 +431,6 @@ def GetPage(before=None, after=None):
             variables["pageNumber"] -= 1
         else:
             variables["pageNumber"] = 1
-        uiMain.progressBarPack.setValue(100)
         uiMain.progressBarPack.hide()
         UpdatePage()
 
