@@ -314,6 +314,7 @@ class _NewProgressBar(QProgressBar):
         super(_NewProgressBar, self).hide()
         for x in self.Anime: self.Anime[x].stop()
         super(_NewProgressBar, self).setValue(0)
+        self.Anime['progress'].setDuration(1500)
 
     def __init__(self, *args, **kargs):
         super(_NewProgressBar, self).__init__(*args, **kargs)

@@ -458,11 +458,34 @@ def HistoryReturn():
     uiMain.frameQuestion.show()
 
 
+# def _sub_get_data(eid, pid, cnt):
+#     if not cnt:
+#         return get_data(eid=eid, pid=pid)
+#     else:
+#         MAXCNT = 5
+#         progressSub = 90 / (cnt // MAXCNT + 1)
+#         nowProgress = 0
+#         res = []
+#         before = None
+#         while cnt > 0:
+#             sub = get_data(eid=eid, pid=pid, before=before, cnt=min(MAXCNT, cnt))
+#             if not sub: return False
+#             before = sub[0]['id']
+#             res += reversed(sub)
+#             cnt -= MAXCNT
+#             nowProgress += progressSub
+#             print(nowProgress)
+#             uiMain.progressBarHistory.setValue(nowProgress)
+#         res.reverse()
+#         return res
+
+
 def GetHistory(eid, pid, cnt, InfoRecv=lambda: None, ErrorRecv=lambda: None):
     global threadGetHistory  # extremely essential!
     threadGetHistory = MyThread(RunMethod=lambda: get_data(eid=eid, pid=pid, cnt=cnt))
     threadGetHistory.infoSignal[list].connect(InfoRecv)
     threadGetHistory.errorSignal.connect(ErrorRecv)
+    uiMain.progressBarHistory.Anime['progress'].setDuration(1500 * (cnt // 100 + 1))
     uiMain.progressBarHistory.setValue(90)
     threadGetHistory.start()
 
