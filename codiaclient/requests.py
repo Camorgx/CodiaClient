@@ -49,7 +49,7 @@ class Requests:
                 if len(conf) == 2:
                     variables[conf[0]] = conf[1]
                 else:
-                    report('Use `show VAR` to show the variables.', 1)
+                    report('Use `show VAR` to show the variables, or `del VAR` to reset the variables.', 1)
             elif conf[0] in ['del', 'reset']:
                 if len(conf) == 2:
                     if conf[1] in variables or conf[1] in aliases:
@@ -107,9 +107,9 @@ class Requests:
                                     report(e, 1)
                             else:
                                 try:
-                                    res = get_data(eid=variables['e'], pid=variables['p'], codecnt=int(conf[1]))
+                                    res = get_data(eid=variables['e'], pid=variables['p'], cnt=int(conf[1]))
                                 except ValueError:
-                                    report('Invalid request: type(codecnt) should be int.', 1)
+                                    report('Invalid request: type(cnt) should be int.', 1)
                                 else:
                                     if res == None:
                                         report('Invalid request.', 1)
@@ -129,9 +129,9 @@ class Requests:
                             report(e, 1)
                     elif conf[2] == 'to':
                         try:
-                            res = get_data(eid=variables['e'], pid=variables['p'], codecnt=int(conf[1]))
+                            res = get_data(eid=variables['e'], pid=variables['p'], cnt=int(conf[1]))
                         except ValueError:
-                            report('Invalid request: type(codecnt) should be int.', 1)
+                            report('Invalid request: type(cnt) should be int.', 1)
                         else:
                             try:
                                 with open('./tmp.txt', 'w', encoding='utf-8') as f:
@@ -143,9 +143,9 @@ class Requests:
                 elif len(conf) == 4:
                     if conf[2] == 'to':
                         try:
-                            res = get_data(eid=variables['e'], pid=variables['p'], codecnt=int(conf[1]))
+                            res = get_data(eid=variables['e'], pid=variables['p'], cnt=int(conf[1]))
                         except ValueError:
-                            report('Invalid request: type(codecnt) should be int.', 1)
+                            report('Invalid request: type(cnt) should be int.', 1)
                         else:
                             try:
                                 with open(conf[3], 'w', encoding='utf-8') as f:
@@ -222,22 +222,51 @@ class Requests:
                         report('Invalid request.', 1)
                 else:
                     report('Invalid request.', 1)
-            elif conf[0] in ['gr', 'getr', 'getres', 'getreport', 'getreports']:
-                if len(conf) <= 2:
-                    if variables['e']:
-                        if len(conf) == 1:
-                            res = get_data(eid=variables['e'], pid=variables['p'])
-                        elif len(conf) == 2:
-                            try:
-                                res = get_data(eid=variables['e'], pid=variables['p'], codecnt=int(conf[1]))
-                            except ValueError:
-                                if conf[1].lower() == 'all':
-                                    self.show_msg(json.dumps(get_data(eid=variables['e'], pid=variables['p'])))
-                                else:
-                                    report('Invalid request: type(codecnt) should be int.', 1)
-                                return
+            elif conf[0] in ['gr', 'getr', 'getres', 'getreport', 'getreports']:  # getpack [N] [before|after ID]
+                if len(conf) <= 4:
+                    res = None
+                    if len(conf) <= 2:
+                        if variables['e']:
+                            if len(conf) == 1:
+                                res = get_data(eid=variables['e'], pid=variables['p'])
+                            elif len(conf) == 2:
+                                try:
+                                    res = get_data(eid=variables['e'], pid=variables['p'], cnt=int(conf[1]))
+                                except ValueError:
+                                    if conf[1].lower() == 'all':
+                                        self.show_msg(json.dumps(get_data(eid=variables['e'], pid=variables['p'])))
+                                    else:
+                                        report('Invalid request: type(cnt) should be int.', 1)
+                                    return
+                            else:
+                                pass
                         else:
-                            pass
+                            report("No eid specified.", 1)
+                    elif len(conf) == 3:
+                        if conf[1] in ['bf', 'before']:
+                            res = get_data(eid=variables['e'], pid=variables['p'], before=conf[2])
+                        elif conf[1] in ['af', 'after']:
+                            res = get_data(eid=variables['e'], pid=variables['p'], after=conf[2])
+                        else:
+                            report('Invalid request.', 1)
+                    elif len(conf) == 4:
+                        if conf[2] in ['bf', 'before']:
+                            try:
+                                res = get_data(eid=variables['e'], pid=variables['p'], before=conf[3], cnt=int(conf[1]))
+                            except ValueError:
+                                report('Invalid request: type(cnt) should be int.', 1)
+                        if conf[2] in ['af', 'after']:
+                            try:
+                                res = get_data(eid=variables['e'], pid=variables['p'], after=conf[3], cnt=int(conf[1]))
+                            except ValueError:
+                                report('Invalid request: type(cnt) should be int.', 1)
+                        else:
+                            report('Invalid request.', 1)
+                    else:
+                        pass
+                    if not res:
+                        report("No result.", 1)
+                    else:
                         res = {x['key']: x['value'] for x in res[0]['submission']['reports']}
                         try:
                             score = res['score'].split('/')
@@ -252,8 +281,6 @@ class Requests:
                                 }))
                             else:
                                 self.show_msg(json.dumps(res))
-                    else:
-                        report("No eid specified.", 1)
                 else:
                     report('Invalid request.', 1)
             elif conf[0] in ['sp', 'showp', 'showpack']:
