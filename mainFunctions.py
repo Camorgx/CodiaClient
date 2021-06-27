@@ -13,7 +13,7 @@ from codiaclient.network import get_pack, show_pack, start_pack, logined, get_ex
 from codiaclient.network import submit
 from codiaclient.report import Error as codiaError, error_translate
 from codiaclient.requests import variables as requests_var
-from codiaclientgui.utils import QPalette, Font, Palette, Style, Color
+from codiaclientgui.utils import QPalette, Font, Palette, Style, Color, ErrorDisplay
 from mainWindow import Ui_windowMain
 
 variables = {
@@ -27,7 +27,7 @@ variables = {
     "exerciseInfo": None
 }
 
-translation = {
+displayLanguage = {
     'CPP': 'C++',
     'C': 'C',
     'JAVA': 'Java',
@@ -36,6 +36,7 @@ translation = {
     'RUST': 'Rust',
     'PYTHON': 'Python'
 }
+dataLanguage = {val: key for key, val in displayLanguage.items()}
 
 # 获取题包内容信息的网络通信
 class _ShowPack(QThread):
@@ -86,11 +87,7 @@ def frameExerciseInit():
 
     def ErrorRecv(e: codiaError):
         global frameExerciseInitWorking
-        errorTranslate = error_translate(e)
-        if errorTranslate:
-            QMessageBox.critical(None, "获取失败", errorTranslate, QMessageBox.Ok)
-        else:
-            QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
+        ErrorDisplay(e, error_translate, "获取失败")
         uiMain.progressBarPack.hide()
         frameExerciseInitWorking = False
 
@@ -142,29 +139,30 @@ def AddItemToQuestionList(data: dict):
 
 def GetExerciseWidget(data: dict):
     if data['viewerStatus']['passedCount'] > 0:
-        label_status = QLabel('已通过')
-        label_status.setPalette(Palette[QPalette.Text]['green'])
+        labelExerciseStatus = QLabel('已通过')
+        labelExerciseStatus.setPalette(Palette[QPalette.Text]['green'])
     else:
-        label_status = QLabel('未通过')
-        label_status.setPalette(Palette[QPalette.Text]['red'])
-    label_name = QLabel(str(data['title']))
-    label_passed = QLabel(f"通过数：{data['viewerStatus']['passedCount']}")
-    label_submit = QLabel(f"提交数：{data['viewerStatus']['totalCount']}")
-    layout_main = QHBoxLayout()
-    layout_right = QVBoxLayout()
+        labelExerciseStatus = QLabel('未通过')
+        labelExerciseStatus.setPalette(Palette[QPalette.Text]['red'])
+    labelExerciseTitle = QLabel(str(data['title']))
+    labelExercisePassed = QLabel(f"通过数：{data['viewerStatus']['passedCount']}")
+    labelExerciseSubmit = QLabel(f"提交数：{data['viewerStatus']['totalCount']}")
+    layoutExerciseMain = QHBoxLayout()
+    layoutExerciseRight = QVBoxLayout()
 
-    layout_main.addWidget(label_status)
-    layout_main.addWidget(label_name)
-    layout_right.addWidget(label_submit)
-    layout_right.addWidget(label_passed)
-    layout_main.addLayout(layout_right)
+    layoutExerciseRight.addWidget(labelExerciseSubmit)
+    layoutExerciseRight.addWidget(labelExercisePassed)
+    layoutExerciseMain.addWidget(labelExerciseStatus)
+    layoutExerciseMain.addWidget(labelExerciseTitle)
+    layoutExerciseMain.addLayout(layoutExerciseRight)
 
-    layout_main.setStretchFactor(label_status, 1)
-    layout_main.setStretchFactor(label_name, 3)
-    layout_main.setStretchFactor(layout_right, 2)
+    labelExerciseStatus.setAlignment(Qt.AlignCenter)
+    layoutExerciseMain.setStretchFactor(labelExerciseStatus, 1)
+    layoutExerciseMain.setStretchFactor(labelExerciseTitle, 5)
+    layoutExerciseMain.setStretchFactor(layoutExerciseRight, 3)
 
     widget = QWidget()
-    widget.setLayout(layout_main)
+    widget.setLayout(layoutExerciseMain)
     return widget
 
 
@@ -192,11 +190,7 @@ def BeginPack():
     try:
         start_pack(requests_var["p"])
     except codiaError as e:
-        errorTranslate = error_translate(e)
-        if errorTranslate:
-            QMessageBox.critical(None, "错误", errorTranslate, QMessageBox.Ok)
-        else:
-            QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
+        ErrorDisplay(e, error_translate)
     else:
         QMessageBox.information(None, "消息", "成功开始题包", QMessageBox.Ok)
         uiMain.pushButtonExerciseBegin.hide()
@@ -299,7 +293,7 @@ def frameQuestionInit():
                                            str(questionInfo['viewerStatus']['passedCount']) + '/' +
                                            str(questionInfo['viewerStatus']['totalCount']))
         uiMain.comboBoxLanguage.clear()
-        languages = [translation[lan] for lan in variables['exerciseInfo']['supportedLanguages']]
+        languages = [displayLanguage[lan] for lan in variables['exerciseInfo']['supportedLanguages']]
         uiMain.comboBoxLanguage.addItems(languages)
         uiMain.labelSubmitStatus.setText(uiMain.labelQuestionStatus.text())
         uiMain.textEditSubmit.setText(variables['exerciseInfo']['codeSnippet'])
@@ -310,11 +304,7 @@ def frameQuestionInit():
 
     def ErrorRecv(e: codiaError):
         global frameQuestionInitWorking
-        errorTranslate = error_translate(e)
-        if errorTranslate:
-            QMessageBox.critical(None, "获取失败", errorTranslate, QMessageBox.Ok)
-        else:
-            QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
+        ErrorDisplay(e, error_translate, "获取失败")
         uiMain.progressBarExercise.hide()
         frameQuestionInitWorking = False
 
@@ -420,15 +410,10 @@ def SubmitReturn():
 
 
 def SubmitCode(lang: str, code: str):
-    reverseTranslation = {val: key for key, val in translation.items()}
     try:
-        submit_result = submit(requests_var['e'], requests_var['p'], reverseTranslation[lang], code)
+        submit_result = submit(requests_var['e'], requests_var['p'], dataLanguage[lang], code)
     except codiaError as e:
-        rev = error_translate(e)
-        if rev:
-            QMessageBox.critical(None, '提交失败', rev, QMessageBox.Ok)
-        else:
-            QMessageBox.critical(None, '提交失败', '未知错误', QMessageBox.Ok)
+        ErrorDisplay(e, error_translate, "提交失败")
     else:
         if submit_result:
             QMessageBox.information(None, '提交成功', '提交成功，请在历史记录中查看评测结果', QMessageBox.Ok)
@@ -439,7 +424,7 @@ def SubmitCode(lang: str, code: str):
 
 
 def SubmitInit():
-    languages = [translation[lan] for lan in variables['exerciseInfo']['supportedLanguages']]
+    languages = [displayLanguage[lang] for lang in variables['exerciseInfo']['supportedLanguages']]
     uiMain.comboBoxLanguageSubmit.clear()
     uiMain.comboBoxLanguageSubmit.addItems(languages)
     uiMain.frameQuestion.hide()
@@ -529,11 +514,7 @@ def GetPage(before=None, after=None):
         UpdatePage()
 
     def ErrorRecv(e: codiaError):
-        errorTranslate = error_translate(e)
-        if errorTranslate:
-            QMessageBox.critical(None, "获取失败", errorTranslate, QMessageBox.Ok)
-        else:
-            QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
+        ErrorDisplay(e, error_translate, "获取失败")
         uiMain.progressBarPack.hide()
         try:
             UpdatePage()
@@ -545,7 +526,7 @@ def GetPage(before=None, after=None):
 
 def GetPackWidget(data: dict):
     widget = QWidget()
-    layoutPackmain = QHBoxLayout()
+    layoutPackMain = QHBoxLayout()
     layoutPackRight = QVBoxLayout()
     layoutPackRightUp = QHBoxLayout()
     layoutPackRightDown = QHBoxLayout()
@@ -606,12 +587,12 @@ def GetPackWidget(data: dict):
     layoutPackRight.setStretchFactor(layoutPackRightDown, 8)
 
     labelPackFinish.setAlignment(Qt.AlignCenter)
-    layoutPackmain.addWidget(labelPackFinish)
-    layoutPackmain.addLayout(layoutPackRight)
-    layoutPackmain.setStretchFactor(labelPackFinish, 1)
-    layoutPackmain.setStretchFactor(layoutPackRight, 8)
+    layoutPackMain.addWidget(labelPackFinish)
+    layoutPackMain.addLayout(layoutPackRight)
+    layoutPackMain.setStretchFactor(labelPackFinish, 1)
+    layoutPackMain.setStretchFactor(layoutPackRight, 8)
 
-    widget.setLayout(layoutPackmain)
+    widget.setLayout(layoutPackMain)
     return widget
 
 
