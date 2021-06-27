@@ -44,6 +44,7 @@ toDisplay = {
     "RUST": "Rust",
     "PYTHON": "Python",
     "passed": "通过",
+    "compile error": "编译错误",
     "wrong answer": "答案错误",
     "runtime error": "运行时错误",
     "time limit exceeds": "超时",
@@ -154,8 +155,8 @@ def GetExerciseWidget(data: dict):
         labelExerciseStatus = QLabel("未通过")
         labelExerciseStatus.setPalette(Palette[QPalette.Text]["red"])
     labelExerciseTitle = QLabel(str(data["title"]))
-    labelExercisePassed = QLabel(f"通过数：{data["viewerStatus"]["passedCount"]}")
-    labelExerciseSubmit = QLabel(f"提交数：{data["viewerStatus"]["totalCount"]}")
+    labelExercisePassed = QLabel(f"""通过数：{data["viewerStatus"]["passedCount"]}""")
+    labelExerciseSubmit = QLabel(f"""提交数：{data["viewerStatus"]["totalCount"]}""")
     layoutExerciseMain = QHBoxLayout()
     layoutExerciseRight = QVBoxLayout()
 
