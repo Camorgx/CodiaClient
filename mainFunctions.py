@@ -38,7 +38,8 @@ displayLanguage = {
     'passed': '通过',
     'wrong answer': '答案错误',
     'runtime error': '运行时错误',
-    "": '未知错误'
+    'time limit exceeds': "超时",
+    "": '正在评测'
 }
 dataLanguage = {val: key for key, val in displayLanguage.items()}
 
@@ -297,6 +298,7 @@ def frameQuestionInit():
                                            str(questionInfo['viewerStatus']['passedCount']) + '/' +
                                            str(questionInfo['viewerStatus']['totalCount']))
         uiMain.comboBoxLanguage.clear()
+        uiMain.comboBoxLanguage.addItem('请选择提交语言')
         languages = [displayLanguage[lan] for lan in variables['exerciseInfo']['supportedLanguages']]
         uiMain.comboBoxLanguage.addItems(languages)
         uiMain.labelSubmitStatus.setText(uiMain.labelQuestionStatus.text())
@@ -312,9 +314,9 @@ def frameQuestionInit():
         uiMain.progressBarExercise.hide()
         frameQuestionInitWorking = False
 
-    questionInfo = GetExercise(pid=requests_var['p'], eid=requests_var['e'],
-                               lang='CPP', InfoRecv=ExerciseInfoRecv,
-                               ErrorRecv=ErrorRecv)
+    GetExercise(pid=requests_var['p'], eid=requests_var['e'],
+                lang='CPP', InfoRecv=ExerciseInfoRecv,
+                ErrorRecv=ErrorRecv)
 
 
 # 初始化任务，为做题窗口信号绑定槽函数
@@ -361,9 +363,10 @@ def BeginMain(callback=None):
     uiMain.pushButtonSubmitBack.clicked.connect(SubmitReturn)
     uiMain.pushButtonSubmitFile.clicked.connect(SubmitFile)
     uiMain.pushButtonReadFromFile.clicked.connect(
-        lambda : ReadFromFile(uiMain.comboBoxLanguageSubmit.currentText())
+        lambda: ReadFromFile(uiMain.comboBoxLanguageSubmit.currentText())
     )
     uiMain.pushButtonHistory.clicked.connect(frameHistoryInit)
+    uiMain.pushButtonHistoryBack.clicked.connect(HistoryReturn)
 
     for i in range(0, variables['packPerPage']):
         AddItemToPackList(uiMain.listWidgetPack, colorName=['white', 'lightgray'][i % 2])
@@ -373,12 +376,46 @@ def BeginMain(callback=None):
     callback and callback()
 
 
+def HistoryReturn():
+    uiMain.frameHistory.hide()
+    uiMain.frameQuestion.show()
+
+
 def frameHistoryInit():
-    results =  get_data(requests_var['e'], requests_var['p'],
-                   variables['exerciseListInfo'][variables['currentExerciseRow']]['viewerStatus']['totalCount']):
+    totalCount = variables['exerciseListInfo'][variables['currentExerciseRow']]['viewerStatus']['totalCount']
+    try:
+        results = get_data(requests_var['e'], requests_var['p'], totalCount)
+    except codiaError as e:
+        ErrorDisplay(e, error_translate, "获取失败")
+        return
+    results.reverse()
     variables['submitHistory'] = results
+    uiMain.listWidgetPackHistory.clear()
+    for data in results:
+        AddItemToHistoryList(data)
+
+    uiMain.frameQuestion.hide()
+    uiMain.frameHistory.show()
+
+
+def AddItemToHistoryList(data: dict):
+    item = QListWidgetItem()
+    item.setSizeHint(QSize(960, 65))
+    widget = GetHistoryWidget(data)
+    uiMain.listWidgetPackHistory.addItem(item)
+    uiMain.listWidgetPackHistory.setItemWidget(item, widget)
+
 
 def GetHistoryWidget(data: dict):
+    if not data:
+        widget = QWidget()
+        layout = QHBoxLayout()
+        labelStatus = QLabel('评测中')
+        labelStatus.setAlignment(Qt.AlignCenter)
+        layout.addWidget(labelStatus)
+        widget.setLayout(layout)
+        return widget
+
     mainLayout = QHBoxLayout()
     elapseLayout = QVBoxLayout()
     statusLabel = QLabel()
@@ -386,25 +423,71 @@ def GetHistoryWidget(data: dict):
     timeLabel = QLabel()
     codeLengthLabel = QLabel()
     timeElapsedLabel = QLabel()
-    spaceELapsedLabel = QLabel()
+    spaceElapsedLabel = QLabel()
 
-    if variables['submitHistory']['scoreRate'] == 1:
+    if data['scoreRate'] == 1:
         statusLabel.setText('通过')
         statusLabel.setPalette(Palette[QPalette.Text]["green"])
     else:
         errorType = ""
-        for i in variables['submitHistory']['submission']['reports']:
+        for i in data['submission']['reports']:
             if i['key'] == 'error':
                 errorType = i['value']
-        statusLabel.setText(translation[errorType])
+        if not errorType:
+            for i in data['submission']['reports']:
+                if (i['value'] != 'passed' and i['value'] != 'memory consumed'
+                        and i['value'] != 'time elapsed' and i['value'] != 'score'):
+                    errorType = i['value']
+                    break
+        statusLabel.setText(displayLanguage[errorType])
         SetErrorColor(statusLabel)
+    languageLabel.setText(displayLanguage[data['solution']['lang']])
+    timeLabel.setText('提交时间：' +
+        (datetime.strptime(search(r"^[^.]*", data["time"].replace("T", " ")).group(),
+                                         "%Y-%m-%d %H:%M:%S") + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S"))
+    codeLengthLabel.setText('代码长度：' + str(len(data['solution']['asset']['content'])) + ' B')
+    for i in data['submission']['reports']:
+        if i['key'] == 'memory consumed':
+            spaceElapsedLabel.setText('空间消耗：' + i['value'])
+        elif i['key'] == 'time elapsed':
+            timeElapsedLabel.setText('时间消耗：' + i['value'])
+    statusLabel.setAlignment(Qt.AlignCenter)
+
+    elapseLayout.addWidget(timeElapsedLabel)
+    elapseLayout.addWidget(spaceElapsedLabel)
+    mainLayout.addWidget(statusLabel)
+    mainLayout.addWidget(languageLabel)
+    mainLayout.addWidget(timeLabel)
+    mainLayout.addWidget(codeLengthLabel)
+    mainLayout.addLayout(elapseLayout)
+
+    mainLayout.setStretchFactor(statusLabel, 2)
+    mainLayout.setStretchFactor(languageLabel, 1)
+    mainLayout.setStretchFactor(timeLabel, 4)
+    mainLayout.setStretchFactor(codeLengthLabel, 2)
+    mainLayout.setStretchFactor(elapseLayout, 4)
+
+    widget = QWidget()
+    widget.setLayout(mainLayout)
+    widget.setCursor(Qt.PointingHandCursor)
+    return widget
 
 
 def SetErrorColor(statusLabel: QLabel):
-    pass
+    if statusLabel.text() == '答案错误':
+        statusLabel.setPalette(Palette[QPalette.Text]["red"])
+    elif statusLabel.text() == '运行时错误':
+        statusLabel.setPalette(Palette[QPalette.Text]["purple"])
+    elif statusLabel.text() == '超时':
+        statusLabel.setPalette(Palette[QPalette.Text]["darkblue"])
+    else:
+        statusLabel.setPalette(Palette[QPalette.Text]["gray"])
 
 
 def ReadFromFile(lang: str):
+    if uiMain.comboBoxLanguage.currentText() == '请选择提交语言':
+        QMessageBox.information(None, '提示', '请选择一种提交语言。', QMessageBox.Ok)
+        return
     fileWindow = QFileDialog()
     if lang == 'C++':
         fileWindow.setNameFilter('C++ 源文件(*.cpp *.cc *.C *.cxx *.c++)')
@@ -435,6 +518,9 @@ def ReadFromFile(lang: str):
 
 
 def SubmitFile():
+    if uiMain.comboBoxLanguage.currentText() == '请选择提交语言':
+        QMessageBox.information(None, '提示', '请选择一种提交语言。', QMessageBox.Ok)
+        return
     codeSubmit = ReadFromFile(uiMain.comboBoxLanguage.currentText())
     if codeSubmit:
         SubmitCode(uiMain.comboBoxLanguage.currentText(), codeSubmit)
@@ -446,6 +532,9 @@ def SubmitReturn():
 
 
 def SubmitCode(lang: str, code: str):
+    if lang == '请选择提交语言':
+        QMessageBox.information(None, '提示', '请选择一种提交语言。', QMessageBox.Ok)
+        return
     try:
         submit_result = submit(requests_var['e'], requests_var['p'], dataLanguage[lang], code)
     except codiaError as e:
@@ -462,6 +551,7 @@ def SubmitCode(lang: str, code: str):
 def SubmitInit():
     languages = [displayLanguage[lang] for lang in variables['exerciseInfo']['supportedLanguages']]
     uiMain.comboBoxLanguageSubmit.clear()
+    uiMain.comboBoxLanguageSubmit.addItem('请选择提交语言')
     uiMain.comboBoxLanguageSubmit.addItems(languages)
     uiMain.frameQuestion.hide()
     uiMain.frameSubmit.show()
