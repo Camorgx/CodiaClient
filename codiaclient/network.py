@@ -364,10 +364,22 @@ def submit(eid, pid, lang, solutioncode):
         return _submit_not_from_pack(eid, lang, solutioncode)
 
 def get_data(eid, pid, before=None, after=None, cnt=None):
-    if pid:
-        return _get_data_from_pack(eid=eid, pid=pid, before=before, after=after, cnt=cnt)
+    if not cnt:
+        if pid:
+            return _get_data_from_pack(eid=eid, pid=pid, before=before, after=after, cnt=cnt)
+        else:
+            return _get_data_not_from_pack(eid=eid, before=before, after=after, cnt=cnt)
     else:
-        return _get_data_not_from_pack(eid=eid, before=before, after=after, cnt=cnt)
+        res = []
+        while cnt > 0:
+            if pid:
+                sub = _get_data_from_pack(eid=eid, pid=pid, before=before, after=after, cnt=min(100, cnt))
+            else:
+                sub = _get_data_not_from_pack(eid=eid, before=before, after=after, cnt=min(100, cnt))
+            if not sub: return False
+            res += sub
+            cnt -= 100
+        return res
 
 def get_exercise(eid, pid, lang, feedback='dict'):
     if pid:
