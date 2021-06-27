@@ -471,7 +471,7 @@
       <string>返回</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButtonReadFromFile">
+    <widget class="NewPushButton" name="pushButtonReadFromFile">
      <property name="geometry">
       <rect>
        <x>690</x>
@@ -513,7 +513,7 @@
      <x>0</x>
      <y>0</y>
      <width>1080</width>
-     <height>24</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>
