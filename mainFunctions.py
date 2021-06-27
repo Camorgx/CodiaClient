@@ -366,6 +366,9 @@ def BeginMain(callback=None):
                            uiMain.textEditSubmit.toPlainText()))
     uiMain.pushButtonSubmitBack.clicked.connect(SubmitReturn)
     uiMain.pushButtonSubmitFile.clicked.connect(SubmitFile)
+    uiMain.pushButtonReadFromFile.clicked.connect(
+        lambda : ReadFromFile(uiMain.comboBoxLanguageSubmit.currentText())
+    )
 
     for i in range(0, variables['packPerPage']):
         AddItemToPackList(uiMain.listWidgetPack, colorName=['white', 'lightgray'][i % 2])
@@ -375,21 +378,21 @@ def BeginMain(callback=None):
     callback and callback()
 
 
-def SubmitFile():
+def ReadFromFile(lang: str):
     fileWindow = QFileDialog()
-    if uiMain.comboBoxLanguage.currentText() == 'C++':
+    if lang == 'C++':
         fileWindow.setNameFilter('C++ 源文件(*.cpp *.cc *.C *.cxx *.c++)')
-    elif uiMain.comboBoxLanguage.currentText() == 'C':
+    elif lang == 'C':
         fileWindow.setNameFilter('C 源文件(*.c)')
-    elif uiMain.comboBoxLanguage.currentText() == 'Python':
+    elif lang == 'Python':
         fileWindow.setNameFilter('Python 源文件(*.py)')
-    elif uiMain.comboBoxLanguage.currentText() == 'Java':
+    elif lang == 'Java':
         fileWindow.setNameFilter('Java 源文件(*.java)')
-    elif uiMain.comboBoxLanguage.currentText() == 'JavaScript':
+    elif lang == 'JavaScript':
         fileWindow.setNameFilter('JavaScript 源文件(*.js)')
-    elif uiMain.comboBoxLanguage.currentText() == 'Go':
+    elif lang == 'Go':
         fileWindow.setNameFilter('Go 源文件(*.go)')
-    elif uiMain.comboBoxLanguage.currentText() == 'Rust':
+    elif lang == 'Rust':
         fileWindow.setNameFilter('Rust 源文件(*.rs)')
     else:
         QMessageBox.critical(None, '错误', '未知错误。', QMessageBox.Ok)
@@ -398,10 +401,17 @@ def SubmitFile():
         fileChosen = fileWindow.selectedFiles()[0]
     else:
         QMessageBox.information(None, '提示', '请选择一个文件。', QMessageBox.Ok)
-        return
+        return None
     with open(fileChosen, "r") as inputCode:
         codeSubmit = inputCode.read()
-    SubmitCode(uiMain.comboBoxLanguage.currentText(), codeSubmit)
+    uiMain.textEditSubmit.setText(codeSubmit)
+    return codeSubmit
+
+
+def SubmitFile():
+    codeSubmit = ReadFromFile(uiMain.comboBoxLanguage.currentText())
+    if codeSubmit:
+        SubmitCode(uiMain.comboBoxLanguage.currentText(), codeSubmit)
 
 
 def SubmitReturn():

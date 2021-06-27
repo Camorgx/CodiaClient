@@ -471,6 +471,19 @@
       <string>返回</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="pushButtonReadFromFile">
+     <property name="geometry">
+      <rect>
+       <x>690</x>
+       <y>630</y>
+       <width>120</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>从文件中读取</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QFrame" name="frameHistory">
     <property name="geometry">
@@ -491,8 +504,8 @@
    <zorder>frameHistory</zorder>
    <zorder>frameQuestion</zorder>
    <zorder>framePack</zorder>
-   <zorder>frameSubmit</zorder>
    <zorder>frameExercise</zorder>
+   <zorder>frameSubmit</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -500,7 +513,7 @@
      <x>0</x>
      <y>0</y>
      <width>1080</width>
-     <height>26</height>
+     <height>24</height>
     </rect>
    </property>
   </widget>
