@@ -36,18 +36,18 @@ variables = {
 }
 
 toDisplay = {
-    'CPP': 'C++',
-    'C': 'C',
-    'JAVA': 'Java',
-    'JAVASCRIPT': 'JavaScript',
-    'GO': 'Go',
-    'RUST': 'Rust',
-    'PYTHON': 'Python',
-    'passed': '通过',
-    'wrong answer': '答案错误',
-    'runtime error': '运行时错误',
-    'time limit exceeds': "超时",
-    "": '正在评测'
+    "CPP": "C++",
+    "C": "C",
+    "JAVA": "Java",
+    "JAVASCRIPT": "JavaScript",
+    "GO": "Go",
+    "RUST": "Rust",
+    "PYTHON": "Python",
+    "passed": "通过",
+    "wrong answer": "答案错误",
+    "runtime error": "运行时错误",
+    "time limit exceeds": "超时",
+    "": "正在评测"
 }
 toData = {val: key for key, val in toDisplay.items()}
 
@@ -120,14 +120,14 @@ def frameExerciseInit():
         windowMain.setWindowTitle(exerciseListInfo["name"])
         if exerciseListInfo["viewerStatus"]["ongoing"] or not (beginTime < presentTime < endTime):
             uiMain.pushButtonExerciseBegin.hide()
-        if exerciseListInfo['description']:
-            uiMain.textEditExerciseDiscription.setMarkdown(exerciseListInfo['description']['content'])
+        if exerciseListInfo["description"]:
+            uiMain.textEditExerciseDiscription.setMarkdown(exerciseListInfo["description"]["content"])
         else:
-            uiMain.textEditExerciseDiscription.setText('本题包未设置题包描述')
-        variables['exerciseListInfo'] = exerciseListInfo['codingExercises']['nodes']
+            uiMain.textEditExerciseDiscription.setText("本题包未设置题包描述")
+        variables["exerciseListInfo"] = exerciseListInfo["codingExercises"]["nodes"]
         uiMain.listWidgetExercise.clear()
-        if variables['exerciseListInfo']:
-            for exercise in variables['exerciseListInfo']:
+        if variables["exerciseListInfo"]:
+            for exercise in variables["exerciseListInfo"]:
                 AddItemToQuestionList(exercise)
         uiMain.progressBarPack.hide()
         variables["workingStatus"]["frameExerciseInit"] = False
@@ -147,15 +147,15 @@ def AddItemToQuestionList(data: dict):
 
 
 def GetExerciseWidget(data: dict):
-    if data['viewerStatus']['passedCount'] > 0:
-        labelExerciseStatus = QLabel('已通过')
-        labelExerciseStatus.setPalette(Palette[QPalette.Text]['green'])
+    if data["viewerStatus"]["passedCount"] > 0:
+        labelExerciseStatus = QLabel("已通过")
+        labelExerciseStatus.setPalette(Palette[QPalette.Text]["green"])
     else:
-        labelExerciseStatus = QLabel('未通过')
-        labelExerciseStatus.setPalette(Palette[QPalette.Text]['red'])
-    labelExerciseTitle = QLabel(str(data['title']))
-    labelExercisePassed = QLabel(f"通过数：{data['viewerStatus']['passedCount']}")
-    labelExerciseSubmit = QLabel(f"提交数：{data['viewerStatus']['totalCount']}")
+        labelExerciseStatus = QLabel("未通过")
+        labelExerciseStatus.setPalette(Palette[QPalette.Text]["red"])
+    labelExerciseTitle = QLabel(str(data["title"]))
+    labelExercisePassed = QLabel(f"通过数：{data["viewerStatus"]["passedCount"]}")
+    labelExerciseSubmit = QLabel(f"提交数：{data["viewerStatus"]["totalCount"]}")
     layoutExerciseMain = QHBoxLayout()
     layoutExerciseRight = QVBoxLayout()
 
@@ -183,18 +183,18 @@ def getSelectedPid():
 
 
 def getSelectedEid():
-    if variables['workingStatus']['frameQuestionInit']:
+    if variables["workingStatus"]["frameQuestionInit"]:
         return
     selected = uiMain.listWidgetExercise.currentIndex().row()
-    variables['currentExerciseRow'] = selected
-    requests_var['e'] = variables['exerciseListInfo'][selected]['id']
+    variables["currentExerciseRow"] = selected
+    requests_var["e"] = variables["exerciseListInfo"][selected]["id"]
 
 
 def ExerciseReturn():
     uiMain.frameExercise.hide()
     uiMain.framePack.show()
     uiMain.pushButtonExerciseBegin.show()
-    windowMain.setWindowTitle('题包列表')
+    windowMain.setWindowTitle("题包列表")
 
 
 def BeginPack():
@@ -205,7 +205,7 @@ def BeginPack():
     else:
         QMessageBox.information(None, "消息", "成功开始题包", QMessageBox.Ok)
         uiMain.pushButtonExerciseBegin.hide()
-        variables["packInfo"]["nodes"][variables["currentPackRow"]]['ongoing'] = True
+        variables["packInfo"]["nodes"][variables["currentPackRow"]]["ongoing"] = True
 
 
 # 初始化任务，新建一个做题窗体和对应的ui
@@ -234,7 +234,7 @@ def frameQuestionInit():
     if variables["workingStatus"]["frameQuestionInit"]:
         return
     if not uiMain.listWidgetExercise.selectedIndexes():
-        QMessageBox.information(None, '消息', '请选择一个题目', QMessageBox.Ok)
+        QMessageBox.information(None, "消息", "请选择一个题目", QMessageBox.Ok)
         return
 
     getSelectedEid()
@@ -243,16 +243,16 @@ def frameQuestionInit():
     uiMain.progressBarExercise.show()
 
     def ExerciseInfoRecv(questionInfo):
-        variables['exerciseInfo'] = questionInfo
-        windowMain.setWindowTitle(questionInfo['title'])
+        variables["exerciseInfo"] = questionInfo
+        windowMain.setWindowTitle(questionInfo["title"])
         uiMain.statusbar.clearMessage()
-        if questionInfo['tags']:
-            uiMain.statusbar.showMessage("标签：" + ", ".join(questionInfo['tags']))
+        if questionInfo["tags"]:
+            uiMain.statusbar.showMessage("标签：" + ", ".join(questionInfo["tags"]))
         else:
-            uiMain.statusbar.showMessage('标签：无')
+            uiMain.statusbar.showMessage("标签：无")
         sampleDataMdText = ""
-        for i in range(0, len(questionInfo['sampleData'])):
-            sampleDataMdText += f'### 样例{i + 1}\n'
+        for i in range(0, len(questionInfo["sampleData"])):
+            sampleDataMdText += f"### 样例{i + 1}\n"
             '''
             sampleDataMdText += """
 <table>
@@ -260,25 +260,25 @@ def frameQuestionInit():
 <tr><td><code style="white-space: pre-line">{}</code></td><td></td><td><code style="white-space: pre-line">{}</code></td></tr>
 </table>
 
-""".format(questionInfo['sampleData'][i]['input'], questionInfo['sampleData'][i]['output'])
+""".format(questionInfo["sampleData"][i]["input"], questionInfo["sampleData"][i]["output"])
             '''
-            sampleDataMdText += f'#### 输入 \n```\n' + questionInfo['sampleData'][i]['input'] + '\n```\n'
-            sampleDataMdText += f'#### 输出 \n```\n' + questionInfo['sampleData'][i]['output'] + '\n```\n'
+            sampleDataMdText += f"#### 输入 \n```\n" + questionInfo["sampleData"][i]["input"] + "\n```\n"
+            sampleDataMdText += f"#### 输出 \n```\n" + questionInfo["sampleData"][i]["output"] + "\n```\n"
 
-        mdText = ('### 题目描述 \n' + questionInfo['description-content'] + '\n' +
-                  '### 输入描述 \n' + questionInfo['inputDescription-content'] + '\n' +
-                  '### 输出描述 \n' + questionInfo['outputDescription-content'] + '\n' +
+        mdText = ("### 题目描述 \n" + questionInfo["description-content"] + "\n" +
+                  "### 输入描述 \n" + questionInfo["inputDescription-content"] + "\n" +
+                  "### 输出描述 \n" + questionInfo["outputDescription-content"] + "\n" +
                   sampleDataMdText)
         uiMain.textEditQuestionDiscription.setMarkdown(mdText)
-        uiMain.labelQuestionStatus.setText('通过/尝试： ' +
-                                           str(questionInfo['viewerStatus']['passedCount']) + '/' +
-                                           str(questionInfo['viewerStatus']['totalCount']))
+        uiMain.labelQuestionStatus.setText("通过/尝试： " +
+                                           str(questionInfo["viewerStatus"]["passedCount"]) + "/" +
+                                           str(questionInfo["viewerStatus"]["totalCount"]))
         uiMain.comboBoxLanguage.clear()
-        uiMain.comboBoxLanguage.addItem('请选择提交语言')
-        languages = [toDisplay[lang] for lang in variables['exerciseInfo']['supportedLanguages']]
+        uiMain.comboBoxLanguage.addItem("请选择提交语言")
+        languages = [toDisplay[lang] for lang in variables["exerciseInfo"]["supportedLanguages"]]
         uiMain.comboBoxLanguage.addItems(languages)
         uiMain.labelSubmitStatus.setText(uiMain.labelQuestionStatus.text())
-        uiMain.textEditSubmit.setText(variables['exerciseInfo']['codeSnippet'])
+        uiMain.textEditSubmit.setText(variables["exerciseInfo"]["codeSnippet"])
         uiMain.progressBarExercise.hide()
         variables["workingStatus"]["frameQuestionInit"] = False
         uiMain.frameExercise.hide()
@@ -289,8 +289,8 @@ def frameQuestionInit():
         uiMain.progressBarExercise.hide()
         variables["workingStatus"]["frameQuestionInit"] = False
 
-    GetExercise(pid=requests_var['p'], eid=requests_var['e'],
-                lang='CPP', InfoRecv=ExerciseInfoRecv,
+    GetExercise(pid=requests_var["p"], eid=requests_var["e"],
+                lang="CPP", InfoRecv=ExerciseInfoRecv,
                 ErrorRecv=ErrorRecv)
 
 
@@ -324,12 +324,12 @@ def BeginMain(callback=None):
     uiMain.progressBarExercise.setStyleSheet(Style["progressBar"])
     uiMain.progressBarSubmit.setStyleSheet(Style["progressBar"])
     uiMain.progressBarHistory.setStyleSheet(Style["progressBar"])
-    if platform == 'win32':
+    if platform == "win32":
         uiMain.textEditSubmit.setTabStopWidth(uiMain.textEditSubmit.font().pointSize() * 4)
     else:
         uiMain.textEditSubmit.setTabStopWidth(uiMain.textEditSubmit.font().pointSize() * 2)
     codeFont = QFont()
-    codeFont.setFamily('Consolas')
+    codeFont.setFamily("Consolas")
     uiMain.textEditSubmit.setFont(codeFont)
 
     # uiMain.listWidgetPack.itemClicked.connect(getSelectedPid)
@@ -359,7 +359,7 @@ def BeginMain(callback=None):
     uiMain.pushButtonShowTestData.clicked.connect(ShowTestData)
     uiMain.pushButtonSubmitCodeDetails.clicked.connect(frameTestDataInit)
 
-    for i in range(0, variables['packPerPage']):
+    for i in range(0, variables["packPerPage"]):
         AddItemToPackList(uiMain.listWidgetPack)
 
     uiMain.framePack.show()
@@ -367,9 +367,9 @@ def BeginMain(callback=None):
 
 
 def frameCodeInit():
-    code = variables['submitHistory'][variables['currentHistoryRow']]['solution']['asset']['content']
+    code = variables["submitHistory"][variables["currentHistoryRow"]]["solution"]["asset"]["content"]
     uiMain.textEditCode.setText(code)
-    if platform == 'win32':
+    if platform == "win32":
         uiMain.textEditCode.setTabStopWidth(uiMain.textEditSubmit.font().pointSize() * 4)
     else:
         uiMain.textEditCode.setTabStopWidth(uiMain.textEditSubmit.font().pointSize() * 2)
@@ -377,19 +377,19 @@ def frameCodeInit():
 
 def frameTestDataInit():
     if not uiMain.listWidgetPackHistory.selectedItems():
-        QMessageBox.information(None, '提示', '请选中一条历史记录', QMessageBox.Ok)
+        QMessageBox.information(None, "提示", "请选中一条历史记录", QMessageBox.Ok)
         return
-    variables['currentHistoryRow'] = uiMain.listWidgetPackHistory.selectedIndexes()[0].row()
-    testData = variables['submitHistory'][variables['currentHistoryRow']]['submission']['reports']
+    variables["currentHistoryRow"] = uiMain.listWidgetPackHistory.selectedIndexes()[0].row()
+    testData = variables["submitHistory"][variables["currentHistoryRow"]]["submission"]["reports"]
     index = 1
     for data in testData:
-        if data['key'] == 'score':
-            variables['testDataCount'] = int(data['value'].split('/')[1])
+        if data["key"] == "score":
+            variables["testDataCount"] = int(data["value"].split("/")[1])
     uiMain.listWidgetData.clear()
     for data in testData:
-        if (data['key'] != 'score' and data['key'] != 'time elapsed'
-                and data['key'] != 'memory consumed' and data['key'] != 'error'):
-            AddItemToTestDataList(index, data['value'])
+        if (data["key"] != "score" and data["key"] != "time elapsed"
+                and data["key"] != "memory consumed" and data["key"] != "error"):
+            AddItemToTestDataList(index, data["value"])
             index += 1
     uiMain.frameHistory.hide()
     uiMain.frameTestData.show()
@@ -412,8 +412,8 @@ def GetTestDataWidGet(index: int, status: str):
     statusLabel.setText(toDisplay[status])
     SetStatusColor(statusLabel)
     testDataLabel.setText(f"测试点 {index}")
-    if status == 'passed':
-        getScoreLabel.setText("得分：%.1f" % (100/variables['testDataCount']))
+    if status == "passed":
+        getScoreLabel.setText("得分：%.1f" % (100/variables["testDataCount"]))
     else:
         getScoreLabel.setText("得分：0")
 
@@ -467,9 +467,9 @@ def GetHistory(eid, pid, cnt, InfoRecv=lambda: None, ErrorRecv=lambda: None):
 
 
 def frameHistoryInit():
-    totalCount = variables['exerciseListInfo'][variables['currentExerciseRow']]['viewerStatus']['totalCount']
+    totalCount = variables["exerciseListInfo"][variables["currentExerciseRow"]]["viewerStatus"]["totalCount"]
     if totalCount == 0:
-        QMessageBox.information(None, '提示', '本题无提交记录。', QMessageBox.Ok)
+        QMessageBox.information(None, "提示", "本题无提交记录。", QMessageBox.Ok)
         return
     uiMain.progressBarHistory.setValue(0)
     uiMain.listWidgetPackHistory.clear()
@@ -480,7 +480,7 @@ def frameHistoryInit():
     def historyInfoRecv(historyInfo):
         uiMain.progressBarHistory.setValue(95)
         historyInfo.reverse()
-        variables['submitHistory'] = historyInfo
+        variables["submitHistory"] = historyInfo
         uiMain.listWidgetPackHistory.clear()
         for data in historyInfo:
             AddItemToHistoryList(data)
@@ -490,7 +490,7 @@ def frameHistoryInit():
         ErrorDisplay(e, error_translate, "获取失败")
         uiMain.progressBarHistory.hide()
 
-    GetHistory(eid=requests_var['e'], pid=requests_var['p'], cnt=totalCount, InfoRecv=historyInfoRecv,
+    GetHistory(eid=requests_var["e"], pid=requests_var["p"], cnt=totalCount, InfoRecv=historyInfoRecv,
                ErrorRecv=ErrorRecv)
 
 
@@ -515,36 +515,36 @@ def GetHistoryWidget(data: dict):
     spaceElapsedLabel = QLabel()
     scoreLabel = QLabel()
 
-    if data['scoreRate'] == 1:
-        statusLabel.setText('通过')
+    if data["scoreRate"] == 1:
+        statusLabel.setText("通过")
         statusLabel.setPalette(Palette[QPalette.Text]["green"])
     else:
         errorType = ""
-        for i in data['submission']['reports']:
-            if i['key'] == 'error':
-                errorType = i['value']
+        for i in data["submission"]["reports"]:
+            if i["key"] == "error":
+                errorType = i["value"]
         if not errorType:
-            for i in data['submission']['reports']:
-                if (i['value'] != 'passed' and i['key'] != 'memory consumed'
-                        and i['key'] != 'time elapsed' and i['key'] != 'score'):
-                    errorType = i['value']
+            for i in data["submission"]["reports"]:
+                if (i["value"] != "passed" and i["key"] != "memory consumed"
+                        and i["key"] != "time elapsed" and i["key"] != "score"):
+                    errorType = i["value"]
                     break
         statusLabel.setText(toDisplay[errorType])
         SetStatusColor(statusLabel)
-    languageLabel.setText(toDisplay[data['solution']['lang']])
+    languageLabel.setText(toDisplay[data["solution"]["lang"]])
     try:
-        scoreLabel.setText('得分：%.1f' % (data['scoreRate'] * 100))
+        scoreLabel.setText("得分：%.1f" % (data["scoreRate"] * 100))
     except:
         pass
-    timeLabel.setText('提交时间：' +
+    timeLabel.setText("提交时间：" +
                       (datetime.strptime(search(r"^[^.]*", data["time"].replace("T", " ")).group(),
                                          "%Y-%m-%d %H:%M:%S") + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S"))
-    codeLengthLabel.setText('代码长度：' + str(len(data['solution']['asset']['content'])) + ' B')
-    for i in data['submission']['reports']:
-        if i['key'] == 'memory consumed':
-            spaceElapsedLabel.setText('空间消耗：' + i['value'])
-        elif i['key'] == 'time elapsed':
-            timeElapsedLabel.setText('时间消耗：' + i['value'])
+    codeLengthLabel.setText("代码长度：" + str(len(data["solution"]["asset"]["content"])) + " B")
+    for i in data["submission"]["reports"]:
+        if i["key"] == "memory consumed":
+            spaceElapsedLabel.setText("空间消耗：" + i["value"])
+        elif i["key"] == "time elapsed":
+            timeElapsedLabel.setText("时间消耗：" + i["value"])
     statusLabel.setAlignment(Qt.AlignCenter)
 
     elapseLayout.addWidget(timeElapsedLabel)
@@ -566,50 +566,50 @@ def GetHistoryWidget(data: dict):
     widget = QWidget()
     widget.setLayout(mainLayout)
     widget.setCursor(Qt.PointingHandCursor)
-    if not data['submission']['reports']:
+    if not data["submission"]["reports"]:
         widget.setEnabled(False)
     return widget
 
 
 def SetStatusColor(statusLabel: QLabel):
-    if statusLabel.text() == '答案错误':
+    if statusLabel.text() == "答案错误":
         statusLabel.setPalette(Palette[QPalette.Text]["red"])
-    elif statusLabel.text() == '运行时错误':
+    elif statusLabel.text() == "运行时错误":
         statusLabel.setPalette(Palette[QPalette.Text]["purple"])
-    elif statusLabel.text() == '超时':
+    elif statusLabel.text() == "超时":
         statusLabel.setPalette(Palette[QPalette.Text]["darkblue"])
-    elif statusLabel.text() == '通过':
+    elif statusLabel.text() == "通过":
         statusLabel.setPalette(Palette[QPalette.Text]["green"])
     else:
         statusLabel.setPalette(Palette[QPalette.Text]["gray"])
 
 
 def ReadFromFile(lang: str):
-    if lang == '请选择提交语言':
-        QMessageBox.information(None, '提示', '请选择一种提交语言。', QMessageBox.Ok)
+    if lang == "请选择提交语言":
+        QMessageBox.information(None, "提示", "请选择一种提交语言。", QMessageBox.Ok)
         return
     fileWindow = QFileDialog()
-    if lang == 'C++':
-        fileWindow.setNameFilter('C++ 源文件(*.cpp *.cc *.C *.cxx *.c++)')
-    elif lang == 'C':
-        fileWindow.setNameFilter('C 源文件(*.c)')
-    elif lang == 'Python':
-        fileWindow.setNameFilter('Python 源文件(*.py)')
-    elif lang == 'Java':
-        fileWindow.setNameFilter('Java 源文件(*.java)')
-    elif lang == 'JavaScript':
-        fileWindow.setNameFilter('JavaScript 源文件(*.js)')
-    elif lang == 'Go':
-        fileWindow.setNameFilter('Go 源文件(*.go)')
-    elif lang == 'Rust':
-        fileWindow.setNameFilter('Rust 源文件(*.rs)')
+    if lang == "C++":
+        fileWindow.setNameFilter("C++ 源文件(*.cpp *.cc *.C *.cxx *.c++)")
+    elif lang == "C":
+        fileWindow.setNameFilter("C 源文件(*.c)")
+    elif lang == "Python":
+        fileWindow.setNameFilter("Python 源文件(*.py)")
+    elif lang == "Java":
+        fileWindow.setNameFilter("Java 源文件(*.java)")
+    elif lang == "JavaScript":
+        fileWindow.setNameFilter("JavaScript 源文件(*.js)")
+    elif lang == "Go":
+        fileWindow.setNameFilter("Go 源文件(*.go)")
+    elif lang == "Rust":
+        fileWindow.setNameFilter("Rust 源文件(*.rs)")
     else:
-        QMessageBox.critical(None, '错误', '未知错误', QMessageBox.Ok)
-    # fileWindow.setDirectory('./')
+        QMessageBox.critical(None, "错误", "未知错误", QMessageBox.Ok)
+    # fileWindow.setDirectory("./")
     if fileWindow.exec_():
         fileChosen = fileWindow.selectedFiles()[0]
     else:
-        QMessageBox.information(None, '提示', '请选择一个文件', QMessageBox.Ok)
+        QMessageBox.information(None, "提示", "请选择一个文件", QMessageBox.Ok)
         return None
     with open(fileChosen, "r") as inputCode:
         codeSubmit = inputCode.read()
@@ -618,8 +618,8 @@ def ReadFromFile(lang: str):
 
 
 def SubmitFile():
-    if uiMain.comboBoxLanguage.currentText() == '请选择提交语言':
-        QMessageBox.information(None, '提示', '请选择一种提交语言。', QMessageBox.Ok)
+    if uiMain.comboBoxLanguage.currentText() == "请选择提交语言":
+        QMessageBox.information(None, "提示", "请选择一种提交语言。", QMessageBox.Ok)
         return
     codeSubmit = ReadFromFile(uiMain.comboBoxLanguage.currentText())
     if codeSubmit:
@@ -641,8 +641,8 @@ def Submit(pid, eid, lang, code, InfoRecv=lambda: None, ErrorRecv=lambda: None):
 
 
 def SubmitCode(lang: str, code: str):
-    if lang == '请选择提交语言':
-        QMessageBox.information(None, '提示', '请选择一种提交语言。', QMessageBox.Ok)
+    if lang == "请选择提交语言":
+        QMessageBox.information(None, "提示", "请选择一种提交语言。", QMessageBox.Ok)
         return
 
     uiMain.progressBarSubmit.setValue(0)
@@ -654,22 +654,22 @@ def SubmitCode(lang: str, code: str):
 
     def submitInfoRecv(submitInfo):
         if submitInfo:
-            QMessageBox.information(None, '提交成功', '提交成功，请在历史记录中查看评测结果', QMessageBox.Ok)
-            variables['exerciseListInfo'][variables['currentExerciseRow']]['viewerStatus']['totalCount'] += 1
+            QMessageBox.information(None, "提交成功", "提交成功，请在历史记录中查看评测结果", QMessageBox.Ok)
+            variables["exerciseListInfo"][variables["currentExerciseRow"]]["viewerStatus"]["totalCount"] += 1
             uiMain.frameSubmit.hide()
             uiMain.frameQuestion.show()
         else:
-            QMessageBox.critical(None, '提交失败', '请检查语言选择是否正确', QMessageBox.Ok)
+            QMessageBox.critical(None, "提交失败", "请检查语言选择是否正确", QMessageBox.Ok)
         uiMain.progressBarSubmit.hide()
 
-    Submit(pid=requests_var['p'], eid=requests_var['e'], lang=toData[lang], code=code, InfoRecv=submitInfoRecv,
+    Submit(pid=requests_var["p"], eid=requests_var["e"], lang=toData[lang], code=code, InfoRecv=submitInfoRecv,
            ErrorRecv=ErrorRecv)
 
 
 def SubmitInit():
-    languages = [toDisplay[lang] for lang in variables['exerciseInfo']['supportedLanguages']]
+    languages = [toDisplay[lang] for lang in variables["exerciseInfo"]["supportedLanguages"]]
     uiMain.comboBoxLanguageSubmit.clear()
-    uiMain.comboBoxLanguageSubmit.addItem('请选择提交语言')
+    uiMain.comboBoxLanguageSubmit.addItem("请选择提交语言")
     uiMain.comboBoxLanguageSubmit.addItems(languages)
     uiMain.frameQuestion.hide()
     uiMain.frameSubmit.show()
@@ -677,10 +677,10 @@ def SubmitInit():
 
 def QuestionReturn():
     uiMain.statusbar.clearMessage()
-    uiMain.statusbar.showMessage("当前用户:" + net_var['me']['nickname'])
+    uiMain.statusbar.showMessage("当前用户:" + net_var["me"]["nickname"])
     uiMain.frameQuestion.hide()
     uiMain.frameExercise.show()
-    windowMain.setWindowTitle(variables['packInfo']['nodes'][variables['currentPackRow']]['name'])
+    windowMain.setWindowTitle(variables["packInfo"]["nodes"][variables["currentPackRow"]]["name"])
 
 
 # 在翻页后更新页面
@@ -695,7 +695,7 @@ def UpdatePage():
     for i in range(0, uiMain.listWidgetPack.count()):
         uiMain.listWidgetPack.takeItem(0)
     packList.reverse()
-    packList += [None] * (variables['packPerPage'] - len(packList))
+    packList += [None] * (variables["packPerPage"] - len(packList))
     for i in range(0, len(packList)):
         AddItemToPackList(uiMain.listWidgetPack, packList[i])
 
@@ -703,7 +703,7 @@ def UpdatePage():
 # 获取题包信息的多线程
 def GetPack(before=None, after=None, InfoRecv=lambda: None, ErrorRecv=lambda: None):
     global threadGetPack  # extremely essential!
-    threadGetPack = MyThread(RunMethod=lambda: get_pack(cnt=variables['packPerPage'], before=before, after=after))
+    threadGetPack = MyThread(RunMethod=lambda: get_pack(cnt=variables["packPerPage"], before=before, after=after))
     threadGetPack.infoSignal.connect(InfoRecv)
     threadGetPack.errorSignal.connect(ErrorRecv)
     uiMain.progressBarPack.setValue(90)
