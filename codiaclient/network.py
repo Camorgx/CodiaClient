@@ -370,15 +370,18 @@ def get_data(eid, pid, before=None, after=None, cnt=None):
         else:
             return _get_data_not_from_pack(eid=eid, before=before, after=after, cnt=cnt)
     else:
+        MAXCNT = 100
         res = []
         while cnt > 0:
             if pid:
-                sub = _get_data_from_pack(eid=eid, pid=pid, before=before, after=after, cnt=min(100, cnt))
+                sub = _get_data_from_pack(eid=eid, pid=pid, before=before, after=after, cnt=min(MAXCNT, cnt))
             else:
-                sub = _get_data_not_from_pack(eid=eid, before=before, after=after, cnt=min(100, cnt))
+                sub = _get_data_not_from_pack(eid=eid, before=before, after=after, cnt=min(MAXCNT, cnt))
             if not sub: return False
-            res += sub
-            cnt -= 100
+            res += reversed(sub)
+            before = sub[0]['id']
+            cnt -= MAXCNT
+        res.reverse()
         return res
 
 def get_exercise(eid, pid, lang, feedback='dict'):
