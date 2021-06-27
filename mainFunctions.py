@@ -329,9 +329,6 @@ def BeginMain(callback=None):
         uiMain.textEditSubmit.setTabStopWidth(uiMain.textEditSubmit.font().pointSize() * 4)
     else:
         uiMain.textEditSubmit.setTabStopWidth(uiMain.textEditSubmit.font().pointSize() * 2)
-    codeFont = QFont()
-    codeFont.setFamily("Consolas")
-    uiMain.textEditSubmit.setFont(codeFont)
 
     # uiMain.listWidgetPack.itemClicked.connect(getSelectedPid)
     uiMain.listWidgetPack.itemDoubleClicked.connect(frameExerciseInit)

@@ -441,6 +441,11 @@
        <height>531</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <family>Consolas</family>
+      </font>
+     </property>
      <property name="tabStopWidth">
       <number>40</number>
      </property>
@@ -611,6 +616,11 @@
        <height>531</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <family>Consolas</family>
+      </font>
+     </property>
      <property name="readOnly">
       <bool>true</bool>
      </property>
@@ -720,7 +730,7 @@
      <x>0</x>
      <y>0</y>
      <width>1080</width>
-     <height>24</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>
