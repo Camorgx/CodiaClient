@@ -493,7 +493,7 @@ def GetHistory(eid, pid, cnt, InfoRecv=lambda: None, ErrorRecv=lambda: None):
 def frameHistoryInit():
     totalCount = variables["exerciseListInfo"][variables["currentExerciseRow"]]["viewerStatus"]["totalCount"]
     if totalCount == 0:
-        QMessageBox.information(None, "提示", "本题无提交记录。", QMessageBox.Ok)
+        QMessageBox.information(None, "提示", "本题无提交记录", QMessageBox.Ok)
         return
     uiMain.progressBarHistory.setValue(0)
     uiMain.listWidgetPackHistory.clear()
@@ -609,9 +609,9 @@ def SetStatusColor(statusLabel: QLabel):
 
 
 def ReadFromFile(lang: str):
-    if lang == "请选择提交语言":
-        QMessageBox.information(None, "提示", "请选择一种提交语言。", QMessageBox.Ok)
-        return
+    # if lang == "请选择提交语言":
+    #     QMessageBox.information(None, "提示", "请选择一种提交语言", QMessageBox.Ok)
+    #     return
     fileWindow = QFileDialog()
     if lang == "C++":
         fileWindow.setNameFilter("C++ 源文件(*.cpp *.cc *.C *.cxx *.c++)")
@@ -627,8 +627,8 @@ def ReadFromFile(lang: str):
         fileWindow.setNameFilter("Go 源文件(*.go)")
     elif lang == "Rust":
         fileWindow.setNameFilter("Rust 源文件(*.rs)")
-    else:
-        QMessageBox.critical(None, "错误", "未知错误", QMessageBox.Ok)
+    # else:
+    #     QMessageBox.critical(None, "错误", "未知错误", QMessageBox.Ok)
     # fileWindow.setDirectory("./")
     if fileWindow.exec_():
         fileChosen = fileWindow.selectedFiles()[0]
@@ -643,7 +643,7 @@ def ReadFromFile(lang: str):
 
 def SubmitFile():
     if uiMain.comboBoxLanguage.currentText() == "请选择提交语言":
-        QMessageBox.information(None, "提示", "请选择一种提交语言。", QMessageBox.Ok)
+        QMessageBox.information(None, "提示", "请选择一种提交语言", QMessageBox.Ok)
         return
     codeSubmit = ReadFromFile(uiMain.comboBoxLanguage.currentText())
     if codeSubmit:
@@ -666,7 +666,7 @@ def Submit(pid, eid, lang, code, InfoRecv=lambda: None, ErrorRecv=lambda: None):
 
 def SubmitCode(lang: str, code: str):
     if lang == "请选择提交语言":
-        QMessageBox.information(None, "提示", "请选择一种提交语言。", QMessageBox.Ok)
+        QMessageBox.information(None, "提示", "请选择一种提交语言", QMessageBox.Ok)
         return
 
     uiMain.progressBarSubmit.setValue(0)
