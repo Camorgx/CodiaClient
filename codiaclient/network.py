@@ -582,7 +582,9 @@ mutation ($eid: ID!, $pid: ID, $lang: Language!, $sol: String!, $a: JSONObject) 
     token
   }
 }'''})
-    return post(url=url, headers=headers, data=data)
+    res = post(url=url, headers=headers, data=data)
+    if not res: return False
+    return json.loads(res.text)
 
 def _submit_not_from_pack(eid, lang, solutioncode):
     headers = coding_base_headers.copy()
@@ -602,7 +604,9 @@ mutation ($eid: ID!, $pid: ID, $lang: Language!, $sol: String!, $a: JSONObject) 
     token
   }
 }'''})
-    return post(url=url, headers=headers, data=data)
+    res = post(url=url, headers=headers, data=data)
+    if not res: return False
+    return json.loads(res.text)
 
 def _get_data_not_from_pack(eid, codecnt=None):
     if codecnt == None: codecnt = 1
