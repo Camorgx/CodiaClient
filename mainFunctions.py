@@ -387,7 +387,8 @@ def frameTestDataInit():
             variables['testDataCount'] = int(data['value'].split('/')[1])
     uiMain.listWidgetData.clear()
     for data in testData:
-        if data['key'] != 'score' and data['key'] != 'time elapsed' and data['key'] != 'memory consumed':
+        if (data['key'] != 'score' and data['key'] != 'time elapsed'
+                and data['key'] != 'memory consumed' and data['key'] != 'error'):
             AddItemToTestDataList(index, data['value'])
             index += 1
     uiMain.frameHistory.hide()
@@ -458,7 +459,7 @@ def HistoryReturn():
 
 def GetHistory(eid, pid, cnt, InfoRecv=lambda: None, ErrorRecv=lambda: None):
     global threadGetHistory  # extremely essential!
-    threadGetHistory = MyThread(RunMethod=lambda: get_data(eid=eid, pid=pid, codecnt=cnt))
+    threadGetHistory = MyThread(RunMethod=lambda: get_data(eid=eid, pid=pid, cnt=cnt))
     threadGetHistory.infoSignal[list].connect(InfoRecv)
     threadGetHistory.errorSignal.connect(ErrorRecv)
     uiMain.progressBarHistory.setValue(90)
@@ -467,6 +468,9 @@ def GetHistory(eid, pid, cnt, InfoRecv=lambda: None, ErrorRecv=lambda: None):
 
 def frameHistoryInit():
     totalCount = variables['exerciseListInfo'][variables['currentExerciseRow']]['viewerStatus']['totalCount']
+    if totalCount == 0:
+        QMessageBox.information(None, '提示', '本题无提交记录。', QMessageBox.Ok)
+        return
     uiMain.progressBarHistory.setValue(0)
     uiMain.listWidgetPackHistory.clear()
     uiMain.progressBarHistory.show()
@@ -528,7 +532,10 @@ def GetHistoryWidget(data: dict):
         statusLabel.setText(toDisplay[errorType])
         SetStatusColor(statusLabel)
     languageLabel.setText(toDisplay[data['solution']['lang']])
-    scoreLabel.setText('得分：%.1f' % (data['scoreRate'] * 100))
+    try:
+        scoreLabel.setText('得分：%.1f' % (data['scoreRate'] * 100))
+    except:
+        pass
     timeLabel.setText('提交时间：' +
                       (datetime.strptime(search(r"^[^.]*", data["time"].replace("T", " ")).group(),
                                          "%Y-%m-%d %H:%M:%S") + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S"))
