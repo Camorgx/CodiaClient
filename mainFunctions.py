@@ -24,7 +24,11 @@ variables = {
     "hasNext": True,
     "packInfo": {},
     "currentPackRow": None,
-    "exerciseInfo": None
+    "exerciseInfo": None,
+    "workingStatus": {
+        "frameExerciseInit": False,
+        "frameQuestionInit": False,
+    }
 }
 
 displayLanguage = {
@@ -38,15 +42,14 @@ displayLanguage = {
 }
 dataLanguage = {val: key for key, val in displayLanguage.items()}
 
-# 获取题包内容信息的网络通信
-class _ShowPack(QThread):
+class MyThread(QThread):
     infoSignal = pyqtSignal(dict)
     errorSignal = pyqtSignal(codiaError)
 
-    def __init__(self, *args, pid, **kargs):
-        super(_ShowPack, self).__init__(*args, **kargs)
+    def __init__(self, *args, RunMethod, **kargs):
+        super(MyThread, self).__init__(*args, **kargs)
         self.working = True
-        self.pid = pid
+        self.RunMethod = RunMethod
 
     def __del__(self):
         self.working = False
@@ -54,17 +57,17 @@ class _ShowPack(QThread):
 
     def run(self):
         try:
-            self.packInfo = show_pack(pid=self.pid)
+            self.Info = self.RunMethod()
         except codiaError as e:
             self.errorSignal.emit(e)
         else:
-            self.infoSignal.emit(self.packInfo)
+            self.infoSignal.emit(self.Info)
 
 
-# 获取题包内容信息的多线程准备
+# 获取题包内容信息的多线程
 def ShowPack(pid, InfoRecv=lambda: None, ErrorRecv=lambda: None):
     global threadShowPack  # extremely essential!
-    threadShowPack = _ShowPack(pid=pid)
+    threadShowPack = MyThread(RunMethod=lambda: show_pack(pid=pid))
     threadShowPack.infoSignal.connect(InfoRecv)
     threadShowPack.errorSignal.connect(ErrorRecv)
     uiMain.progressBarPack.setValue(90)
@@ -72,27 +75,23 @@ def ShowPack(pid, InfoRecv=lambda: None, ErrorRecv=lambda: None):
 
 
 def frameExerciseInit():
-    global frameExerciseInitWorking
-    try:
-        if frameExerciseInitWorking:
-            return
-    except:
-        pass
-    if not uiMain.listWidgetPack.selectedIndexes():
-        QMessageBox.information(None, "提示", "请选择一个题包。", QMessageBox.Ok)
+    if variables["workingStatus"]["frameExerciseInit"]:
         return
+    if not uiMain.listWidgetPack.selectedIndexes():
+        QMessageBox.information(None, "提示", "请选择一个题包", QMessageBox.Ok)
+        return
+
+    getSelectedPid()
     uiMain.progressBarPack.setValue(0)
     uiMain.progressBarPack.show()
-    frameExerciseInitWorking = True
+    variables["workingStatus"]["frameExerciseInit"] = True
 
     def ErrorRecv(e: codiaError):
-        global frameExerciseInitWorking
         ErrorDisplay(e, error_translate, "获取失败")
         uiMain.progressBarPack.hide()
-        frameExerciseInitWorking = False
+        variables["workingStatus"]["frameExerciseInit"] = False
 
     def exerciseListInfoRecv(exerciseListInfo):
-        global frameExerciseInitWorking
         presentTime = datetime.now()
         if exerciseListInfo["due"]:
             endTime = datetime.strptime(search(r"^[^.]*", exerciseListInfo["due"].replace("T", " ")).group(),
@@ -121,7 +120,7 @@ def frameExerciseInit():
             for exercise in variables['exerciseListInfo']:
                 AddItemToQuestionList(exercise)
         uiMain.progressBarPack.hide()
-        frameExerciseInitWorking = False
+        variables["workingStatus"]["frameExerciseInit"] = False
         uiMain.framePack.hide()
         uiMain.frameExercise.show()
 
@@ -174,6 +173,8 @@ def getSelectedPid():
 
 
 def getSelectedEid():
+    if variables['workingStatus']['frameQuestionInit']:
+        return
     selected = uiMain.listWidgetExercise.currentIndex().row()
     variables['currentExerciseRow'] = selected
     requests_var['e'] = variables['exerciseListInfo'][selected]['id']
@@ -209,35 +210,10 @@ def MainInit(callback=None):
     GetPage()
 
 
-# 获取题目信息的网络通信
-class _GetExercise(QThread):
-    infoSignal = pyqtSignal(dict)
-    errorSignal = pyqtSignal(codiaError)
-
-    def __init__(self, *args, pid, eid, lang, **kargs):
-        super(_GetExercise, self).__init__(*args, **kargs)
-        self.working = True
-        self.pid = pid
-        self.eid = eid
-        self.lang = lang
-
-    def __del__(self):
-        self.working = False
-        self.wait()
-
-    def run(self):
-        try:
-            self.exerciseInfo = get_exercise(eid=self.eid, pid=self.pid, lang=self.lang)
-        except codiaError as e:
-            self.errorSignal.emit(e)
-        else:
-            self.infoSignal.emit(self.exerciseInfo)
-
-
-# 获取题目信息的多线程准备
+# 获取题目信息的多线程
 def GetExercise(pid, eid, lang, InfoRecv=lambda: None, ErrorRecv=lambda: None):
     global threadGetExercise  # extremely essential!
-    threadGetExercise = _GetExercise(eid=eid, pid=pid, lang=lang)
+    threadGetExercise = MyThread(RunMethod=lambda: get_exercise(eid=eid, pid=pid, lang=lang))
     threadGetExercise.infoSignal.connect(InfoRecv)
     threadGetExercise.errorSignal.connect(ErrorRecv)
     uiMain.progressBarExercise.setValue(90)
@@ -245,23 +221,18 @@ def GetExercise(pid, eid, lang, InfoRecv=lambda: None, ErrorRecv=lambda: None):
 
 
 def frameQuestionInit():
-    global frameQuestionInitWorking
-    try:
-        if frameQuestionInitWorking:
-            return
-    except:
-        pass
-
+    if variables["workingStatus"]["frameQuestionInit"]:
+        return
     if not uiMain.listWidgetExercise.selectedIndexes():
         QMessageBox.information(None, '消息', '请选择一个题目', QMessageBox.Ok)
         return
 
-    frameQuestionInitWorking = True
+    getSelectedEid()
+    variables["workingStatus"]["frameQuestionInit"] = True
     uiMain.progressBarExercise.setValue(0)
     uiMain.progressBarExercise.show()
 
     def ExerciseInfoRecv(questionInfo):
-        global frameQuestionInitWorking
         variables['exerciseInfo'] = questionInfo
         windowMain.setWindowTitle(questionInfo['title'])
         uiMain.statusbar.clearMessage()
@@ -293,20 +264,19 @@ def frameQuestionInit():
                                            str(questionInfo['viewerStatus']['passedCount']) + '/' +
                                            str(questionInfo['viewerStatus']['totalCount']))
         uiMain.comboBoxLanguage.clear()
-        languages = [displayLanguage[lan] for lan in variables['exerciseInfo']['supportedLanguages']]
+        languages = [displayLanguage[lang] for lang in variables['exerciseInfo']['supportedLanguages']]
         uiMain.comboBoxLanguage.addItems(languages)
         uiMain.labelSubmitStatus.setText(uiMain.labelQuestionStatus.text())
         uiMain.textEditSubmit.setText(variables['exerciseInfo']['codeSnippet'])
         uiMain.progressBarExercise.hide()
-        frameQuestionInitWorking = False
+        variables["workingStatus"]["frameQuestionInit"] = False
         uiMain.frameExercise.hide()
         uiMain.frameQuestion.show()
 
     def ErrorRecv(e: codiaError):
-        global frameQuestionInitWorking
         ErrorDisplay(e, error_translate, "获取失败")
         uiMain.progressBarExercise.hide()
-        frameQuestionInitWorking = False
+        variables["workingStatus"]["frameQuestionInit"] = False
 
     questionInfo = GetExercise(pid=requests_var['p'], eid=requests_var['e'],
                                lang='CPP', InfoRecv=ExerciseInfoRecv,
@@ -324,7 +294,7 @@ def BeginMain(callback=None):
         uiMain.statusbar.showMessage(f"当前用户: {nickname}", 0)
     else:
         uiMain.statusbar.showMessage(f"当前用户: {nickname}（未验证）", 0)
-        QMessageBox.information(None, "消息", "当前账号功能受限，请尽快完成联系方式验证。", QMessageBox.Ok)
+        QMessageBox.information(None, "消息", "当前账号功能受限，请尽快完成联系方式验证", QMessageBox.Ok)
 
     uiMain.statusbar.setFont(Font["status"])
     uiMain.pushButtonPackNext.clicked.connect(lambda: GetPage(before=variables["lastPid"]))
@@ -341,12 +311,12 @@ def BeginMain(callback=None):
     codeFont.setFamily('Consolas')
     uiMain.textEditSubmit.setFont(codeFont)
 
-    uiMain.listWidgetPack.itemClicked.connect(getSelectedPid)
+    # uiMain.listWidgetPack.itemClicked.connect(getSelectedPid)
     uiMain.listWidgetPack.itemDoubleClicked.connect(frameExerciseInit)
     uiMain.pushButtonPackOK.clicked.connect(frameExerciseInit)
     uiMain.pushButtonExerciseReturn.clicked.connect(ExerciseReturn)
     uiMain.pushButtonExerciseBegin.clicked.connect(BeginPack)
-    uiMain.listWidgetExercise.itemClicked.connect(getSelectedEid)
+    # uiMain.listWidgetExercise.itemClicked.connect(getSelectedEid)
     uiMain.listWidgetExercise.itemDoubleClicked.connect(frameQuestionInit)
     uiMain.pushButtonExerciseOK.clicked.connect(frameQuestionInit)
     uiMain.pushButtonQuestionReturn.clicked.connect(QuestionReturn)
@@ -385,12 +355,12 @@ def ReadFromFile(lang: str):
     elif lang == 'Rust':
         fileWindow.setNameFilter('Rust 源文件(*.rs)')
     else:
-        QMessageBox.critical(None, '错误', '未知错误。', QMessageBox.Ok)
-    fileWindow.setDirectory('./')
+        QMessageBox.critical(None, '错误', '未知错误', QMessageBox.Ok)
+    # fileWindow.setDirectory('./')
     if fileWindow.exec_():
         fileChosen = fileWindow.selectedFiles()[0]
     else:
-        QMessageBox.information(None, '提示', '请选择一个文件。', QMessageBox.Ok)
+        QMessageBox.information(None, '提示', '请选择一个文件', QMessageBox.Ok)
         return None
     with open(fileChosen, "r") as inputCode:
         codeSubmit = inputCode.read()
@@ -420,7 +390,7 @@ def SubmitCode(lang: str, code: str):
             uiMain.frameSubmit.hide()
             uiMain.frameQuestion.show()
         else:
-            QMessageBox.critical(None, '提交失败', '请检查语言选择是否正确。', QMessageBox.Ok)
+            QMessageBox.critical(None, '提交失败', '请检查语言选择是否正确', QMessageBox.Ok)
 
 
 def SubmitInit():
@@ -456,34 +426,10 @@ def UpdatePage():
         AddItemToPackList(uiMain.listWidgetPack, packList[i], colorName=['white', 'lightgray'][i % 2])
 
 
-# 获取题包信息的网络通信
-class _GetPack(QThread):
-    infoSignal = pyqtSignal(dict)
-    errorSignal = pyqtSignal(codiaError)
-
-    def __init__(self, *args, before=None, after=None, **kargs):
-        super(_GetPack, self).__init__(*args, **kargs)
-        self.working = True
-        self.before = before
-        self.after = after
-
-    def __del__(self):
-        self.working = False
-        self.wait()
-
-    def run(self):
-        try:
-            self.packInfo = get_pack(cnt=variables['packPerPage'], before=self.before, after=self.after)
-        except codiaError as e:
-            self.errorSignal.emit(e)
-        else:
-            self.infoSignal.emit(self.packInfo)
-
-
-# 获取题包信息的多线程准备
+# 获取题包信息的多线程
 def GetPack(before=None, after=None, InfoRecv=lambda: None, ErrorRecv=lambda: None):
     global threadGetPack  # extremely essential!
-    threadGetPack = _GetPack(before=before, after=after)
+    threadGetPack = MyThread(RunMethod=lambda: get_pack(cnt=variables['packPerPage'], before=before, after=after))
     threadGetPack.infoSignal.connect(InfoRecv)
     threadGetPack.errorSignal.connect(ErrorRecv)
     uiMain.progressBarPack.setValue(90)
