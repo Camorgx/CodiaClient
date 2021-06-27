@@ -4,10 +4,10 @@ from PyQt5.QtWidgets import QMessageBox, QLineEdit
 
 from loginWindow import Ui_windowLogin
 
-from codiaclient import report_var as reportVar
+from codiaclient import report_var
 from codiaclient.network import *
-from codiaclient.network import _acquire_verification as AcquireVerification
-from codiaclient.report import Error as codiaError, error_translate as ErrorTranslate
+from codiaclient.network import _acquire_verification as _AcquireVerification
+from codiaclient.report import Error as codiaError, error_translate
 from codiaclient.utils import cookie_decrypt as Decrypt, cookie_encrypt as Encrypt
 from codiaclientgui.utils import Font, Style
 
@@ -25,7 +25,7 @@ def LoginInit(callback = None):
 # 初始化任务，为登陆窗口信号绑定槽函数
 def BeginLogin(callback = None):
     QApplication.processEvents()
-    reportVar["allow_error_deg"] = 1
+    report_var["allow_error_deg"] = 1
 
     uiLogin.pushButtonLogin.clicked.connect(lambda: Login(callback))
     # uiLogin.pushButtonLogin.setFocus()
@@ -98,9 +98,7 @@ def Login(callback = None):
         uiLogin.progressBarLogin.setValue(0)
         uiLogin.progressBarLogin.show()
         def ErrorRecv(e: codiaError):
-            errorTranslate = ErrorTranslate(e)
-            if errorTranslate: QMessageBox.critical(None, "登录失败", errorTranslate, QMessageBox.Ok)
-            else: QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
+            ErrorDisplay(e, error_translate, "登录失败")
             uiLogin.progressBarLogin.hide()
             uiLogin.pushButtonLogin.setEnabled(True)
             uiLogin.pushButtonLoginGoReset.setEnabled(True)
@@ -142,12 +140,7 @@ def AcquireVerification():
     try:
         res = _AcquireVerification(uiLogin.lineEditResetAccount.text())[1]
     except codiaError as e:
-        errorTranslate = ErrorTranslate(e)
-        if errorTranslate:
-            QMessageBox.critical(None, "错误", errorTranslate, QMessageBox.Ok)
-        else:
-            QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
-            raise
+        ErrorDisplay(e, error_translate)
     else:
         if not res:
             QMessageBox.critical(None, "错误", "验证码获取失败, 请重新获取。", QMessageBox.Ok)
@@ -192,12 +185,7 @@ def Register():
         res = register(username = uiLogin.lineEditRegisterUsername.text(), passwd = uiLogin.lineEditRegisterPassword.text(),
                        email = uiLogin.lineEditRegisterUserphone.text())
     except codiaError as e:
-        errorTranslate = ErrorTranslate(e)
-        if errorTranslate:
-            QMessageBox.critical(None, "注册失败", errorTranslate, QMessageBox.Ok)
-        else:
-            QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
-            raise
+        ErrorDisplay(e, error_translate, "注册失败")
     else:
         if not res:
             QMessageBox.critical(None, "注册失败", "注册失败，请重试。", QMessageBox.Ok)
@@ -226,12 +214,7 @@ def Reset():
                         passwd = uiLogin.lineEditResetNewPassword.text(),
                         passwordconfirm = uiLogin.lineEditResetCheckNewPassword.text())
     except codiaError as e:
-        errorTranslate = ErrorTranslate(e)
-        if errorTranslate:
-            QMessageBox.critical(None, "错误", errorTranslate, QMessageBox.Ok)
-        else:
-            QMessageBox.critical(None, "未知错误", str(e), QMessageBox.Ok)
-            raise
+        ErrorDisplay(e, error_translate)
     else:
         QMessageBox.information(None, "成功", "密码重置成功。", QMessageBox.Ok)
         ResetReturn()

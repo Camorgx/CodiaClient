@@ -14,7 +14,9 @@ Color = {
     'green': QColor(80, 160, 30),
     'red': QColor(160, 0, 30),
     'white': QColor(255, 255, 255),
-    'disabled': QColor(120, 120, 120)
+    'disabled': QColor(120, 120, 120),
+    'purple': QColor(128, 0, 128),
+    'darkblue': QColor(10, 40, 120)
 }
 
 Palette = {}
@@ -23,6 +25,8 @@ Palette[QPalette.Text] = {
     "green": QPalette(),
     "red": QPalette(),
     "gray": QPalette(),
+    'purple': QPalette(),
+    'darkblue': QPalette()
 }
 
 Palette[QPalette.Window] = {
@@ -69,6 +73,20 @@ Palette[QPalette.Text]['gray'].setBrush(QPalette.Active, QPalette.Text, grayBrus
 Palette[QPalette.Text]['gray'].setBrush(QPalette.Inactive, QPalette.Text, grayBrush)
 grayBrush.setColor(Color['disabled'])
 Palette[QPalette.Text]['gray'].setBrush(QPalette.Disabled, QPalette.Text, grayBrush)
+
+purpleBrush = QBrush(Color['purple'])
+purpleBrush.setStyle(Qt.SolidPattern)
+Palette[QPalette.Text]['purple'].setBrush(QPalette.Active, QPalette.Text, purpleBrush)
+Palette[QPalette.Text]['purple'].setBrush(QPalette.Inactive, QPalette.Text, purpleBrush)
+purpleBrush.setColor(Color['disabled'])
+Palette[QPalette.Text]['purple'].setBrush(QPalette.Disabled, QPalette.Text, purpleBrush)
+
+darkblueBrush = QBrush(Color['darkblue'])
+darkblueBrush.setStyle(Qt.SolidPattern)
+Palette[QPalette.Text]['darkblue'].setBrush(QPalette.Active, QPalette.Text, darkblueBrush)
+Palette[QPalette.Text]['darkblue'].setBrush(QPalette.Inactive, QPalette.Text, darkblueBrush)
+darkblueBrush.setColor(Color['disabled'])
+Palette[QPalette.Text]['darkblue'].setBrush(QPalette.Disabled, QPalette.Text, darkblueBrush)
 
 class MyObject(QLabel):
     defaultColor = Color['white']
@@ -315,3 +333,9 @@ else:
     NewPushButton = _NewPushButton
     NewProgressBar = _NewProgressBar
 
+def ErrorDisplay(error, _ErrorTranslate, knownErrorInfo: str = "错误", unknownErrorInfo: str = "未知错误"):
+    errorTranslate = _ErrorTranslate(error)
+    if errorTranslate:
+        QMessageBox.critical(None, knownErrorInfo, errorTranslate, QMessageBox.Ok)
+    else:
+        QMessageBox.critical(None, unknownErrorInfo, str(error), QMessageBox.Ok)
