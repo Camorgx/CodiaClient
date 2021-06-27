@@ -232,8 +232,9 @@ class _NewPushButtonBorder(MyObject):
         painter.setPen(QPen(QColor(0, 0, 0)))
 
     def GetBorderPath(self):
-        x = y = r = self.r
+        r = self.r
         d = self.d
+        x = y = r + d / 2
         path = QPainterPath()
         path.moveTo(y, x - r)
         path.arcTo(y - r, x - r, 2 * r, 2 * r, 90, 90)
