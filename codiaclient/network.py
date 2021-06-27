@@ -363,11 +363,11 @@ def submit(eid, pid, lang, solutioncode):
     else:
         return _submit_not_from_pack(eid, lang, solutioncode)
 
-def get_data(eid, pid, codecnt=None):
+def get_data(eid, pid, before=None, after=None, cnt=None):
     if pid:
-        return _get_data_from_pack(eid, pid, codecnt)
+        return _get_data_from_pack(eid=eid, pid=pid, before=before, after=after, cnt=cnt)
     else:
-        return _get_data_not_from_pack(eid, codecnt)
+        return _get_data_not_from_pack(eid=eid, before=before, after=after, cnt=cnt)
 
 def get_exercise(eid, pid, lang, feedback='dict'):
     if pid:
@@ -608,116 +608,154 @@ mutation ($eid: ID!, $pid: ID, $lang: Language!, $sol: String!, $a: JSONObject) 
     if not res: return False
     return json.loads(res.text)
 
-def _get_data_not_from_pack(eid, codecnt=None):
-    if codecnt == None: codecnt = 1
-    if type(codecnt) == str:
+def _get_data_not_from_pack(eid, before=None, after=None, cnt=None):
+    if cnt == None: cnt = 1
+    if type(cnt) == str:
         try:
-            codecnt = int(codecnt)
+            cnt = int(cnt)
         except:
             pass
-    if type(codecnt) != int:
+    if type(cnt) != int:
         report(
-            '_get_data_not_from_pack: Variable `codecnt` type error. (should be `int`, not `{}`)'.format(type(codecnt)),
+            '_get_data_not_from_pack: Variable `cnt` type error. (should be `int`, not `{}`)'.format(type(cnt)),
             1)
         return False
     headers = coding_base_headers.copy()
-    data = json.dumps({
+    data = {
         "operationName": "codingExercise",
         "variables": {
             "eid": eid,
-            "codecnt": codecnt
-        },
-        "query": '''
-query codingExercise($eid: ID!, $codecnt: Int!) {
-  node(id: $eid) {
-    ... on CodingExercise {
-      viewerStatus {
-        exerciseStatuses(last: $codecnt) {
-          nodes {
-            ... on CodingExerciseStatus {
+        }
+    }
+    if before:
+        data['variables']['before'] = before
+        data['variables']['lastcnt'] = cnt
+        queryargs = r"$eid: ID!, $lastcnt: Int!, $before: String"
+        funargs = r"last: $lastcnt, before: $before"
+    elif after:
+        data['variables']['after'] = after
+        data['variables']['firstcnt'] = cnt
+        queryargs = r"$eid: ID!, $firstcnt: Int!, $after: String"
+        funargs = r"first: $firstcnt, after: $after"
+    else:
+        data['variables']['lastcnt'] = cnt
+        queryargs = r"$eid: ID!, $lastcnt: Int!, $before: String"
+        funargs = r"last: $lastcnt, before: $before"
+    data['query'] = f'''
+query codingExercise({queryargs}) {{
+  node(id: $eid) {{
+    ... on CodingExercise {{
+      viewerStatus {{
+        exerciseStatuses({funargs}) {{
+          nodes {{
+            ... on CodingExerciseStatus {{
               id
               scoreRate
-              submission {
+              submission {{
                 id
-                reports {
+                reports {{
                   key
                   value
-                }
-              }
-              solution {
+                }}
+              }}
+              solution {{
                 lang
-                asset { content }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}'''})
+                asset {{ content }}
+              }}
+            }}
+          }}
+        }}
+      }}
+    }}
+  }}
+}}'''
+
+    data = json.dumps(data)
     res = post(url=url, headers=headers, data=data)
     if not res: return False
-    return json.loads(res.text)['data']['node']['viewerStatus']['exerciseStatuses']['nodes']
+    try:
+        return json.loads(res.text)['data']['node']['viewerStatus']['exerciseStatuses']['nodes']
+    except:
+        return False
 
-def _get_data_from_pack(eid, pid, codecnt=None):
-    if codecnt == None: codecnt = 1
-    if type(codecnt) == str:
+def _get_data_from_pack(eid, pid, before=None, after=None, cnt=None):
+    if cnt == None: cnt = 1
+    if type(cnt) == str:
         try:
-            codecnt = int(codecnt)
+            cnt = int(cnt)
         except:
             pass
-    if type(codecnt) != int:
-        report('_get_data_from_pack: Variable `codecnt` type error. (should be `int`, not `{}`)'.format(type(codecnt)),
+    if type(cnt) != int:
+        report('_get_data_from_pack: Variable `cnt` type error. (should be `int`, not `{}`)'.format(type(cnt)),
                1)
         return False
     headers = coding_base_headers.copy()
-    data = json.dumps({
+    data = {
         "operationName": "codingExercise",
         "variables": {
             "eid": eid,
             "pid": pid,
-            "codecnt": codecnt
-        },
-        "query": '''
-query codingExercise($eid: ID!, $pid: ID, $codecnt: Int!) {
-  node(id: $pid) {
-    ... on ExercisePack {
+        }
+    }
+    if before:
+        data['variables']['before'] = before
+        data['variables']['lastcnt'] = cnt
+        queryargs = r"$eid: ID!, $pid: ID, $lastcnt: Int!, $before: String"
+        funargs = r"last: $lastcnt, before: $before"
+    elif after:
+        data['variables']['after'] = after
+        data['variables']['firstcnt'] = cnt
+        queryargs = r"$eid: ID!, $pid: ID, $firstcnt: Int!, $after: String"
+        funargs = r"first: $firstcnt, after: $after"
+    else:
+        data['variables']['lastcnt'] = cnt
+        queryargs = r"$eid: ID!, $pid: ID, $lastcnt: Int!, $before: String"
+        funargs = r"last: $lastcnt, before: $before"
+    data['query'] = f'''
+query codingExercise({queryargs}) {{
+  node(id: $pid) {{
+    ... on ExercisePack {{
       id
-      codingExercise(id: $eid) {
+      codingExercise(id: $eid) {{
         id
         title
         tags
-        viewerStatus {
+        viewerStatus {{
           passedCount
           totalCount
-          exerciseStatuses(last: $codecnt) {
-            nodes {
-              ... on CodingExerciseStatus {
+          exerciseStatuses({funargs}) {{
+            nodes {{
+              ... on CodingExerciseStatus {{
                 id
                 scoreRate
-                submission {
+                submission {{
                   id
-                  reports {
+                  reports {{
                     key
                     value
-                  }
-                }
-                solution {
+                  }}
+                }}
+                solution {{
                   lang
-                  asset { content }
-                }
+                  asset {{ content }}
+                }}
                 time
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}'''})
+              }}
+            }}
+          }}
+        }}
+      }}
+    }}
+  }}
+}}'''
+
+    data = json.dumps(data)
     res = post(url=url, headers=headers, data=data)
     if not res: return False
-    return json.loads(res.text)['data']['node']['codingExercise']['viewerStatus']['exerciseStatuses']['nodes']
+    try:
+        return json.loads(res.text)['data']['node']['codingExercise']['viewerStatus']['exerciseStatuses']['nodes']
+    except:
+        return False
 
 def _get_exercise_not_from_pack(eid, lang, feedback='dict'):
     headers = coding_base_headers.copy()
@@ -756,13 +794,25 @@ query codingExercise($eid: ID!, $lang: Language!) {
     res = post(url=url, headers=headers, data=data)
     if not res: return False
     if feedback == 'Response': return res
-    res_data = json.loads(res.text)['data']['exercise']
+    try:
+        res_data = json.loads(res.text)['data']['exercise']
+    except:
+        return False
     res_dic = {}
     res_dic['title'] = res_data['title']
     res_dic['tags'] = res_data['tags']
-    res_dic['description-content'] = res_data['description']['content']
-    res_dic['inputDescription-content'] = res_data['inputDescription']['content']
-    res_dic['outputDescription-content'] = res_data['outputDescription']['content']
+    if res_data['description'] != None:
+        res_dic['description-content'] = res_data['description']['content']
+    else:
+        res_dic['description-content'] = None
+    if res_data['inputDescription'] != None:
+        res_dic['inputDescription-content'] = res_data['inputDescription']['content']
+    else:
+        res_dic['inputDescription-content'] = None
+    if res_data['outputDescription'] != None:
+        res_dic['outputDescription-content'] = res_data['outputDescription']['content']
+    else:
+        res_dic['outputDescription-content'] = None
     res_dic['sampleData'] = []
     for x in res_data['sampleData']:
         toappend = {}
@@ -837,13 +887,25 @@ query codingExercise($eid: ID!, $pid: ID, $lang: Language!) {
     res = post(url=url, headers=headers, data=data)
     if not res: return False
     if feedback == 'Response': return res
-    res_data = json.loads(res.text)['data']['pack']['codingExercise']
+    try:
+        res_data = json.loads(res.text)['data']['pack']['codingExercise']
+    except:
+        return False
     res_dic = {}
     res_dic['title'] = res_data['title']
     res_dic['tags'] = res_data['tags']
-    res_dic['description-content'] = res_data['description']['content']
-    res_dic['inputDescription-content'] = res_data['inputDescription']['content']
-    res_dic['outputDescription-content'] = res_data['outputDescription']['content']
+    if res_data['description'] != None:
+        res_dic['description-content'] = res_data['description']['content']
+    else:
+        res_dic['description-content'] = None
+    if res_data['inputDescription'] != None:
+        res_dic['inputDescription-content'] = res_data['inputDescription']['content']
+    else:
+        res_dic['inputDescription-content'] = None
+    if res_data['outputDescription'] != None:
+        res_dic['outputDescription-content'] = res_data['outputDescription']['content']
+    else:
+        res_dic['outputDescription-content'] = None
     res_dic['sampleData'] = []
     for x in res_data['sampleData']:
         toappend = {}
