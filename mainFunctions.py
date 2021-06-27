@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from re import search
+from sys import platform
 
 from PyQt5.QtCore import Qt, QSize, QThread, pyqtSignal
 from PyQt5.QtGui import QFont
@@ -10,10 +11,10 @@ from PyQt5.QtWidgets import QMessageBox, QMainWindow, QApplication
 
 from codiaclient import net_var
 from codiaclient.network import get_pack, show_pack, start_pack, logined, get_exercise
-from codiaclient.network import submit,get_data
+from codiaclient.network import submit, get_data
 from codiaclient.report import Error as codiaError, error_translate
 from codiaclient.requests import variables as requests_var
-from codiaclientgui.utils import QPalette, Font, Palette, Style, Color, ErrorDisplay, NewListWidget
+from codiaclientgui.utils import QPalette, Font, Palette, Style, ErrorDisplay, NewListWidget
 from mainWindow import Ui_windowMain
 
 variables = {
@@ -23,8 +24,11 @@ variables = {
     "firstPid": None,
     "hasNext": True,
     "packInfo": {},
-    "currentPackRow": None,
+    "currentPackRow": 0,
+    "currentHistoryRow": 0,
     "exerciseInfo": None,
+    "submitHistory": [],
+    "testDataCount": 0,
     "workingStatus": {
         "frameExerciseInit": False,
         "frameQuestionInit": False,
@@ -46,6 +50,7 @@ toDisplay = {
     "": '正在评测'
 }
 toData = {val: key for key, val in toDisplay.items()}
+
 
 class MyThread(QThread):
     infoSignal = pyqtSignal([dict], [list])
@@ -312,11 +317,17 @@ def BeginMain(callback=None):
     uiMain.frameQuestion.hide()
     uiMain.frameHistory.hide()
     uiMain.frameSubmit.hide()
+    uiMain.frameExercise.hide()
+    uiMain.frameCode.hide()
+    uiMain.frameTestData.hide()
     uiMain.progressBarPack.setStyleSheet(Style["progressBar"])
     uiMain.progressBarExercise.setStyleSheet(Style["progressBar"])
     uiMain.progressBarSubmit.setStyleSheet(Style["progressBar"])
     uiMain.progressBarHistory.setStyleSheet(Style["progressBar"])
-    uiMain.textEditSubmit.setTabStopWidth(uiMain.textEditSubmit.font().pointSize() * 2)
+    if platform == 'win32':
+        uiMain.textEditSubmit.setTabStopWidth(uiMain.textEditSubmit.font().pointSize() * 4)
+    else:
+        uiMain.textEditSubmit.setTabStopWidth(uiMain.textEditSubmit.font().pointSize() * 2)
     codeFont = QFont()
     codeFont.setFamily('Consolas')
     uiMain.textEditSubmit.setFont(codeFont)
@@ -328,6 +339,7 @@ def BeginMain(callback=None):
     uiMain.pushButtonExerciseBegin.clicked.connect(BeginPack)
     # uiMain.listWidgetExercise.itemClicked.connect(getSelectedEid)
     uiMain.listWidgetExercise.itemDoubleClicked.connect(frameQuestionInit)
+    uiMain.listWidgetPackHistory.itemDoubleClicked.connect(frameTestDataInit)
     uiMain.pushButtonExerciseOK.clicked.connect(frameQuestionInit)
     uiMain.pushButtonQuestionReturn.clicked.connect(QuestionReturn)
     uiMain.pushButtonSubmit.clicked.connect(SubmitInit)
@@ -341,18 +353,108 @@ def BeginMain(callback=None):
     )
     uiMain.pushButtonHistory.clicked.connect(frameHistoryInit)
     uiMain.pushButtonHistoryBack.clicked.connect(HistoryReturn)
+    uiMain.pushButtonCodeBack.clicked.connect(CodeReturn)
+    uiMain.pushButtonTestDataBack.clicked.connect(TestDataReturn)
+    uiMain.pushButtonShowCode.clicked.connect(ShowCode)
+    uiMain.pushButtonShowTestData.clicked.connect(ShowTestData)
+    uiMain.pushButtonSubmitCodeDetails.clicked.connect(frameTestDataInit)
 
     for i in range(0, variables['packPerPage']):
         AddItemToPackList(uiMain.listWidgetPack)
 
-    uiMain.frameExercise.hide()
     uiMain.framePack.show()
     callback and callback()
+
+
+def frameCodeInit():
+    code = variables['submitHistory'][variables['currentHistoryRow']]['solution']['asset']['content']
+    uiMain.textEditCode.setText(code)
+    if platform == 'win32':
+        uiMain.textEditCode.setTabStopWidth(uiMain.textEditSubmit.font().pointSize() * 4)
+    else:
+        uiMain.textEditCode.setTabStopWidth(uiMain.textEditSubmit.font().pointSize() * 2)
+
+
+def frameTestDataInit():
+    if not uiMain.listWidgetPackHistory.selectedItems():
+        QMessageBox.information(None, '提示', '请选中一条历史记录', QMessageBox.Ok)
+        return
+    variables['currentHistoryRow'] = uiMain.listWidgetPackHistory.selectedIndexes()[0].row()
+    testData = variables['submitHistory'][variables['currentHistoryRow']]['submission']['reports']
+    index = 1
+    for data in testData:
+        if data['key'] == 'score':
+            variables['testDataCount'] = int(data['value'].split('/')[1])
+    uiMain.listWidgetData.clear()
+    for data in testData:
+        if data['key'] != 'score' and data['key'] != 'time elapsed' and data['key'] != 'memory consumed':
+            AddItemToTestDataList(index, data['value'])
+            index += 1
+    uiMain.frameHistory.hide()
+    uiMain.frameTestData.show()
+
+
+def AddItemToTestDataList(index: int, status: str):
+    item = QListWidgetItem()
+    item.setSizeHint(QSize(960, 65))
+    widget = GetTestDataWidGet(index, status)
+    uiMain.listWidgetData.addItem(item)
+    uiMain.listWidgetData.setItemWidget(item, widget)
+
+
+def GetTestDataWidGet(index: int, status: str):
+    mainLayout = QHBoxLayout()
+    statusLabel = QLabel()
+    testDataLabel = QLabel()
+    getScoreLabel = QLabel()
+
+    statusLabel.setText(toDisplay[status])
+    SetStatusColor(statusLabel)
+    testDataLabel.setText(f"测试点 {index}")
+    if status == 'passed':
+        getScoreLabel.setText("得分：%.1f" % (100/variables['testDataCount']))
+    else:
+        getScoreLabel.setText("得分：0")
+
+    mainLayout.addWidget(testDataLabel)
+    mainLayout.addWidget(statusLabel)
+    mainLayout.addWidget(getScoreLabel)
+
+    mainLayout.setStretchFactor(testDataLabel, 1)
+    mainLayout.setStretchFactor(statusLabel, 2)
+    mainLayout.setStretchFactor(getScoreLabel, 1)
+
+    widget = QWidget()
+    widget.setLayout(mainLayout)
+    widget.setCursor(Qt.PointingHandCursor)
+    return widget
+
+
+def ShowCode():
+    frameCodeInit()
+    uiMain.frameTestData.hide()
+    uiMain.frameCode.show()
+
+
+def ShowTestData():
+    uiMain.frameCode.hide()
+    uiMain.frameTestData.show()
+
+
+def CodeReturn():
+    uiMain.frameCode.hide()
+    uiMain.frameHistory.show()
+
+
+def TestDataReturn():
+    uiMain.frameTestData.hide()
+    uiMain.frameHistory.show()
 
 
 def HistoryReturn():
     uiMain.frameHistory.hide()
     uiMain.frameQuestion.show()
+
 
 def GetHistory(eid, pid, cnt, InfoRecv=lambda: None, ErrorRecv=lambda: None):
     global threadGetHistory  # extremely essential!
@@ -361,6 +463,7 @@ def GetHistory(eid, pid, cnt, InfoRecv=lambda: None, ErrorRecv=lambda: None):
     threadGetHistory.errorSignal.connect(ErrorRecv)
     uiMain.progressBarHistory.setValue(90)
     threadGetHistory.start()
+
 
 def frameHistoryInit():
     totalCount = variables['exerciseListInfo'][variables['currentExerciseRow']]['viewerStatus']['totalCount']
@@ -383,7 +486,8 @@ def frameHistoryInit():
         ErrorDisplay(e, error_translate, "获取失败")
         uiMain.progressBarHistory.hide()
 
-    GetHistory(eid=requests_var['e'], pid=requests_var['p'], cnt=totalCount, InfoRecv = historyInfoRecv, ErrorRecv=ErrorRecv)
+    GetHistory(eid=requests_var['e'], pid=requests_var['p'], cnt=totalCount, InfoRecv=historyInfoRecv,
+               ErrorRecv=ErrorRecv)
 
 
 def AddItemToHistoryList(data: dict):
@@ -405,6 +509,7 @@ def GetHistoryWidget(data: dict):
     codeLengthLabel = QLabel()
     timeElapsedLabel = QLabel()
     spaceElapsedLabel = QLabel()
+    scoreLabel = QLabel()
 
     if data['scoreRate'] == 1:
         statusLabel.setText('通过')
@@ -421,10 +526,11 @@ def GetHistoryWidget(data: dict):
                     errorType = i['value']
                     break
         statusLabel.setText(toDisplay[errorType])
-        SetErrorColor(statusLabel)
+        SetStatusColor(statusLabel)
     languageLabel.setText(toDisplay[data['solution']['lang']])
+    scoreLabel.setText('得分：%.1f' % (data['scoreRate'] * 100))
     timeLabel.setText('提交时间：' +
-        (datetime.strptime(search(r"^[^.]*", data["time"].replace("T", " ")).group(),
+                      (datetime.strptime(search(r"^[^.]*", data["time"].replace("T", " ")).group(),
                                          "%Y-%m-%d %H:%M:%S") + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S"))
     codeLengthLabel.setText('代码长度：' + str(len(data['solution']['asset']['content'])) + ' B')
     for i in data['submission']['reports']:
@@ -441,12 +547,14 @@ def GetHistoryWidget(data: dict):
     mainLayout.addWidget(timeLabel)
     mainLayout.addWidget(codeLengthLabel)
     mainLayout.addLayout(elapseLayout)
+    mainLayout.addWidget(scoreLabel)
 
     mainLayout.setStretchFactor(statusLabel, 2)
     mainLayout.setStretchFactor(languageLabel, 1)
     mainLayout.setStretchFactor(timeLabel, 4)
     mainLayout.setStretchFactor(codeLengthLabel, 2)
-    mainLayout.setStretchFactor(elapseLayout, 4)
+    mainLayout.setStretchFactor(elapseLayout, 3)
+    mainLayout.setStretchFactor(scoreLabel, 2)
 
     widget = QWidget()
     widget.setLayout(mainLayout)
@@ -456,13 +564,15 @@ def GetHistoryWidget(data: dict):
     return widget
 
 
-def SetErrorColor(statusLabel: QLabel):
+def SetStatusColor(statusLabel: QLabel):
     if statusLabel.text() == '答案错误':
         statusLabel.setPalette(Palette[QPalette.Text]["red"])
     elif statusLabel.text() == '运行时错误':
         statusLabel.setPalette(Palette[QPalette.Text]["purple"])
     elif statusLabel.text() == '超时':
         statusLabel.setPalette(Palette[QPalette.Text]["darkblue"])
+    elif statusLabel.text() == '通过':
+        statusLabel.setPalette(Palette[QPalette.Text]["green"])
     else:
         statusLabel.setPalette(Palette[QPalette.Text]["gray"])
 
@@ -513,6 +623,7 @@ def SubmitReturn():
     uiMain.frameSubmit.hide()
     uiMain.frameQuestion.show()
 
+
 def Submit(pid, eid, lang, code, InfoRecv=lambda: None, ErrorRecv=lambda: None):
     global threadSubmit  # extremely essential!
     threadSubmit = MyThread(RunMethod=lambda: submit(eid=eid, pid=pid, lang=lang, solutioncode=code))
@@ -520,6 +631,7 @@ def Submit(pid, eid, lang, code, InfoRecv=lambda: None, ErrorRecv=lambda: None):
     threadSubmit.errorSignal.connect(ErrorRecv)
     uiMain.progressBarSubmit.setValue(90)
     threadSubmit.start()
+
 
 def SubmitCode(lang: str, code: str):
     if lang == '请选择提交语言':
@@ -536,14 +648,15 @@ def SubmitCode(lang: str, code: str):
     def submitInfoRecv(submitInfo):
         if submitInfo:
             QMessageBox.information(None, '提交成功', '提交成功，请在历史记录中查看评测结果', QMessageBox.Ok)
-            variables['exerciseListInfo'][variables['currentExerciseRow']]['viewerStatus']['totalCount']
+            variables['exerciseListInfo'][variables['currentExerciseRow']]['viewerStatus']['totalCount'] += 1
             uiMain.frameSubmit.hide()
             uiMain.frameQuestion.show()
         else:
             QMessageBox.critical(None, '提交失败', '请检查语言选择是否正确', QMessageBox.Ok)
         uiMain.progressBarSubmit.hide()
 
-    Submit(pid=requests_var['p'], eid=requests_var['e'], lang=toData[lang], code=code, InfoRecv=submitInfoRecv, ErrorRecv=ErrorRecv)
+    Submit(pid=requests_var['p'], eid=requests_var['e'], lang=toData[lang], code=code, InfoRecv=submitInfoRecv,
+           ErrorRecv=ErrorRecv)
 
 
 def SubmitInit():
@@ -593,7 +706,7 @@ def GetPack(before=None, after=None, InfoRecv=lambda: None, ErrorRecv=lambda: No
 # 翻页
 def GetPage(before=None, after=None):
     if before and after:
-        return False 
+        return False
     uiMain.progressBarPack.setValue(0)
     uiMain.progressBarPack.show()
     uiMain.pushButtonPackNext.setEnabled(False)

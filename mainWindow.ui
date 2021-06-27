@@ -497,7 +497,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>从文件中读取</string>
+      <string>读取文件</string>
      </property>
     </widget>
    </widget>
@@ -558,7 +558,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>详细信息</string>
+      <string>确认</string>
      </property>
     </widget>
     <widget class="NewPushButton" name="pushButtonHistoryBack">
@@ -575,11 +575,144 @@
      </property>
     </widget>
    </widget>
+   <widget class="QFrame" name="frameCode">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>1080</width>
+      <height>768</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>1080</width>
+      <height>768</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>1280</width>
+      <height>768</height>
+     </size>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QTextEdit" name="textEditCode">
+     <property name="geometry">
+      <rect>
+       <x>28</x>
+       <y>30</y>
+       <width>1024</width>
+       <height>531</height>
+      </rect>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="NewPushButton" name="pushButtonShowTestData">
+     <property name="geometry">
+      <rect>
+       <x>390</x>
+       <y>630</y>
+       <width>120</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>测试点</string>
+     </property>
+    </widget>
+    <widget class="NewPushButton" name="pushButtonCodeBack">
+     <property name="geometry">
+      <rect>
+       <x>700</x>
+       <y>630</y>
+       <width>120</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>返回</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QFrame" name="frameTestData">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>1080</width>
+      <height>768</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>1080</width>
+      <height>768</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>1280</width>
+      <height>768</height>
+     </size>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="NewPushButton" name="pushButtonShowCode">
+     <property name="geometry">
+      <rect>
+       <x>390</x>
+       <y>630</y>
+       <width>120</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>代码</string>
+     </property>
+    </widget>
+    <widget class="NewPushButton" name="pushButtonTestDataBack">
+     <property name="geometry">
+      <rect>
+       <x>700</x>
+       <y>630</y>
+       <width>120</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>返回</string>
+     </property>
+    </widget>
+    <widget class="NewListWidget" name="listWidgetData">
+     <property name="geometry">
+      <rect>
+       <x>28</x>
+       <y>30</y>
+       <width>1024</width>
+       <height>531</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
    <zorder>framePack</zorder>
    <zorder>frameExercise</zorder>
-   <zorder>frameSubmit</zorder>
-   <zorder>frameQuestion</zorder>
    <zorder>frameHistory</zorder>
+   <zorder>frameQuestion</zorder>
+   <zorder>frameSubmit</zorder>
+   <zorder>frameCode</zorder>
+   <zorder>frameTestData</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -587,7 +720,7 @@
      <x>0</x>
      <y>0</y>
      <width>1080</width>
-     <height>26</height>
+     <height>24</height>
     </rect>
    </property>
   </widget>
