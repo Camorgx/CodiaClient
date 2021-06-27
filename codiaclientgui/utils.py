@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtCore import Qt, QPropertyAnimation, pyqtSignal, pyqtProperty, QEasingCurve
 from PyQt5.QtGui import QFont, QPalette, QBrush, QColor, QPainterPath, QPainter, QPen
-from PyQt5.QtWidgets import QPushButton, QLabel, QProgressBar
+from PyQt5.QtWidgets import QPushButton, QLabel, QProgressBar, QListWidget
 
 Font = {
     'main': QFont(),
@@ -323,16 +323,21 @@ class _NewProgressBar(QProgressBar):
         self.Anime['progress'].setDuration(1500)
         self.Anime['progress'].setEasingCurve(QEasingCurve.OutQuart)
 
+class _NewListWidget(QListWidget):
+    def addItem(self, item):
+        item.setBackground(Color[['white', 'lightgray'][self.count() % 2]])
+        super(_NewListWidget, self).addItem(item)
+    def __init__(self, *args, **kargs):
+        super(_NewListWidget, self).__init__(*args, **kargs)
 
 if sys.platform == 'win32':
     NewPushButton = _NewPushButton
-    NewProgressBar = _NewProgressBar
 elif sys.platform == 'darwin':
     NewPushButton = QPushButton
-    NewProgressBar = QProgressBar
 else:
     NewPushButton = _NewPushButton
-    NewProgressBar = _NewProgressBar
+NewProgressBar = _NewProgressBar
+NewListWidget = _NewListWidget
 
 def ErrorDisplay(error, _ErrorTranslate, knownErrorInfo: str = "错误", unknownErrorInfo: str = "未知错误"):
     errorTranslate = _ErrorTranslate(error)
