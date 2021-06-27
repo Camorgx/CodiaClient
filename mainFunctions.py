@@ -485,7 +485,10 @@ def GetHistory(eid, pid, cnt, InfoRecv=lambda: None, ErrorRecv=lambda: None):
     threadGetHistory = MyThread(RunMethod=lambda: get_data(eid=eid, pid=pid, cnt=cnt))
     threadGetHistory.infoSignal[list].connect(InfoRecv)
     threadGetHistory.errorSignal.connect(ErrorRecv)
-    uiMain.progressBarHistory.Anime['progress'].setDuration(1500 * (cnt // 100 + 1))
+    try:
+        uiMain.progressBarHistory.Anime['progress'].setDuration(1500 * (cnt // 100 + 1))
+    except:
+        pass
     uiMain.progressBarHistory.setValue(90)
     threadGetHistory.start()
 
