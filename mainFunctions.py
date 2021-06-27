@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QMessageBox, QMainWindow, QApplication
 
 from codiaclient import net_var
 from codiaclient.network import get_pack, show_pack, start_pack, logined, get_exercise
-from codiaclient.network import submit
+from codiaclient.network import submit,get_data
 from codiaclient.report import Error as codiaError, error_translate
 from codiaclient.requests import variables as requests_var
 from codiaclientgui.utils import QPalette, Font, Palette, Style, Color
@@ -34,7 +34,11 @@ translation = {
     'JAVASCRIPT': 'JavaScript',
     'GO': 'Go',
     'RUST': 'Rust',
-    'PYTHON': 'Python'
+    'PYTHON': 'Python',
+    'passed': '通过',
+    'wrong answer': '答案错误',
+    'runtime error': '运行时错误',
+    "": '未知错误'
 }
 
 # 获取题包内容信息的网络通信
@@ -369,6 +373,7 @@ def BeginMain(callback=None):
     uiMain.pushButtonReadFromFile.clicked.connect(
         lambda : ReadFromFile(uiMain.comboBoxLanguageSubmit.currentText())
     )
+    uiMain.pushButtonHistory.clicked.connect(frameHistoryInit)
 
     for i in range(0, variables['packPerPage']):
         AddItemToPackList(uiMain.listWidgetPack, colorName=['white', 'lightgray'][i % 2])
@@ -376,6 +381,37 @@ def BeginMain(callback=None):
     uiMain.frameExercise.hide()
     uiMain.framePack.show()
     callback and callback()
+
+
+def frameHistoryInit():
+    results =  get_data(requests_var['e'], requests_var['p'],
+                   variables['exerciseListInfo'][variables['currentExerciseRow']]['viewerStatus']['totalCount']):
+    variables['submitHistory'] = results
+
+def GetHistoryWidget(data: dict):
+    mainLayout = QHBoxLayout()
+    elapseLayout = QVBoxLayout()
+    statusLabel = QLabel()
+    languageLabel = QLabel()
+    timeLabel = QLabel()
+    codeLengthLabel = QLabel()
+    timeElapsedLabel = QLabel()
+    spaceELapsedLabel = QLabel()
+
+    if variables['submitHistory']['scoreRate'] == 1:
+        statusLabel.setText('通过')
+        statusLabel.setPalette(Palette[QPalette.Text]["green"])
+    else:
+        errorType = ""
+        for i in variables['submitHistory']['submission']['reports']:
+            if i['key'] == 'error':
+                errorType = i['value']
+        statusLabel.setText(translation[errorType])
+        SetErrorColor(statusLabel)
+
+
+def SetErrorColor(statusLabel: QLabel):
+    pass
 
 
 def ReadFromFile(lang: str):
