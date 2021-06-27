@@ -48,7 +48,7 @@ toDisplay = {
 toData = {val: key for key, val in toDisplay.items()}
 
 class MyThread(QThread):
-    infoSignal = pyqtSignal(dict)
+    infoSignal = pyqtSignal([dict], [list])
     errorSignal = pyqtSignal(codiaError)
 
     def __init__(self, *args, RunMethod, **kargs):
@@ -66,7 +66,7 @@ class MyThread(QThread):
         except codiaError as e:
             self.errorSignal.emit(e)
         else:
-            self.infoSignal.emit(self.Info)
+            self.infoSignal[type(self.Info)].emit(self.Info)
 
 
 # 获取题包内容信息的多线程
@@ -308,12 +308,14 @@ def BeginMain(callback=None):
     uiMain.progressBarPack.hide()
     uiMain.progressBarExercise.hide()
     uiMain.progressBarSubmit.hide()
+    uiMain.progressBarHistory.hide()
     uiMain.frameQuestion.hide()
     uiMain.frameHistory.hide()
     uiMain.frameSubmit.hide()
     uiMain.progressBarPack.setStyleSheet(Style["progressBar"])
     uiMain.progressBarExercise.setStyleSheet(Style["progressBar"])
     uiMain.progressBarSubmit.setStyleSheet(Style["progressBar"])
+    uiMain.progressBarHistory.setStyleSheet(Style["progressBar"])
     uiMain.textEditSubmit.setTabStopWidth(uiMain.textEditSubmit.font().pointSize() * 2)
     codeFont = QFont()
     codeFont.setFamily('Consolas')
@@ -352,22 +354,36 @@ def HistoryReturn():
     uiMain.frameHistory.hide()
     uiMain.frameQuestion.show()
 
+def GetHistory(eid, pid, cnt, InfoRecv=lambda: None, ErrorRecv=lambda: None):
+    global threadGetHistory  # extremely essential!
+    threadGetHistory = MyThread(RunMethod=lambda: get_data(eid=eid, pid=pid, codecnt=cnt))
+    threadGetHistory.infoSignal[list].connect(InfoRecv)
+    threadGetHistory.errorSignal.connect(ErrorRecv)
+    uiMain.progressBarHistory.setValue(90)
+    threadGetHistory.start()
 
 def frameHistoryInit():
     totalCount = variables['exerciseListInfo'][variables['currentExerciseRow']]['viewerStatus']['totalCount']
-    try:
-        results = get_data(requests_var['e'], requests_var['p'], totalCount)
-    except codiaError as e:
-        ErrorDisplay(e, error_translate, "获取失败")
-        return
-    results.reverse()
-    variables['submitHistory'] = results
+    uiMain.progressBarHistory.setValue(0)
     uiMain.listWidgetPackHistory.clear()
-    for data in results:
-        AddItemToHistoryList(data)
-
+    uiMain.progressBarHistory.show()
     uiMain.frameQuestion.hide()
     uiMain.frameHistory.show()
+
+    def historyInfoRecv(historyInfo):
+        uiMain.progressBarHistory.setValue(95)
+        historyInfo.reverse()
+        variables['submitHistory'] = historyInfo
+        uiMain.listWidgetPackHistory.clear()
+        for data in historyInfo:
+            AddItemToHistoryList(data)
+        uiMain.progressBarHistory.hide()
+
+    def ErrorRecv(e: codiaError):
+        ErrorDisplay(e, error_translate, "获取失败")
+        uiMain.progressBarHistory.hide()
+
+    GetHistory(eid=requests_var['e'], pid=requests_var['p'], cnt=totalCount, InfoRecv = historyInfoRecv, ErrorRecv=ErrorRecv)
 
 
 def AddItemToHistoryList(data: dict):

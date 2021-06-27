@@ -516,6 +516,22 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
+    <widget class="NewProgressBar" name="progressBarHistory">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>9</y>
+       <width>720</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="value">
+      <number>0</number>
+     </property>
+     <property name="textVisible">
+      <bool>false</bool>
+     </property>
+    </widget>
     <widget class="NewListWidget" name="listWidgetPackHistory">
      <property name="geometry">
       <rect>
