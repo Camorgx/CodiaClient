@@ -9,12 +9,10 @@ from codiaclient.network import *
 from codiaclient.network import _acquire_verification as _AcquireVerification
 from codiaclient.report import Error as codiaError, error_translate
 from codiaclient.utils import cookie_decrypt as Decrypt, cookie_encrypt as Encrypt
+from codiaclient.cachectrl import variables as cache_var
 from codiaclientgui.utils import Font, Style
-from os import environ, path, makedirs
-tmpPath = path.join(environ['temp'] ,'codiaclient')
-if not path.exists(tmpPath):
-    makedirs(tmpPath)
-tmpPath = path.join(tmpPath, ".gui.cache")
+
+sessionPath = path.join(cache_var['appDataPath'], ".gui.cache")
 
 # 初始化任务，新建一个登录窗体和对应的ui
 def LoginInit(callback = None):
@@ -113,7 +111,7 @@ def Login(callback = None):
         def LoginInfoRecv():
             from base64 import b64encode
             try:
-                with open(tmpPath, "wb") as configfile:
+                with open(sessionPath, "wb") as configfile:
                     if uiLogin.checkBox.isChecked():
                         config = json.dumps({
                             "password_store_on": True,
@@ -240,7 +238,7 @@ def ResetReturn():
 def PasswordStoreRead():
     from base64 import b64decode
     try:
-        with open(tmpPath, "rb") as configfile:
+        with open(sessionPath, "rb") as configfile:
             config = configfile.read()
         config = json.loads(b64decode(config).decode())
         if config["password_store_on"]:
