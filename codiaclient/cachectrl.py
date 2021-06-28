@@ -16,7 +16,7 @@ from os import environ, path, makedirs
 from sys import platform
 if platform == 'darwin':
     variables['appDataPath'] = "~/Library/codiaclient"
-elif platform == 'win32'
+elif platform == 'win32':
     variables['appDataPath'] = path.join(environ['AppData'], 'codiaclient')
 if not path.exists(variables['appDataPath']):
     makedirs(variables['appDataPath'])
