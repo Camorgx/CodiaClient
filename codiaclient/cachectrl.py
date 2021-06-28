@@ -8,17 +8,22 @@ from .utils import passwd_hash, cookie_encrypt
 variables = {
     'cache_on': True,
     'logindic': {},
-    'tmpPath': ""
+    'appDataPath': "",
+    "sessionPath": "",
 }
 
 from os import environ, path, makedirs
-variables['tmpPath'] = path.join(environ['temp'] ,'codiaclient')
-if not path.exists(variables['tmpPath']):
-    makedirs(variables['tmpPath'])
-variables['tmpPath'] = path.join(variables['tmpPath'], ".cache")
+from sys import platform
+if platform == 'darwin':
+    variables['appDataPath'] = "~/Library/codiaclient"
+elif platform == 'win32'
+    variables['appDataPath'] = path.join(environ['AppData'], 'codiaclient')
+if not path.exists(variables['appDataPath']):
+    makedirs(variables['appDataPath'])
+variables['sessionPath'] = path.join(variables['appDataPath'], ".cache")
 
 def cache_for_login(userdic, passwd, cookie=None, passwd_store_on=0):
-    file = variables['tmpPath']
+    file = variables['sessionPath']
     if not variables['cache_on']:
         report("Invalid reference of function 'cache_username_passwd_cookie'.", 1)
         return False
@@ -57,7 +62,7 @@ def cache_for_login(userdic, passwd, cookie=None, passwd_store_on=0):
 
 
 def update_cache_for_login(username, passwd, passwd_store_on=0):
-    file = variables['tmpPath']
+    file = variables['sessionPath']
     userdic = variables['logindic'][username]
     username = userdic['username']
     useremail = userdic['email']
@@ -89,7 +94,7 @@ def update_cache_for_login(username, passwd, passwd_store_on=0):
 
 
 def cache_load():
-    file = variables['tmpPath']
+    file = variables['sessionPath']
     if not variables['cache_on']:
         report("Invalid reference of function 'cache_load'.", 1)
         return False
