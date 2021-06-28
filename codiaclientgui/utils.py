@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtCore import Qt, QPropertyAnimation, pyqtSignal, pyqtProperty, QEasingCurve
 from PyQt5.QtGui import QFont, QPalette, QBrush, QColor, QPainterPath, QPainter, QPen
-from PyQt5.QtWidgets import QPushButton, QLabel, QProgressBar, QListWidget
+from PyQt5.QtWidgets import QMessageBox, QPushButton, QLabel, QProgressBar, QListWidget
 
 Font = {
     'main': QFont(),
