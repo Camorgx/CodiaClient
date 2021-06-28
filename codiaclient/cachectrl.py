@@ -7,11 +7,18 @@ from .utils import passwd_hash, cookie_encrypt
 
 variables = {
     'cache_on': True,
-    'logindic': {}
+    'logindic': {},
+    'tmpPath': ""
 }
 
+from os import environ, path, makedirs
+variables['tmpPath'] = path.join(environ['temp'] ,'codiaclient')
+if not path.exists(variables['tmpPath']):
+    makedirs(variables['tmpPath'])
+variables['tmpPath'] = path.join(variables['tmpPath'], ".cache")
 
-def cache_for_login(userdic, passwd, cookie=None, passwd_store_on=0, file='./codiaclient.cache'):
+def cache_for_login(userdic, passwd, cookie=None, passwd_store_on=0):
+    file = variables['tmpPath']
     if not variables['cache_on']:
         report("Invalid reference of function 'cache_username_passwd_cookie'.", 1)
         return False
@@ -49,7 +56,8 @@ def cache_for_login(userdic, passwd, cookie=None, passwd_store_on=0, file='./cod
         raise
 
 
-def update_cache_for_login(username, passwd, passwd_store_on=0, file='./codiaclient.cache'):
+def update_cache_for_login(username, passwd, passwd_store_on=0):
+    file = variables['tmpPath']
     userdic = variables['logindic'][username]
     username = userdic['username']
     useremail = userdic['email']
@@ -80,7 +88,8 @@ def update_cache_for_login(username, passwd, passwd_store_on=0, file='./codiacli
         raise
 
 
-def cache_load(file='./codiaclient.cache'):
+def cache_load():
+    file = variables['tmpPath']
     if not variables['cache_on']:
         report("Invalid reference of function 'cache_load'.", 1)
         return False
