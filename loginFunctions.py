@@ -156,6 +156,7 @@ def AcquireVerification():
 
 # 打开注册界面
 def ShowRegister():
+    windowLogin.setWindowTitle('欢迎使用Codia——注册')
     uiLogin.frameLogin.hide()
     uiLogin.frameRegister.show()
     if uiLogin.lineEditLoginUsername.text():
@@ -164,6 +165,7 @@ def ShowRegister():
 
 # 打开重置密码界面
 def ShowReset():
+    windowLogin.setWindowTitle('欢迎使用Codia——重置密码')
     uiLogin.frameLogin.hide()
     uiLogin.frameReset.show()
     if uiLogin.lineEditLoginUsername.text():
@@ -226,12 +228,14 @@ def Reset():
 
 # 从注册界面返回主界面
 def RegisterReturn():
+    windowLogin.setWindowTitle('欢迎使用Codia——登录')
     uiLogin.frameLogin.show()
     uiLogin.frameRegister.hide()
 
 
 # 从重置密码界面返回主界面
 def ResetReturn():
+    windowLogin.setWindowTitle('欢迎使用Codia——登录')
     uiLogin.frameLogin.show()
     uiLogin.frameReset.hide()
 
