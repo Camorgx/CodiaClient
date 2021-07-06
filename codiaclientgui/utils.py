@@ -347,19 +347,24 @@ def ErrorDisplay(error, _ErrorTranslate, knownErrorInfo: str = "错误", unknown
     else:
         QMessageBox.critical(None, unknownErrorInfo, str(error), QMessageBox.Ok)
 
-def AdjustWindowSize(window):
-    screen = QDesktopWidget().screenGeometry()
+def AdjustWindowInit() -> int:
+    global screen, screenBASE
     from math import sqrt
-    BASE = sqrt((screen.width() * screen.height()) / (1920 * 1080))
+    screen = QDesktopWidget().screenGeometry()
+    screenBASE = sqrt((screen.width() * screen.height()) / (1920 * 1080))
+    return screenBASE
+
+def AdjustWindowSize(window) -> None:
+    global screen, screenBASE
     stack = window.children()
     while len(stack):
         x = stack.pop()
         stack.extend(x.children())
         try:
-            x.setGeometry(x.x() * BASE, x.y() * BASE, x.width() * BASE, x.height() * BASE)
+            x.setGeometry(x.x() * screenBASE, x.y() * screenBASE, x.width() * screenBASE, x.height() * screenBASE)
         except:
             pass
-    window.setFixedSize(window.width() * BASE, window.height() * BASE)
+    window.setFixedSize(window.width() * screenBASE, window.height() * screenBASE)
     window.setWindowFlags(window.windowFlags() & ~Qt.WindowMaximizeButtonHint)
     size = window.geometry()
     window.move((screen.width() - size.width()) / 2,

@@ -4,7 +4,7 @@ from sys import platform
 
 from PyQt5.QtCore import Qt, QSize, QThread, pyqtSignal
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QAbstractItemView
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
 from PyQt5.QtWidgets import QListWidgetItem, QWidget
 from PyQt5.QtWidgets import QMessageBox, QMainWindow, QApplication
@@ -140,7 +140,8 @@ def frameExerciseInit():
 
 def AddItemToQuestionList(data: dict):
     item = QListWidgetItem()
-    item.setSizeHint(QSize(960, 65))
+    from codiaclientgui.utils import screenBASE
+    item.setSizeHint(QSize(960 * screenBASE, 65 * screenBASE))
     widget = GetExerciseWidget(data)
     widget.setCursor(Qt.PointingHandCursor)
     uiMain.listWidgetExercise.addItem(item)
@@ -358,6 +359,11 @@ def BeginMain(callback=None):
     uiMain.pushButtonShowTestData.clicked.connect(ShowTestData)
     uiMain.pushButtonSubmitCodeDetails.clicked.connect(frameTestDataInit)
 
+    uiMain.listWidgetPackHistory.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+    uiMain.listWidgetExercise.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+    uiMain.listWidgetData.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+    uiMain.listWidgetPack.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+
     for i in range(0, variables["packPerPage"]):
         AddItemToPackList(uiMain.listWidgetPack)
 
@@ -396,7 +402,8 @@ def frameTestDataInit():
 
 def AddItemToTestDataList(index: int, status: str):
     item = QListWidgetItem()
-    item.setSizeHint(QSize(960, 65))
+    from codiaclientgui.utils import screenBASE
+    item.setSizeHint(QSize(960 * screenBASE, 65 * screenBASE))
     widget = GetTestDataWidGet(index, status)
     uiMain.listWidgetData.addItem(item)
     uiMain.listWidgetData.setItemWidget(item, widget)
@@ -521,7 +528,8 @@ def frameHistoryInit():
 
 def AddItemToHistoryList(data: dict):
     item = QListWidgetItem()
-    item.setSizeHint(QSize(960, 65))
+    from codiaclientgui.utils import screenBASE
+    item.setSizeHint(QSize(960 * screenBASE, 65 * screenBASE))
     widget = GetHistoryWidget(data)
     if not widget.isEnabled():
         item.setFlags(item.flags() & ~Qt.ItemIsSelectable)
@@ -717,7 +725,7 @@ def UpdatePage():
     packList = variables["packInfo"]["nodes"]
     variables["lastPid"] = packList[0]["id"]
     variables["firstPid"] = packList[-1]["id"]
-    uiMain.pushButtonPackNext.setEnabled(variables["hasNext"])
+    uiMain.pushButtonPackNext.setEnabled(variables["hasNext"] or not variables["pageNumber"])
     uiMain.pushButtonPackPrevious.setEnabled(variables["pageNumber"] > 1)
     uiMain.labelPackPage.setText("第 {} 页".format(variables["pageNumber"]))
     for i in range(0, uiMain.listWidgetPack.count()):
@@ -846,7 +854,8 @@ def GetPackWidget(data: dict):
 
 def AddItemToPackList(packList: NewListWidget, data: dict = {}):
     item = QListWidgetItem()
-    item.setSizeHint(QSize(960, 65))
+    from codiaclientgui.utils import screenBASE
+    item.setSizeHint(QSize(960 * screenBASE, 65 * screenBASE))
     if not data:
         widget = QWidget()
         widget.setEnabled(False)
