@@ -14,6 +14,7 @@ variables = {
 
 from os import environ, path, makedirs
 from sys import platform
+
 if platform == 'darwin':
     variables['appDataPath'] = "~/Library/codiaclient"
 elif platform == 'win32':
@@ -21,6 +22,7 @@ elif platform == 'win32':
 if not path.exists(variables['appDataPath']):
     makedirs(variables['appDataPath'])
 variables['sessionPath'] = path.join(variables['appDataPath'], ".cache")
+
 
 def cache_for_login(userdic, passwd, cookie=None, passwd_store_on=0):
     file = variables['sessionPath']
