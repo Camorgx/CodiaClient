@@ -14,7 +14,7 @@ from codiaclient.network import get_pack, show_pack, start_pack, logined, get_ex
 from codiaclient.network import submit, get_data
 from codiaclient.report import Error as codiaError, error_translate
 from codiaclient.requests import variables as requests_var
-from codiaclientgui.utils import QPalette, Font, Palette, Style, ErrorDisplay, NewListWidget
+from codiaclientgui.utils import QPalette, Font, Palette, Style, ErrorDisplay, NewListWidget, AdjustWindowSize
 from mainWindow import Ui_windowMain
 
 variables = {
@@ -216,6 +216,7 @@ def MainInit(callback=None):
     windowMain.setFont(Font["main"])
     uiMain = Ui_windowMain()
     uiMain.setupUi(windowMain)
+    AdjustWindowSize(windowMain)
     BeginMain(callback=callback)
     windowMain.show()
     GetPage()

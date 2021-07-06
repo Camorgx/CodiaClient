@@ -42,18 +42,6 @@
       <height>768</height>
      </rect>
     </property>
-    <property name="minimumSize">
-     <size>
-      <width>1080</width>
-      <height>768</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>1280</width>
-      <height>768</height>
-     </size>
-    </property>
     <property name="frameShape">
      <enum>QFrame::NoFrame</enum>
     </property>
@@ -156,18 +144,6 @@
       <width>1080</width>
       <height>768</height>
      </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>1080</width>
-      <height>768</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>1280</width>
-      <height>768</height>
-     </size>
     </property>
     <property name="frameShape">
      <enum>QFrame::NoFrame</enum>
@@ -589,18 +565,6 @@
       <height>768</height>
      </rect>
     </property>
-    <property name="minimumSize">
-     <size>
-      <width>1080</width>
-      <height>768</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>1280</width>
-      <height>768</height>
-     </size>
-    </property>
     <property name="frameShape">
      <enum>QFrame::NoFrame</enum>
     </property>
@@ -660,18 +624,6 @@
       <width>1080</width>
       <height>768</height>
      </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>1080</width>
-      <height>768</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>1280</width>
-      <height>768</height>
-     </size>
     </property>
     <property name="frameShape">
      <enum>QFrame::NoFrame</enum>

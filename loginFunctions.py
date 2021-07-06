@@ -10,7 +10,7 @@ from codiaclient.network import _acquire_verification as _AcquireVerification
 from codiaclient.report import Error as codiaError, error_translate
 from codiaclient.utils import cookie_decrypt as Decrypt, cookie_encrypt as Encrypt
 from codiaclient.cachectrl import variables as cache_var
-from codiaclientgui.utils import Font, Style, ErrorDisplay
+from codiaclientgui.utils import Font, Style, ErrorDisplay, AdjustWindowSize
 
 from os import path
 sessionPath = path.join(cache_var['appDataPath'], ".gui.cache")
@@ -22,6 +22,7 @@ def LoginInit(callback = None):
     windowLogin.setFont(Font["main"])
     uiLogin = Ui_windowLogin()
     uiLogin.setupUi(windowLogin)
+    AdjustWindowSize(windowLogin)
     PasswordStoreRead()
     BeginLogin(callback = callback)
     windowLogin.show()

@@ -16,12 +16,6 @@
     <height>0</height>
    </size>
   </property>
-  <property name="maximumSize">
-   <size>
-    <width>640</width>
-    <height>420</height>
-   </size>
-  </property>
   <property name="windowTitle">
    <string>欢迎使用Codia——登录</string>
   </property>
@@ -33,12 +27,6 @@
    <double>1.000000000000000</double>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <property name="maximumSize">
-    <size>
-     <width>640</width>
-     <height>360</height>
-    </size>
-   </property>
    <widget class="QFrame" name="frameLogin">
     <property name="geometry">
      <rect>
@@ -47,12 +35,6 @@
       <width>540</width>
       <height>294</height>
      </rect>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>640</width>
-      <height>360</height>
-     </size>
     </property>
     <property name="frameShape">
      <enum>QFrame::NoFrame</enum>

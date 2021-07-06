@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtCore import Qt, QPropertyAnimation, pyqtSignal, pyqtProperty, QEasingCurve
 from PyQt5.QtGui import QFont, QPalette, QBrush, QColor, QPainterPath, QPainter, QPen
-from PyQt5.QtWidgets import QMessageBox, QPushButton, QLabel, QProgressBar, QListWidget
+from PyQt5.QtWidgets import QMessageBox, QPushButton, QLabel, QProgressBar, QListWidget, QDesktopWidget
 
 Font = {
     'main': QFont(),
@@ -346,3 +346,22 @@ def ErrorDisplay(error, _ErrorTranslate, knownErrorInfo: str = "错误", unknown
         QMessageBox.critical(None, knownErrorInfo, errorTranslate, QMessageBox.Ok)
     else:
         QMessageBox.critical(None, unknownErrorInfo, str(error), QMessageBox.Ok)
+
+def AdjustWindowSize(window):
+    screen = QDesktopWidget().screenGeometry()
+    from math import sqrt
+    BASE = sqrt((screen.width() * screen.height()) / (1920 * 1080))
+    stack = window.children()
+    while len(stack):
+        x = stack.pop()
+        stack.extend(x.children())
+        try:
+            x.setGeometry(x.x() * BASE, x.y() * BASE, x.width() * BASE, x.height() * BASE)
+        except:
+            pass
+    window.setFixedSize(window.width() * BASE, window.height() * BASE)
+    window.setWindowFlags(window.windowFlags() & ~Qt.WindowMaximizeButtonHint)
+    size = window.geometry()
+    window.move((screen.width() - size.width()) / 2,
+              (screen.height() - size.height()) / 2)
+
