@@ -3,7 +3,6 @@ from re import search
 from sys import platform
 
 from PyQt5.QtCore import Qt, QSize, QThread, pyqtSignal
-from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QFileDialog, QAbstractItemView
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
 from PyQt5.QtWidgets import QListWidgetItem, QWidget
@@ -419,7 +418,7 @@ def GetTestDataWidGet(index: int, status: str):
     SetStatusColor(statusLabel)
     testDataLabel.setText(f"测试点 {index}")
     if status == "passed":
-        getScoreLabel.setText("得分：%.1f" % (100/variables["testDataCount"]))
+        getScoreLabel.setText("得分：%.1f" % (100 / variables["testDataCount"]))
     else:
         getScoreLabel.setText("得分：0")
 

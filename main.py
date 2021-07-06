@@ -2,14 +2,14 @@ import sys
 
 from PyQt5.QtWidgets import QApplication
 
-from mainFunctions import MainInit
-from loginFunctions import LoginInit
 from codiaclientgui.utils import AdjustWindowInit
+from loginFunctions import LoginInit
+from mainFunctions import MainInit
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     AdjustWindowInit()
-    LoginInit(callback = MainInit)
+    LoginInit(callback=MainInit)
     sys.exit(app.exec_())
 
 '''

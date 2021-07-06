@@ -1,4 +1,5 @@
 import sys
+
 from PyQt5.QtCore import Qt, QPropertyAnimation, pyqtSignal, pyqtProperty, QEasingCurve
 from PyQt5.QtGui import QFont, QPalette, QBrush, QColor, QPainterPath, QPainter, QPen
 from PyQt5.QtWidgets import QMessageBox, QPushButton, QLabel, QProgressBar, QListWidget, QDesktopWidget
@@ -43,7 +44,8 @@ if sys.platform == 'win32':
     Font['main'].setPointSize(10)
     Font['status'].setFamily("KaiTi")
     Font['status'].setPointSize(10)
-    Style['progressBar'] = "QProgressBar { max-height: 12px; border: none; border-radius: 6px; text-align: center; background-color: #FFFFFF } QProgressBar::chunk { border: none; border-radius: 6px; background: qlineargradient(spread: pad, x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #05A01E, stop: 1 #75C090) }"
+    Style[
+        'progressBar'] = "QProgressBar { max-height: 12px; border: none; border-radius: 6px; text-align: center; background-color: #FFFFFF } QProgressBar::chunk { border: none; border-radius: 6px; background: qlineargradient(spread: pad, x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #05A01E, stop: 1 #75C090) }"
 elif sys.platform == 'darwin':
     Font['main'].setFamily("PingFang SC")
     Font['main'].setPointSize(13)
@@ -88,6 +90,7 @@ Palette[QPalette.Text]['darkblue'].setBrush(QPalette.Inactive, QPalette.Text, da
 darkblueBrush.setColor(Color['disabled'])
 Palette[QPalette.Text]['darkblue'].setBrush(QPalette.Disabled, QPalette.Text, darkblueBrush)
 
+
 class MyObject(QLabel):
     defaultColor = Color['white']
     hoverColor = QColor(227, 240, 255)
@@ -110,6 +113,7 @@ class MyObject(QLabel):
         palette.setBrush(QPalette.Inactive, self.Coloring, QBrush(self.defaultColor))
         self.setPalette(palette)
         self.nowColor = col
+
     color = pyqtProperty(QColor, fset=setColor)
 
     def link(self, linkedObject):
@@ -188,16 +192,18 @@ class MyObject(QLabel):
         for x in self.Anime: self.Anime[x].stop()
         self.Anime['leave'].start()
 
+
 class _NewPushButtonBorder(MyObject):
-    def __init__(self, *args, defaultColor: QColor, hoverColor: QColor, pressColor: QColor, r: float, d: float, actualParent = None, **kargs):
+    def __init__(self, *args, defaultColor: QColor, hoverColor: QColor, pressColor: QColor, r: float, d: float,
+                 actualParent=None, **kargs):
         super(_NewPushButtonBorder, self).__init__(*args, **kargs)
         self.Coloring = QPalette.Base
         self.defaultColor = defaultColor
         self.hoverColor = hoverColor
         self.pressColor = pressColor
         self.link(actualParent)
-        self.r = r # 圆角半径
-        self.d = d # 边框宽度
+        self.r = r  # 圆角半径
+        self.d = d  # 边框宽度
         self.Anime['load'].setDuration(1)
         self.Anime['load'].setEndValue(self.defaultColor)
         self.Anime['load'].setEasingCurve(QEasingCurve.OutCubic)
@@ -217,9 +223,12 @@ class _NewPushButtonBorder(MyObject):
         r = color.red() // 2
         g = color.green() // 2
         b = color.blue() // 2
-        if b >= g and b >= r: b = color.blue() // 1.6
-        elif r >= g and r >= b: r = color.red() // 1.6
-        elif g >= b and g >= r: g = color.green() // 1.6
+        if b >= g and b >= r:
+            b = color.blue() // 1.6
+        elif r >= g and r >= b:
+            r = color.red() // 1.6
+        elif g >= b and g >= r:
+            g = color.green() // 1.6
         return QColor(r, g, b)
 
     def paintEvent(self, e):
@@ -251,9 +260,12 @@ class _NewPushButtonBorder(MyObject):
         path.lineTo(y, x - r)
         self.borderPath = path
 
+
 class _NewPushButton(MyObject):
     showed = False
-    def __init__(self, *args, defaultColor: QColor = MyObject.defaultColor, hoverColor: QColor = MyObject.hoverColor, pressColor: QColor = MyObject.pressColor, r = None, d = None, **kargs):
+
+    def __init__(self, *args, defaultColor: QColor = MyObject.defaultColor, hoverColor: QColor = MyObject.hoverColor,
+                 pressColor: QColor = MyObject.pressColor, r=None, d=None, **kargs):
         super(_NewPushButton, self).__init__(*args, **kargs)
         self.r = r
         self.d = d
@@ -294,12 +306,15 @@ class _NewPushButton(MyObject):
 
         if not self.r: self.r = self.height() / 2 - 1
         if not self.d: self.d = 1.5
-        self.link(_NewPushButtonBorder(r = self.r, d = self.d, defaultColor = self.defaultColor, hoverColor = self.hoverColor, pressColor = self.pressColor, parent = self.parent(), actualParent = self))
+        self.link(_NewPushButtonBorder(r=self.r, d=self.d, defaultColor=self.defaultColor, hoverColor=self.hoverColor,
+                                       pressColor=self.pressColor, parent=self.parent(), actualParent=self))
         self.linkedObject.setGeometry(self.x(), self.y(), self.width(), self.height())
         self.linkedObject.show()
-        self.setGeometry(self.x() + self.r, self.y() + self.d * 2, self.width() - self.r * 2, self.height() - self.d * 4)
+        self.setGeometry(self.x() + self.r, self.y() + self.d * 2, self.width() - self.r * 2,
+                         self.height() - self.d * 4)
         self.raise_()
         super(_NewPushButton, self).LoadAnime()
+
 
 class _NewProgressBar(QProgressBar):
     def setValue(self, value):
@@ -324,12 +339,15 @@ class _NewProgressBar(QProgressBar):
         self.Anime['progress'].setDuration(1500)
         self.Anime['progress'].setEasingCurve(QEasingCurve.OutQuart)
 
+
 class _NewListWidget(QListWidget):
     def addItem(self, item):
         item.setBackground(Color[['white', 'lightgray'][self.count() % 2]])
         super(_NewListWidget, self).addItem(item)
+
     def __init__(self, *args, **kargs):
         super(_NewListWidget, self).__init__(*args, **kargs)
+
 
 if sys.platform == 'win32':
     NewPushButton = _NewPushButton
@@ -340,6 +358,7 @@ else:
 NewProgressBar = _NewProgressBar
 NewListWidget = _NewListWidget
 
+
 def ErrorDisplay(error, _ErrorTranslate, knownErrorInfo: str = "错误", unknownErrorInfo: str = "未知错误"):
     errorTranslate = _ErrorTranslate(error)
     if errorTranslate:
@@ -347,12 +366,17 @@ def ErrorDisplay(error, _ErrorTranslate, knownErrorInfo: str = "错误", unknown
     else:
         QMessageBox.critical(None, unknownErrorInfo, str(error), QMessageBox.Ok)
 
+
 def AdjustWindowInit() -> int:
     global screen, screenBASE
     from math import sqrt
     screen = QDesktopWidget().screenGeometry()
-    screenBASE = sqrt((screen.width() * screen.height()) / (1920 * 1080))
+    if sys.platform == 'darwin':
+        screenBASE = 1
+    else:
+        screenBASE = sqrt((screen.width() * screen.height()) / (1920 * 1080))
     return screenBASE
+
 
 def AdjustWindowSize(window) -> None:
     global screen, screenBASE
@@ -368,5 +392,4 @@ def AdjustWindowSize(window) -> None:
     window.setWindowFlags(window.windowFlags() & ~Qt.WindowMaximizeButtonHint)
     size = window.geometry()
     window.move((screen.width() - size.width()) / 2,
-              (screen.height() - size.height()) / 2)
-
+                (screen.height() - size.height()) / 2)

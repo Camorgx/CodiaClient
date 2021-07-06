@@ -1,22 +1,23 @@
+from os import path
+
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import QMainWindow, QApplication
 from PyQt5.QtWidgets import QMessageBox, QLineEdit
 
-from loginWindow import Ui_windowLogin
-
 from codiaclient import report_var
+from codiaclient.cachectrl import variables as cache_var
 from codiaclient.network import *
 from codiaclient.network import _acquire_verification as _AcquireVerification
 from codiaclient.report import Error as codiaError, error_translate
 from codiaclient.utils import cookie_decrypt as Decrypt, cookie_encrypt as Encrypt
-from codiaclient.cachectrl import variables as cache_var
 from codiaclientgui.utils import Font, Style, ErrorDisplay, AdjustWindowSize
+from loginWindow import Ui_windowLogin
 
-from os import path
 sessionPath = path.join(cache_var['appDataPath'], ".gui.cache")
 
+
 # 初始化任务，新建一个登录窗体和对应的ui
-def LoginInit(callback = None):
+def LoginInit(callback=None):
     global windowLogin, uiLogin
     windowLogin = QMainWindow()
     windowLogin.setFont(Font["main"])
@@ -24,11 +25,12 @@ def LoginInit(callback = None):
     uiLogin.setupUi(windowLogin)
     AdjustWindowSize(windowLogin)
     PasswordStoreRead()
-    BeginLogin(callback = callback)
+    BeginLogin(callback=callback)
     windowLogin.show()
 
+
 # 初始化任务，为登陆窗口信号绑定槽函数
-def BeginLogin(callback = None):
+def BeginLogin(callback=None):
     QApplication.processEvents()
     report_var["allow_error_deg"] = 1
 
@@ -57,7 +59,8 @@ def BeginLogin(callback = None):
     uiLogin.frameRegister.hide()
     uiLogin.frameReset.hide()
 
-#登录客户端的网络通信
+
+# 登录客户端的网络通信
 class _ClientLogin(QThread):
     infoSignal = pyqtSignal()
     errorSignal = pyqtSignal(codiaError)
@@ -73,21 +76,26 @@ class _ClientLogin(QThread):
         self.wait()
 
     def run(self):
-        try: client_login(username = self.username, password = self.password)
-        except codiaError as e: self.errorSignal.emit(e)
-        else: self.infoSignal.emit()
+        try:
+            client_login(username=self.username, password=self.password)
+        except codiaError as e:
+            self.errorSignal.emit(e)
+        else:
+            self.infoSignal.emit()
 
-#登录客户端的多线程准备
-def ClientLogin(username, password, InfoRecv = lambda: None, ErrorRecv = lambda: None):
+
+# 登录客户端的多线程准备
+def ClientLogin(username, password, InfoRecv=lambda: None, ErrorRecv=lambda: None):
     global threadClientLogin
-    threadClientLogin = _ClientLogin(username = username, password = password)
+    threadClientLogin = _ClientLogin(username=username, password=password)
     threadClientLogin.infoSignal.connect(InfoRecv)
     threadClientLogin.errorSignal.connect(ErrorRecv)
     uiLogin.progressBarLogin.setValue(90)
     threadClientLogin.start()
 
+
 # 开始进行登录操作
-def Login(callback = None):
+def Login(callback=None):
     loginUsername = uiLogin.lineEditLoginUsername.text()
     loginPassword = uiLogin.lineEditLoginPassword.text()
     if not uiLogin.lineEditLoginUsername.text():
@@ -102,6 +110,7 @@ def Login(callback = None):
         uiLogin.pushButtonLoginGoRegister.hide()
         uiLogin.progressBarLogin.setValue(0)
         uiLogin.progressBarLogin.show()
+
         def ErrorRecv(e: codiaError):
             ErrorDisplay(e, error_translate, "登录失败")
             uiLogin.progressBarLogin.hide()
@@ -136,7 +145,9 @@ def Login(callback = None):
                 windowLogin.hide()
                 callback and callback()
                 windowLogin.close()
-        ClientLogin(username = loginUsername, password = loginPassword, InfoRecv = LoginInfoRecv, ErrorRecv = ErrorRecv)
+
+        ClientLogin(username=loginUsername, password=loginPassword, InfoRecv=LoginInfoRecv, ErrorRecv=ErrorRecv)
+
 
 # 获取重置密码的验证码
 def AcquireVerification():
@@ -189,8 +200,8 @@ def Register():
         QMessageBox.critical(None, "错误", "两次输入的密码不相同, 请重新输入。", QMessageBox.Ok)
         return
     try:
-        res = register(username = uiLogin.lineEditRegisterUsername.text(), passwd = uiLogin.lineEditRegisterPassword.text(),
-                       email = uiLogin.lineEditRegisterUserphone.text())
+        res = register(username=uiLogin.lineEditRegisterUsername.text(), passwd=uiLogin.lineEditRegisterPassword.text(),
+                       email=uiLogin.lineEditRegisterUserphone.text())
     except codiaError as e:
         ErrorDisplay(e, error_translate, "注册失败")
     else:
@@ -217,9 +228,9 @@ def Reset():
         QMessageBox.critical(None, "错误", "两次输入的密码不相同, 请重新输入。", QMessageBox.Ok)
         return
     try:
-        change_password(identifier = uiLogin.lineEditResetAccount.text(), vercode = uiLogin.lineEditResetCheckNum.text(),
-                        passwd = uiLogin.lineEditResetNewPassword.text(),
-                        passwordconfirm = uiLogin.lineEditResetCheckNewPassword.text())
+        change_password(identifier=uiLogin.lineEditResetAccount.text(), vercode=uiLogin.lineEditResetCheckNum.text(),
+                        passwd=uiLogin.lineEditResetNewPassword.text(),
+                        passwordconfirm=uiLogin.lineEditResetCheckNewPassword.text())
     except codiaError as e:
         ErrorDisplay(e, error_translate)
     else:
@@ -239,6 +250,7 @@ def ResetReturn():
     windowLogin.setWindowTitle('欢迎使用Codia——登录')
     uiLogin.frameLogin.show()
     uiLogin.frameReset.hide()
+
 
 # 从缓存中读取`记住密码`相关配置
 def PasswordStoreRead():

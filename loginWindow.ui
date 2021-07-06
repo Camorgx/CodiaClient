@@ -10,12 +10,6 @@
     <height>320</height>
    </rect>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>0</width>
-    <height>0</height>
-   </size>
-  </property>
   <property name="windowTitle">
    <string>欢迎使用Codia——登录</string>
   </property>
@@ -576,7 +570,7 @@
      <x>0</x>
      <y>0</y>
      <width>540</width>
-     <height>26</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
@@ -584,8 +578,8 @@
      <rect>
       <x>270</x>
       <y>156</y>
-      <width>137</width>
-      <height>78</height>
+      <width>120</width>
+      <height>62</height>
      </rect>
     </property>
     <property name="title">

@@ -43,6 +43,7 @@ login_base_headers = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36 Edg/90.0.818.46',
 }
 
+
 def post(url, headers, data, timeout=5):
     headers['content-length'] = str(len(data))
     if type(data) == str: data = data.encode('utf-8')
@@ -63,6 +64,7 @@ def post(url, headers, data, timeout=5):
         return False
     else:
         return res
+
 
 def client_login(args=None, username=None, password=None, cookie=None):
     if args:
@@ -154,6 +156,7 @@ def client_login(args=None, username=None, password=None, cookie=None):
     else:
         report('No username or cookie specified.', 3)
 
+
 def logined(reportUnverified: bool = True):
     headers = coding_base_headers.copy()
     data = json.dumps({
@@ -192,6 +195,7 @@ def logined(reportUnverified: bool = True):
                 return "UNMATCHED", res_data['data']['me']['displayName']
         return "SUCCESS", res_data['data']['me']['displayName']
 
+
 def login(username, passwd):
     report('Try login.')
     res = _login(username, passwd)
@@ -201,6 +205,7 @@ def login(username, passwd):
     else:
         report('Login succeeded.({})'.format(res['displayName']))
         return True
+
 
 def register(username, passwd, email=None):
     headers = login_base_headers.copy()
@@ -235,6 +240,7 @@ mutation signup($login: String!, $password: String!, $email: String!) {
         report("register: " + res_data['errors'][0]['message'] + '.', 2)
         return False
     return res_data['data']['signup']['user']
+
 
 def change_password(identifier=None, vercode=None, passwd=None, passwordconfirm=None):
     import getpass
@@ -317,6 +323,7 @@ mutation passwordChange($newPassword: String!, $verifyToken: String) {
                 return False
     return passwd
 
+
 def _acquire_verification(identifier=None):
     headers = login_base_headers.copy()
     if not identifier: identifier = input("Input your email/phone:")
@@ -357,11 +364,13 @@ mutation acquireVerification($identifier: String!, $type: VerificationType!) {
         return None, False
     return identifier, res_data['data']['acquireVerification']
 
+
 def submit(eid, pid, lang, solutioncode):
     if pid:
         return _submit_from_pack(eid, pid, lang, solutioncode)
     else:
         return _submit_not_from_pack(eid, lang, solutioncode)
+
 
 def get_data(eid, pid, before=None, after=None, cnt=None):
     if not cnt:
@@ -384,11 +393,13 @@ def get_data(eid, pid, before=None, after=None, cnt=None):
         res.reverse()
         return res
 
+
 def get_exercise(eid, pid, lang, feedback='dict'):
     if pid:
         return _get_exercise_from_pack(eid, pid, lang, feedback)
     else:
         return _get_exercise_not_from_pack(eid, lang, feedback)
+
 
 def get_pack(before=None, after=None, cnt=None):
     if cnt == None: cnt = 8
@@ -454,6 +465,7 @@ query publicExercisePacks({queryargs}) {{
     except:
         return False
 
+
 def show_pack(pid):
     headers = coding_base_headers.copy()
     data = json.dumps({
@@ -490,6 +502,7 @@ query pack($pid: ID!) {
     res = post(url=url, headers=headers, data=data)
     if not res: return False
     return json.loads(res.text)['data']['node']
+
 
 def start_pack(pid):
     if show_pack(pid)['viewerStatus']['ongoing']:
@@ -539,6 +552,7 @@ mutation startSession($pid: ID!, $code: String) {
     except:
         return False
 
+
 def _login(username, passwd):
     headers = login_base_headers.copy()
     data = json.dumps({
@@ -578,6 +592,7 @@ mutation login($username: String!, $password: String!) {
                                     cookie=coding_base_headers['cookie'], passwd_store_on=variables['passwd_store_on'])
     return res_data['data']['login']['user']
 
+
 def _submit_from_pack(eid, pid, lang, solutioncode):
     headers = coding_base_headers.copy()
     data = json.dumps({
@@ -601,6 +616,7 @@ mutation ($eid: ID!, $pid: ID, $lang: Language!, $sol: String!, $a: JSONObject) 
     if not res: return False
     return json.loads(res.text)
 
+
 def _submit_not_from_pack(eid, lang, solutioncode):
     headers = coding_base_headers.copy()
     data = json.dumps({
@@ -622,6 +638,7 @@ mutation ($eid: ID!, $pid: ID, $lang: Language!, $sol: String!, $a: JSONObject) 
     res = post(url=url, headers=headers, data=data)
     if not res: return False
     return json.loads(res.text)
+
 
 def _get_data_not_from_pack(eid, before=None, after=None, cnt=None):
     if cnt == None: cnt = 1
@@ -692,6 +709,7 @@ query codingExercise({queryargs}) {{
         return json.loads(res.text)['data']['node']['viewerStatus']['exerciseStatuses']['nodes']
     except:
         return False
+
 
 def _get_data_from_pack(eid, pid, before=None, after=None, cnt=None):
     if cnt == None: cnt = 1
@@ -771,6 +789,7 @@ query codingExercise({queryargs}) {{
         return json.loads(res.text)['data']['node']['codingExercise']['viewerStatus']['exerciseStatuses']['nodes']
     except:
         return False
+
 
 def _get_exercise_not_from_pack(eid, lang, feedback='dict'):
     headers = coding_base_headers.copy()
@@ -860,6 +879,7 @@ query codingExercise($eid: ID!, $lang: Language!) {
         return json.dumps(res_dic)
     else:
         return None
+
 
 def _get_exercise_from_pack(eid, pid, lang, feedback='dict'):
     headers = coding_base_headers.copy()
