@@ -693,8 +693,11 @@ def SubmitCode(lang: str, code: str):
 def SubmitInit():
     languages = [toDisplay[lang] for lang in variables["exerciseInfo"]["supportedLanguages"]]
     uiMain.comboBoxLanguageSubmit.clear()
-    uiMain.comboBoxLanguageSubmit.addItem("请选择提交语言")
+    if uiMain.comboBoxLanguage.currentText() == '请选择提交语言':
+        uiMain.comboBoxLanguageSubmit.addItem('请选择提交语言')
     uiMain.comboBoxLanguageSubmit.addItems(languages)
+    if uiMain.comboBoxLanguage.currentText() != '请选择提交语言':
+        uiMain.comboBoxLanguageSubmit.setCurrentIndex(uiMain.comboBoxLanguage.currentIndex() - 1)
     uiMain.frameQuestion.hide()
     uiMain.frameSubmit.show()
 
