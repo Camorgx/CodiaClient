@@ -17,7 +17,8 @@ Color = {
     'white': QColor(255, 255, 255),
     'disabled': QColor(120, 120, 120),
     'purple': QColor(128, 0, 128),
-    'darkblue': QColor(10, 40, 120)
+    'darkblue': QColor(10, 40, 120),
+    'black': QColor(0, 0, 0)
 }
 
 Palette = {}
@@ -27,7 +28,8 @@ Palette[QPalette.Text] = {
     "red": QPalette(),
     "gray": QPalette(),
     'purple': QPalette(),
-    'darkblue': QPalette()
+    'darkblue': QPalette(),
+    'black': QPalette()
 }
 
 Palette[QPalette.Window] = {
@@ -89,6 +91,13 @@ Palette[QPalette.Text]['darkblue'].setBrush(QPalette.Active, QPalette.Text, dark
 Palette[QPalette.Text]['darkblue'].setBrush(QPalette.Inactive, QPalette.Text, darkblueBrush)
 darkblueBrush.setColor(Color['disabled'])
 Palette[QPalette.Text]['darkblue'].setBrush(QPalette.Disabled, QPalette.Text, darkblueBrush)
+
+blackBrush = QBrush(Color['black'])
+blackBrush.setStyle(Qt.SolidPattern)
+Palette[QPalette.Text]['black'].setBrush(QPalette.Active, QPalette.Text, blackBrush)
+Palette[QPalette.Text]['black'].setBrush(QPalette.Inactive, QPalette.Text, blackBrush)
+blackBrush.setColor(Color['disabled'])
+Palette[QPalette.Text]['black'].setBrush(QPalette.Disabled, QPalette.Text, blackBrush)
 
 
 class MyObject(QLabel):

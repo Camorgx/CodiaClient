@@ -362,6 +362,10 @@ def BeginMain(callback=None):
     uiMain.listWidgetExercise.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
     uiMain.listWidgetData.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
     uiMain.listWidgetPack.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+    uiMain.listWidgetPack.setPalette(Palette[QPalette.Text]['black'])
+    uiMain.listWidgetExercise.setPalette(Palette[QPalette.Text]['black'])
+    uiMain.listWidgetPackHistory.setPalette(Palette[QPalette.Text]['black'])
+    uiMain.listWidgetData.setPalette(Palette[QPalette.Text]['black'])
 
     for i in range(0, variables["packPerPage"]):
         AddItemToPackList(uiMain.listWidgetPack)
