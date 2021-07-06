@@ -320,14 +320,17 @@
     <widget class="QLabel" name="labelQuestionStatus">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>0</x>
        <y>0</y>
-       <width>150</width>
+       <width>180</width>
        <height>30</height>
       </rect>
      </property>
      <property name="text">
       <string>通过/尝试：</string>
+     </property>
+     <property name="indent">
+      <number>10</number>
      </property>
     </widget>
     <widget class="NewPushButton" name="pushButtonSubmitFile">
@@ -346,9 +349,9 @@
     <widget class="QComboBox" name="comboBoxLanguage">
      <property name="geometry">
       <rect>
-       <x>920</x>
+       <x>901</x>
        <y>0</y>
-       <width>132</width>
+       <width>151</width>
        <height>30</height>
       </rect>
      </property>
@@ -377,9 +380,9 @@
     <widget class="QComboBox" name="comboBoxLanguageSubmit">
      <property name="geometry">
       <rect>
-       <x>920</x>
+       <x>901</x>
        <y>0</y>
-       <width>132</width>
+       <width>151</width>
        <height>30</height>
       </rect>
      </property>
@@ -392,14 +395,17 @@
     <widget class="QLabel" name="labelSubmitStatus">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>0</x>
        <y>0</y>
-       <width>150</width>
+       <width>180</width>
        <height>30</height>
       </rect>
      </property>
      <property name="text">
       <string>通过/尝试</string>
+     </property>
+     <property name="indent">
+      <number>10</number>
      </property>
     </widget>
     <widget class="QTextEdit" name="textEditSubmit">
