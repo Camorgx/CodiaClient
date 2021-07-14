@@ -1,4 +1,7 @@
 from datetime import datetime, timedelta
+from pygments import highlight
+from pygments.lexers import PythonLexer, CppLexer
+from pygments.formatters import HtmlFormatter
 from re import search
 from sys import platform
 
@@ -15,6 +18,9 @@ from codiaclient.report import Error as codiaError, error_translate
 from codiaclient.requests import variables as requests_var
 from codiaclientgui.utils import QPalette, Font, Palette, Style, ErrorDisplay, NewListWidget, AdjustWindowSize
 from mainWindow import Ui_windowMain
+
+currentLexer = CppLexer()
+currentFormatter = HtmlFormatter(noclasses = True, nobackground = True)
 
 variables = {
     "pageNumber": 0,
@@ -280,7 +286,23 @@ def frameQuestionInit():
         languages = [toDisplay[lang] for lang in variables["exerciseInfo"]["supportedLanguages"]]
         uiMain.comboBoxLanguage.addItems(languages)
         uiMain.labelSubmitStatus.setText(uiMain.labelQuestionStatus.text())
-        uiMain.textEditSubmit.setText(variables["exerciseInfo"]["codeSnippet"])
+        uiMain.textEditSubmit.setHtml(highlight(variables["exerciseInfo"]["codeSnippet"], currentLexer, currentFormatter).replace('\r\n', '\n')[:-1])
+
+        def Highlighting():
+            pos = uiMain.textEditSubmit.textCursor().position()
+            uiMain.textEditSubmit.setHtml(highlight(uiMain.textEditSubmit.toPlainText(), currentLexer, currentFormatter).replace('\r\n', '\n')[:-1])
+            cursor = uiMain.textEditSubmit.textCursor()
+            cursor.setPosition(pos - 1) # 在文末换行时，下一条语句无法执行，此时若无此语句，光标将跳到文件头。加此语句可使得光标在文件尾。
+            cursor.setPosition(pos) # 文末换行会出bug，若要解决可以在文末加一空格，在空格前换行即可。
+            uiMain.textEditSubmit.setTextCursor(cursor)
+
+        def TryHighlight():
+            uiMain.textEditSubmit.textChanged.disconnect() # 否则将无限循环。
+            Highlighting()
+            uiMain.textEditSubmit.textChanged.connect(TryHighlight)
+
+        uiMain.textEditSubmit.textChanged.connect(TryHighlight)
+
         uiMain.progressBarExercise.hide()
         variables["workingStatus"]["frameQuestionInit"] = False
         uiMain.frameExercise.hide()
@@ -327,8 +349,10 @@ def BeginMain(callback=None):
     uiMain.progressBarSubmit.setStyleSheet(Style["progressBar"])
     uiMain.progressBarHistory.setStyleSheet(Style["progressBar"])
     if platform == "win32":
+        uiMain.textEditCode.setTabStopWidth(uiMain.textEditSubmit.font().pointSize() * 4)
         uiMain.textEditSubmit.setTabStopWidth(uiMain.textEditSubmit.font().pointSize() * 4)
     else:
+        uiMain.textEditCode.setTabStopWidth(uiMain.textEditSubmit.font().pointSize() * 2)
         uiMain.textEditSubmit.setTabStopWidth(uiMain.textEditSubmit.font().pointSize() * 2)
 
     # uiMain.listWidgetPack.itemClicked.connect(getSelectedPid)
@@ -376,11 +400,8 @@ def BeginMain(callback=None):
 
 def frameCodeInit():
     code = variables["submitHistory"][variables["currentHistoryRow"]]["solution"]["asset"]["content"]
-    uiMain.textEditCode.setText(code)
-    if platform == "win32":
-        uiMain.textEditCode.setTabStopWidth(uiMain.textEditSubmit.font().pointSize() * 4)
-    else:
-        uiMain.textEditCode.setTabStopWidth(uiMain.textEditSubmit.font().pointSize() * 2)
+    global currentLexer, currentFormatter
+    uiMain.textEditCode.setHtml(highlight(code, currentLexer, currentFormatter).replace('\r\n', '\n')[:-1])
 
 
 def frameTestDataInit():
