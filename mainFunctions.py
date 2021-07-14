@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
-from pygments.lexers import CppLexer, PythonLexer
+from pygments.lexer import RegexLexer
+from pygments.lexers import CLexer, CppLexer, PythonLexer, jvm, javascript, go, rust
 from re import search
 from sys import platform
 
@@ -9,7 +10,7 @@ from PyQt5.QtCore import Qt, QSize, QThread, pyqtSignal
 from PyQt5.QtGui import QTextCursor
 from PyQt5.QtWidgets import QAbstractItemView, QFileDialog
 from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout
-from PyQt5.QtWidgets import QLabel, QListWidgetItem, QTextEdit, QWidget
+from PyQt5.QtWidgets import QComboBox, QLabel, QListWidgetItem, QTextEdit, QWidget
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 
 from codiaclient import net_var
@@ -20,8 +21,6 @@ from codiaclient.requests import variables as requests_var
 from codiaclientgui.utils import QPalette, Font, Palette, Style, ErrorDisplay, NewListWidget, AdjustWindowSize
 from mainWindow import Ui_windowMain
 
-currentLexer = CppLexer()
-currentFormatter = HtmlFormatter(noclasses = True, nobackground = True)
 
 variables = {
     "pageNumber": 0,
@@ -41,6 +40,7 @@ variables = {
     }
 }
 
+
 toDisplay = {
     "CPP": "C++",
     "C": "C",
@@ -58,6 +58,28 @@ toDisplay = {
     "": "正在评测"
 }
 toData = {val: key for key, val in toDisplay.items()}
+
+
+class EmptyLexer(RegexLexer):
+    name = 'Empty'
+    tokens = {'root': []}
+
+currentLexer = EmptyLexer()
+currentFormatter = HtmlFormatter(noclasses = True, nobackground = True)
+
+
+def GetLexer(lang: str, callback=None) -> None:
+    global currentLexer
+    if lang == "C" or lang == toDisplay["C"]: currentLexer = CLexer()
+    elif lang == "CPP" or lang == toDisplay["CPP"]: currentLexer = CppLexer()
+    elif lang == "PYTHON" or lang == toDisplay["PYTHON"]: currentLexer = PythonLexer()
+    elif lang == "JAVA" or lang == toDisplay["JAVA"]: currentLexer = jvm.JavaLexer()
+    elif lang == "JAVASCRIPT" or lang == toDisplay["JAVASCRIPT"]: currentLexer = javascript.JavascriptLexer()
+    elif lang == "GO" or lang == toDisplay["GO"]: currentLexer = go.GoLexer()
+    elif lang == "RUST" or lang == toDisplay["RUST"]: currentLexer = rust.RustLexer()
+    else: currentLexer = EmptyLexer()
+    callback and callback()
+
 
 def Str(x) -> str:
     if x: return str(x)
@@ -87,12 +109,15 @@ class MyThread(QThread):
 
 
 # 代码高亮
-def HighlightTextEdit(textEdit: QTextEdit, text=None):
+def HighlightTextEdit(textEdit: QTextEdit, text=None, lang=None):
     global currentLexer, currentFormatter
-    if not text: text = textEdit.toPlainText()
+    tempLexer = currentLexer
+    if lang: GetLexer(lang)
+    if text == None: text = textEdit.toPlainText()
     if text:
         pos = textEdit.textCursor().position()
-        textEdit.setHtml(highlight(text, currentLexer, currentFormatter).replace("\r\n", "\n")[:-1])
+        text = highlight(text, currentLexer, currentFormatter).replace("\r\n", "\n")[:-1]
+        textEdit.setHtml(text)
         cursor = textEdit.textCursor()
         # 在文末换行时，下一条语句无法执行，此时若无此语句，光标将跳到文件头。加此语句可使得光标在文件尾。
         cursor.movePosition(QTextCursor.End)
@@ -101,7 +126,7 @@ def HighlightTextEdit(textEdit: QTextEdit, text=None):
         textEdit.setTextCursor(cursor)
     else:
         textEdit.setText("")
-
+    currentLexer = tempLexer
 
 # 获取题包内容信息的多线程
 def ShowPack(pid, InfoRecv=lambda: None, ErrorRecv=lambda: None):
@@ -308,11 +333,15 @@ def frameQuestionInit():
 
         uiMain.labelSubmitStatus.setText(uiMain.labelQuestionStatus.text())
 
-        HighlightTextEdit(uiMain.textEditSubmit, variables["exerciseInfo"]["codeSnippet"])
+        code = variables["exerciseInfo"]["codeSnippet"]
+        if not code:
+            uiMain.textEditSubmit.setText("")
+        else:
+            HighlightTextEdit(textEdit=uiMain.textEditSubmit, text=code)
 
         def TryHighlight():
             uiMain.textEditSubmit.textChanged.disconnect() # 否则将无限循环。
-            HighlightTextEdit(uiMain.textEditSubmit)
+            HighlightTextEdit(textEdit=uiMain.textEditSubmit)
             uiMain.textEditSubmit.textChanged.connect(TryHighlight)
 
         uiMain.textEditSubmit.textChanged.connect(TryHighlight)
@@ -395,6 +424,10 @@ def BeginMain(callback=None):
     uiMain.pushButtonShowCode.clicked.connect(ShowCode)
     uiMain.pushButtonShowTestData.clicked.connect(ShowTestData)
     uiMain.pushButtonSubmitCodeDetails.clicked.connect(frameTestDataInit)
+    uiMain.comboBoxLanguageSubmit.currentIndexChanged.connect(
+        lambda: GetLexer(lang=uiMain.comboBoxLanguageSubmit.currentText(),
+                         callback=lambda: HighlightTextEdit(textEdit=uiMain.textEditSubmit))
+    )
 
     uiMain.listWidgetPackHistory.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
     uiMain.listWidgetExercise.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
@@ -414,7 +447,11 @@ def BeginMain(callback=None):
 
 def frameCodeInit():
     code = variables["submitHistory"][variables["currentHistoryRow"]]["solution"]["asset"]["content"]
-    HighlightTextEdit(uiMain.textEditCode, code)
+    if not code:
+        uiMain.textEditCode.setText("")
+    else:
+        HighlightTextEdit(textEdit=uiMain.textEditCode, text=code,
+            lang=variables["submitHistory"][variables["currentHistoryRow"]]["solution"]['lang'])
 
 
 def frameTestDataInit():
