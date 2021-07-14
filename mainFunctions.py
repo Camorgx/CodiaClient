@@ -1,15 +1,16 @@
 from datetime import datetime, timedelta
 from pygments import highlight
-from pygments.lexers import PythonLexer, CppLexer
 from pygments.formatters import HtmlFormatter
+from pygments.lexers import CppLexer, PythonLexer
 from re import search
 from sys import platform
 
 from PyQt5.QtCore import Qt, QSize, QThread, pyqtSignal
-from PyQt5.QtWidgets import QFileDialog, QAbstractItemView
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
-from PyQt5.QtWidgets import QListWidgetItem, QWidget
-from PyQt5.QtWidgets import QMessageBox, QMainWindow, QApplication
+from PyQt5.QtGui import QTextCursor
+from PyQt5.QtWidgets import QAbstractItemView, QFileDialog
+from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout
+from PyQt5.QtWidgets import QLabel, QListWidgetItem, QTextEdit, QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 
 from codiaclient import net_var
 from codiaclient.network import get_pack, show_pack, start_pack, logined, get_exercise
@@ -52,10 +53,15 @@ toDisplay = {
     "compile error": "编译错误",
     "wrong answer": "答案错误",
     "runtime error": "运行时错误",
-    "time limit exceeds": "超时",
+    "time limit exceeds": "时间超限",
+    "memory limit exceeds": "内存超限",
     "": "正在评测"
 }
 toData = {val: key for key, val in toDisplay.items()}
+
+def Str(x) -> str:
+    if x: return str(x)
+    return ""
 
 
 class MyThread(QThread):
@@ -80,9 +86,26 @@ class MyThread(QThread):
             self.infoSignal[type(self.Info)].emit(self.Info)
 
 
+# 代码高亮
+def HighlightTextEdit(textEdit: QTextEdit, text=None):
+    global currentLexer, currentFormatter
+    if not text: text = textEdit.toPlainText()
+    if text:
+        pos = textEdit.textCursor().position()
+        textEdit.setHtml(highlight(text, currentLexer, currentFormatter).replace("\r\n", "\n")[:-1])
+        cursor = textEdit.textCursor()
+        # 在文末换行时，下一条语句无法执行，此时若无此语句，光标将跳到文件头。加此语句可使得光标在文件尾。
+        cursor.movePosition(QTextCursor.End)
+        # 文末换行会出bug，若要解决可以在文末加一空格，在空格前换行即可。
+        cursor.setPosition(pos)
+        textEdit.setTextCursor(cursor)
+    else:
+        textEdit.setText("")
+
+
 # 获取题包内容信息的多线程
 def ShowPack(pid, InfoRecv=lambda: None, ErrorRecv=lambda: None):
-    global threadShowPack  # extremely essential!
+    global threadShowPack # extremely essential!
     threadShowPack = MyThread(RunMethod=lambda: show_pack(pid=pid))
     threadShowPack.infoSignal.connect(InfoRecv)
     threadShowPack.errorSignal.connect(ErrorRecv)
@@ -160,7 +183,7 @@ def GetExerciseWidget(data: dict):
     else:
         labelExerciseStatus = QLabel("未通过")
         labelExerciseStatus.setPalette(Palette[QPalette.Text]["red"])
-    labelExerciseTitle = QLabel(str(data["title"]))
+    labelExerciseTitle = QLabel(Str(data["title"]))
     labelExercisePassed = QLabel(f"""通过数：{data["viewerStatus"]["passedCount"]}""")
     labelExerciseSubmit = QLabel(f"""提交数：{data["viewerStatus"]["totalCount"]}""")
     layoutExerciseMain = QHBoxLayout()
@@ -230,7 +253,7 @@ def MainInit(callback=None):
 
 # 获取题目信息的多线程
 def GetExercise(pid, eid, lang, InfoRecv=lambda: None, ErrorRecv=lambda: None):
-    global threadGetExercise  # extremely essential!
+    global threadGetExercise # extremely essential!
     threadGetExercise = MyThread(RunMethod=lambda: get_exercise(eid=eid, pid=pid, lang=lang))
     threadGetExercise.infoSignal.connect(InfoRecv)
     threadGetExercise.errorSignal.connect(ErrorRecv)
@@ -258,51 +281,38 @@ def frameQuestionInit():
             uiMain.statusbar.showMessage("标签：" + ", ".join(questionInfo["tags"]))
         else:
             uiMain.statusbar.showMessage("标签：无")
+
         sampleDataMdText = ""
         for i in range(0, len(questionInfo["sampleData"])):
             sampleDataMdText += f"### 样例{i + 1}\n"
-            '''
-            sampleDataMdText += """
-<table>
-<tr><th>输入</th><th width=30></th><th>输出</th></tr>
-<tr><td><code style="white-space: pre-line">{}</code></td><td></td><td><code style="white-space: pre-line">{}</code></td></tr>
-</table>
+            sampleDataMdText += f"#### 输入 \n```\n" + Str(questionInfo["sampleData"][i]["input"]) + "\n```\n"
+            sampleDataMdText += f"#### 输出 \n```\n" + Str(questionInfo["sampleData"][i]["output"]) + "\n```\n"
 
-""".format(questionInfo["sampleData"][i]["input"], questionInfo["sampleData"][i]["output"])
-            '''
-            sampleDataMdText += f"#### 输入 \n```\n" + questionInfo["sampleData"][i]["input"] + "\n```\n"
-            sampleDataMdText += f"#### 输出 \n```\n" + questionInfo["sampleData"][i]["output"] + "\n```\n"
-
-        mdText = ("### 题目描述 \n" + questionInfo["description-content"] + "\n" +
-                  "### 输入描述 \n" + questionInfo["inputDescription-content"] + "\n" +
-                  "### 输出描述 \n" + questionInfo["outputDescription-content"] + "\n" +
-                  sampleDataMdText)
+        mdText = ""
+        if questionInfo["description-content"]:
+            mdText += "### 题目描述 \n" + Str(questionInfo["description-content"]) + "\n"
+        if questionInfo["inputDescription-content"]:
+            mdText += "### 题目描述 \n" + Str(questionInfo["inputDescription-content"]) + "\n"
+        if questionInfo["outputDescription-content"]:
+            mdText += "### 题目描述 \n" + Str(questionInfo["outputDescription-content"]) + "\n"
+        mdText += sampleDataMdText
         uiMain.textEditQuestionDiscription.setMarkdown(mdText)
-        uiMain.labelQuestionStatus.setText("通过/尝试： " +
-                                           str(questionInfo["viewerStatus"]["passedCount"]) + "/" +
-                                           str(questionInfo["viewerStatus"]["totalCount"]))
+
+        passDivTotal = f"""{questionInfo["viewerStatus"]["passedCount"]}/{questionInfo["viewerStatus"]["totalCount"]}"""
+        uiMain.labelQuestionStatus.setText(f"通过/尝试： {passDivTotal}")
+
         uiMain.comboBoxLanguage.clear()
         uiMain.comboBoxLanguage.addItem("请选择提交语言")
-        languages = [toDisplay[lang] for lang in variables["exerciseInfo"]["supportedLanguages"]]
-        uiMain.comboBoxLanguage.addItems(languages)
-        uiMain.labelSubmitStatus.setText(uiMain.labelQuestionStatus.text())
-        global currentLexer, currentFormatter
-        if variables["exerciseInfo"]["codeSnippet"]:
-            uiMain.textEditSubmit.setHtml(highlight(variables["exerciseInfo"]["codeSnippet"], currentLexer, currentFormatter).replace('\r\n', '\n')[:-1])
-        else:
-            uiMain.textEditSubmit.setText("")
+        for lang in variables["exerciseInfo"]["supportedLanguages"]:
+            uiMain.comboBoxLanguage.addItem(toDisplay[lang])
 
-        def Highlighting():
-            pos = uiMain.textEditSubmit.textCursor().position()
-            uiMain.textEditSubmit.setHtml(highlight(uiMain.textEditSubmit.toPlainText(), currentLexer, currentFormatter).replace('\r\n', '\n')[:-1])
-            cursor = uiMain.textEditSubmit.textCursor()
-            cursor.setPosition(pos - 1) # 在文末换行时，下一条语句无法执行，此时若无此语句，光标将跳到文件头。加此语句可使得光标在文件尾。
-            cursor.setPosition(pos) # 文末换行会出bug，若要解决可以在文末加一空格，在空格前换行即可。
-            uiMain.textEditSubmit.setTextCursor(cursor)
+        uiMain.labelSubmitStatus.setText(uiMain.labelQuestionStatus.text())
+
+        HighlightTextEdit(uiMain.textEditSubmit, variables["exerciseInfo"]["codeSnippet"])
 
         def TryHighlight():
             uiMain.textEditSubmit.textChanged.disconnect() # 否则将无限循环。
-            Highlighting()
+            HighlightTextEdit(uiMain.textEditSubmit)
             uiMain.textEditSubmit.textChanged.connect(TryHighlight)
 
         uiMain.textEditSubmit.textChanged.connect(TryHighlight)
@@ -390,10 +400,10 @@ def BeginMain(callback=None):
     uiMain.listWidgetExercise.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
     uiMain.listWidgetData.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
     uiMain.listWidgetPack.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
-    uiMain.listWidgetPack.setPalette(Palette[QPalette.Text]['black'])
-    uiMain.listWidgetExercise.setPalette(Palette[QPalette.Text]['black'])
-    uiMain.listWidgetPackHistory.setPalette(Palette[QPalette.Text]['black'])
-    uiMain.listWidgetData.setPalette(Palette[QPalette.Text]['black'])
+    uiMain.listWidgetPack.setPalette(Palette[QPalette.Text]["black"])
+    uiMain.listWidgetExercise.setPalette(Palette[QPalette.Text]["black"])
+    uiMain.listWidgetPackHistory.setPalette(Palette[QPalette.Text]["black"])
+    uiMain.listWidgetData.setPalette(Palette[QPalette.Text]["black"])
 
     for i in range(0, variables["packPerPage"]):
         AddItemToPackList(uiMain.listWidgetPack)
@@ -404,9 +414,7 @@ def BeginMain(callback=None):
 
 def frameCodeInit():
     code = variables["submitHistory"][variables["currentHistoryRow"]]["solution"]["asset"]["content"]
-    global currentLexer, currentFormatter
-    if code:
-        uiMain.textEditCode.setHtml(highlight(code, currentLexer, currentFormatter).replace('\r\n', '\n')[:-1])
+    HighlightTextEdit(uiMain.textEditCode, code)
 
 
 def frameTestDataInit():
@@ -492,35 +500,13 @@ def HistoryReturn():
     uiMain.frameQuestion.show()
 
 
-# def _sub_get_data(eid, pid, cnt):
-#     if not cnt:
-#         return get_data(eid=eid, pid=pid)
-#     else:
-#         MAXCNT = 5
-#         progressSub = 90 / (cnt // MAXCNT + 1)
-#         nowProgress = 0
-#         res = []
-#         before = None
-#         while cnt > 0:
-#             sub = get_data(eid=eid, pid=pid, before=before, cnt=min(MAXCNT, cnt))
-#             if not sub: return False
-#             before = sub[0]['id']
-#             res += reversed(sub)
-#             cnt -= MAXCNT
-#             nowProgress += progressSub
-#             print(nowProgress)
-#             uiMain.progressBarHistory.setValue(nowProgress)
-#         res.reverse()
-#         return res
-
-
 def GetHistory(eid, pid, cnt, InfoRecv=lambda: None, ErrorRecv=lambda: None):
-    global threadGetHistory  # extremely essential!
+    global threadGetHistory # extremely essential!
     threadGetHistory = MyThread(RunMethod=lambda: get_data(eid=eid, pid=pid, cnt=cnt))
     threadGetHistory.infoSignal[list].connect(InfoRecv)
     threadGetHistory.errorSignal.connect(ErrorRecv)
     try:
-        uiMain.progressBarHistory.Anime['progress'].setDuration(1500 * (cnt // 100 + 1))
+        uiMain.progressBarHistory.Anime["progress"].setDuration(1500 * (cnt // 100 + 1))
     except:
         pass
     uiMain.progressBarHistory.setValue(90)
@@ -601,7 +587,7 @@ def GetHistoryWidget(data: dict):
     timeLabel.setText("提交时间：" +
                       (datetime.strptime(search(r"^[^.]*", data["time"].replace("T", " ")).group(),
                                          "%Y-%m-%d %H:%M:%S") + timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S"))
-    codeLengthLabel.setText("代码长度：" + str(len(data["solution"]["asset"]["content"])) + " B")
+    codeLengthLabel.setText("代码长度：" + Str(len(data["solution"]["asset"]["content"])) + " B")
     for i in data["submission"]["reports"]:
         if i["key"] == "memory consumed":
             spaceElapsedLabel.setText("空间消耗：" + i["value"])
@@ -694,7 +680,7 @@ def SubmitReturn():
 
 
 def Submit(pid, eid, lang, code, InfoRecv=lambda: None, ErrorRecv=lambda: None):
-    global threadSubmit  # extremely essential!
+    global threadSubmit # extremely essential!
     threadSubmit = MyThread(RunMethod=lambda: submit(eid=eid, pid=pid, lang=lang, solutioncode=code))
     threadSubmit.infoSignal.connect(InfoRecv)
     threadSubmit.errorSignal.connect(ErrorRecv)
@@ -731,10 +717,10 @@ def SubmitCode(lang: str, code: str):
 def SubmitInit():
     languages = [toDisplay[lang] for lang in variables["exerciseInfo"]["supportedLanguages"]]
     uiMain.comboBoxLanguageSubmit.clear()
-    if uiMain.comboBoxLanguage.currentText() == '请选择提交语言':
-        uiMain.comboBoxLanguageSubmit.addItem('请选择提交语言')
+    if uiMain.comboBoxLanguage.currentText() == "请选择提交语言":
+        uiMain.comboBoxLanguageSubmit.addItem("请选择提交语言")
     uiMain.comboBoxLanguageSubmit.addItems(languages)
-    if uiMain.comboBoxLanguage.currentText() != '请选择提交语言':
+    if uiMain.comboBoxLanguage.currentText() != "请选择提交语言":
         uiMain.comboBoxLanguageSubmit.setCurrentIndex(uiMain.comboBoxLanguage.currentIndex() - 1)
     uiMain.frameQuestion.hide()
     uiMain.frameSubmit.show()
@@ -752,22 +738,21 @@ def QuestionReturn():
 def UpdatePage():
     variables["hasNext"] = variables["packInfo"]["pageInfo"]["hasPreviousPage"]
     packList = variables["packInfo"]["nodes"]
-    variables["lastPid"] = packList[0]["id"]
-    variables["firstPid"] = packList[-1]["id"]
+    variables["firstPid"] = packList[0]["id"]
+    variables["lastPid"] = packList[-1]["id"]
     uiMain.pushButtonPackNext.setEnabled(variables["hasNext"] or not variables["pageNumber"])
     uiMain.pushButtonPackPrevious.setEnabled(variables["pageNumber"] > 1)
     uiMain.labelPackPage.setText("第 {} 页".format(variables["pageNumber"]))
     for i in range(0, uiMain.listWidgetPack.count()):
         uiMain.listWidgetPack.takeItem(0)
-    packList.reverse()
     packList += [None] * (variables["packPerPage"] - len(packList))
-    for i in range(0, len(packList)):
+    for i in range(0, variables["packPerPage"]):
         AddItemToPackList(uiMain.listWidgetPack, packList[i])
 
 
 # 获取题包信息的多线程
 def GetPack(before=None, after=None, InfoRecv=lambda: None, ErrorRecv=lambda: None):
-    global threadGetPack  # extremely essential!
+    global threadGetPack # extremely essential!
     threadGetPack = MyThread(RunMethod=lambda: get_pack(cnt=variables["packPerPage"], before=before, after=after))
     threadGetPack.infoSignal.connect(InfoRecv)
     threadGetPack.errorSignal.connect(ErrorRecv)
@@ -789,6 +774,7 @@ def GetPage(before=None, after=None):
             uiMain.progressBarPack.hide()
             return
         variables["packInfo"] = packInfo
+        variables["packInfo"]["nodes"].reverse()
         if before:
             variables["pageNumber"] += 1
         elif after:
