@@ -286,7 +286,11 @@ def frameQuestionInit():
         languages = [toDisplay[lang] for lang in variables["exerciseInfo"]["supportedLanguages"]]
         uiMain.comboBoxLanguage.addItems(languages)
         uiMain.labelSubmitStatus.setText(uiMain.labelQuestionStatus.text())
-        uiMain.textEditSubmit.setHtml(highlight(variables["exerciseInfo"]["codeSnippet"], currentLexer, currentFormatter).replace('\r\n', '\n')[:-1])
+        global currentLexer, currentFormatter
+        if variables["exerciseInfo"]["codeSnippet"]:
+            uiMain.textEditSubmit.setHtml(highlight(variables["exerciseInfo"]["codeSnippet"], currentLexer, currentFormatter).replace('\r\n', '\n')[:-1])
+        else:
+            uiMain.textEditSubmit.setText("")
 
         def Highlighting():
             pos = uiMain.textEditSubmit.textCursor().position()
@@ -401,7 +405,8 @@ def BeginMain(callback=None):
 def frameCodeInit():
     code = variables["submitHistory"][variables["currentHistoryRow"]]["solution"]["asset"]["content"]
     global currentLexer, currentFormatter
-    uiMain.textEditCode.setHtml(highlight(code, currentLexer, currentFormatter).replace('\r\n', '\n')[:-1])
+    if code:
+        uiMain.textEditCode.setHtml(highlight(code, currentLexer, currentFormatter).replace('\r\n', '\n')[:-1])
 
 
 def frameTestDataInit():
