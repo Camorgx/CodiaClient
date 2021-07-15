@@ -570,9 +570,16 @@
      <x>0</x>
      <y>0</y>
      <width>540</width>
-     <height>24</height>
+     <height>26</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>帮助</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menu"/>
   </widget>
   <action name="actions">
    <property name="text">
@@ -590,6 +597,11 @@
    </property>
   </action>
   <action name="action_2">
+   <property name="text">
+    <string>关于</string>
+   </property>
+  </action>
+  <action name="actionAbout">
    <property name="text">
     <string>关于</string>
    </property>

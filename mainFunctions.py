@@ -18,7 +18,7 @@ from codiaclient.network import get_pack, show_pack, start_pack, logined, get_ex
 from codiaclient.network import submit, get_data
 from codiaclient.report import Error as codiaError, error_translate
 from codiaclient.requests import variables as requests_var
-from codiaclientgui.utils import QPalette, Font, Palette, Style, ErrorDisplay, NewListWidget, AdjustWindowSize
+from codiaclientgui.utils import QPalette, Font, Palette, Style, ErrorDisplay, NewListWidget, AdjustWindowSize, About
 from mainWindow import Ui_windowMain
 
 
@@ -428,6 +428,7 @@ def BeginMain(callback=None):
         lambda: GetLexer(lang=uiMain.comboBoxLanguageSubmit.currentText(),
                          callback=lambda: HighlightTextEdit(textEdit=uiMain.textEditSubmit))
     )
+    uiMain.actionAbout.triggered.connect(lambda: About(windowMain))
 
     uiMain.listWidgetPackHistory.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
     uiMain.listWidgetExercise.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)

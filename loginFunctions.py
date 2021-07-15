@@ -10,7 +10,7 @@ from codiaclient.network import *
 from codiaclient.network import _acquire_verification as _AcquireVerification
 from codiaclient.report import Error as codiaError, error_translate
 from codiaclient.utils import cookie_decrypt as Decrypt, cookie_encrypt as Encrypt
-from codiaclientgui.utils import Font, Style, ErrorDisplay, AdjustWindowSize
+from codiaclientgui.utils import Font, Style, ErrorDisplay, AdjustWindowSize, About
 from loginWindow import Ui_windowLogin
 
 sessionPath = path.join(cache_var['appDataPath'], ".gui.cache")
@@ -34,30 +34,31 @@ def BeginLogin(callback=None):
     QApplication.processEvents()
     report_var["allow_error_deg"] = 1
 
-    uiLogin.pushButtonLogin.clicked.connect(lambda: Login(callback))
-    # uiLogin.pushButtonLogin.setFocus()
-    # uiLogin.pushButtonLogin.setDefault(True)
-    uiLogin.pushButtonLoginGoReset.clicked.connect(ShowReset)
-    uiLogin.pushButtonLoginGoRegister.clicked.connect(ShowRegister)
-    uiLogin.lineEditLoginPassword.setEchoMode(QLineEdit.Password)
-    uiLogin.lineEditLoginPassword.returnPressed.connect(lambda: Login(callback))
-    uiLogin.progressBarLogin.hide()
     uiLogin.progressBarLogin.setStyleSheet(Style["progressBar"])
 
+    uiLogin.lineEditLoginPassword.returnPressed.connect(lambda: Login(callback))
+    uiLogin.pushButtonLogin.clicked.connect(lambda: Login(callback))
+    uiLogin.pushButtonLoginGoReset.clicked.connect(ShowReset)
+    uiLogin.pushButtonLoginGoRegister.clicked.connect(ShowRegister)
     uiLogin.pushButtonRegister.clicked.connect(Register)
     uiLogin.pushButtonRegisterReturn.clicked.connect(RegisterReturn)
-    uiLogin.lineEditRegisterPassword.setEchoMode(QLineEdit.Password)
-    uiLogin.lineEditRegisterCheckPassword.setEchoMode(QLineEdit.Password)
-
     uiLogin.pushButtonReset.clicked.connect(Reset)
     uiLogin.pushButtonResetAcquire.clicked.connect(AcquireVerification)
     uiLogin.pushButtonResetReturn.clicked.connect(ResetReturn)
+    uiLogin.actionAbout.triggered.connect(lambda: About(windowLogin))
+
+    # uiLogin.pushButtonLogin.setFocus()
+    # uiLogin.pushButtonLogin.setDefault(True)
+    uiLogin.lineEditLoginPassword.setEchoMode(QLineEdit.Password)
     uiLogin.lineEditResetNewPassword.setEchoMode(QLineEdit.Password)
     uiLogin.lineEditResetCheckNewPassword.setEchoMode(QLineEdit.Password)
+    uiLogin.lineEditRegisterPassword.setEchoMode(QLineEdit.Password)
+    uiLogin.lineEditRegisterCheckPassword.setEchoMode(QLineEdit.Password)
 
-    uiLogin.frameLogin.show()
+    uiLogin.progressBarLogin.hide()
     uiLogin.frameRegister.hide()
     uiLogin.frameReset.hide()
+    uiLogin.frameLogin.show()
 
 
 # 登录客户端的网络通信

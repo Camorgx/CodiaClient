@@ -1,8 +1,10 @@
 import sys
 
-from PyQt5.QtCore import Qt, QPropertyAnimation, pyqtSignal, pyqtProperty, QEasingCurve
-from PyQt5.QtGui import QFont, QPalette, QBrush, QColor, QPainterPath, QPainter, QPen
-from PyQt5.QtWidgets import QMessageBox, QPushButton, QLabel, QProgressBar, QListWidget, QDesktopWidget
+from .config import VERSION
+
+from PyQt5.QtCore import Qt, QPropertyAnimation, pyqtSignal, pyqtProperty, QEasingCurve, QRect, QMetaObject, QCoreApplication
+from PyQt5.QtGui import QFont, QPalette, QBrush, QColor, QPainterPath, QPainter, QPen, QIcon, QPixmap
+from PyQt5.QtWidgets import QMessageBox, QPushButton, QLabel, QProgressBar, QListWidget, QDesktopWidget, QMainWindow, QWidget
 
 Font = {
     'main': QFont(),
@@ -46,8 +48,19 @@ if sys.platform == 'win32':
     Font['main'].setPointSize(10)
     Font['status'].setFamily("KaiTi")
     Font['status'].setPointSize(10)
-    Style[
-        'progressBar'] = "QProgressBar { max-height: 12px; border: none; border-radius: 6px; text-align: center; background-color: #FFFFFF } QProgressBar::chunk { border: none; border-radius: 6px; background: qlineargradient(spread: pad, x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #05A01E, stop: 1 #75C090) }"
+    Style['progressBar'] = """
+QProgressBar {
+    max-height: 12px;
+    border: none;
+    border-radius: 6px;
+    text-align: center;
+    background-color: #FFFFFF
+}
+QProgressBar::chunk {
+    border: none;
+    border-radius: 6px;
+    background: qlineargradient(spread: pad, x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #05A01E, stop: 1 #75C090)
+}"""
 elif sys.platform == 'darwin':
     Font['main'].setFamily("PingFang SC")
     Font['main'].setPointSize(13)
@@ -402,3 +415,77 @@ def AdjustWindowSize(window) -> None:
     size = window.geometry()
     window.move((screen.width() - size.width()) / 2,
                 (screen.height() - size.height()) / 2)
+
+
+class Ui_window(object):
+    title = ""
+    content = ""
+
+    def __init__(self, title, content):
+        self.title = title
+        self.content = content
+
+    def setupUi(self, window):
+        window.setObjectName("window")
+        window.resize(320, 180)
+        icon = QIcon()
+        icon.addPixmap(QPixmap("favicon.ico"), QIcon.Normal, QIcon.Off)
+        window.setWindowIcon(icon)
+        window.setWindowOpacity(1.0)
+        self.centralwidget = QWidget(window)
+        self.centralwidget.setObjectName("centralwidget")
+        self.labelContent = QLabel(self.centralwidget)
+        self.labelContent.setGeometry(QRect(10, 10, 300, 160))
+        self.labelContent.setAlignment(Qt.AlignCenter)
+        self.labelContent.setObjectName("labelContent")
+        window.setCentralWidget(self.centralwidget)
+
+        self.retranslateUi(window)
+        QMetaObject.connectSlotsByName(window)
+
+    def retranslateUi(self, window):
+        _translate = QCoreApplication.translate
+        window.setWindowTitle(_translate("window", self.title))
+        self.labelContent.setText(_translate("window", self.content))
+
+
+def CreateWindow(parent=None, title="", content="", addition=None):
+    global window
+    window = QMainWindow(parent)
+    window.setFont(Font["main"])
+    ui = Ui_window(title, content)
+    ui.setupUi(window)
+    addition and addition(ui)
+    AdjustWindowSize(window)
+    window.setWindowModality(Qt.ApplicationModal)
+    window.show()
+
+
+def About(parent=None):
+    def addition(ui):
+        ui.labelContent.setGeometry(QRect(10, 100, 300, 70))
+
+        ui.labelTitle = QLabel(ui.centralwidget)
+        ui.labelTitle.setGeometry(QRect(10, 10, 300, 60))
+        ui.labelTitle.setAlignment(Qt.AlignBottom | Qt.AlignHCenter)
+        ui.labelTitle.setObjectName("labelTitle")
+
+        ui.labelVersion = QLabel(ui.centralwidget)
+        ui.labelVersion.setGeometry(QRect(10, 70, 300, 30))
+        ui.labelVersion.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
+        ui.labelVersion.setAlignment(Qt.AlignCenter)
+        ui.labelVersion.setObjectName("labelVersion")
+
+        font = QFont()
+        font.setFamily(Font['main'].family())
+        font.setPointSize(Font['main'].pointSize() + 2)
+        ui.labelTitle.setFont(font)
+        font.setPointSize(Font['main'].pointSize() - 1)
+        ui.labelVersion.setFont(font)
+        ui.labelContent.setFont(font)
+
+        _translate = QCoreApplication.translate
+        ui.labelTitle.setText(_translate("window", "CODIA Client"))
+        ui.labelVersion.setText(_translate("window", f"version: {VERSION}"))
+
+    CreateWindow(parent=parent, title="关于", content="""作者：20少　郑以勒\n　　　20少　曹高翔""", addition=addition)

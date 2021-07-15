@@ -68,7 +68,7 @@ class Ui_windowMain(object):
         self.pushButtonExerciseBegin.setObjectName("pushButtonExerciseBegin")
         self.labelDeadline = QtWidgets.QLabel(self.frameExercise)
         self.labelDeadline.setGeometry(QtCore.QRect(780, 580, 280, 32))
-        self.labelDeadline.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        self.labelDeadline.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
         self.labelDeadline.setIndent(10)
         self.labelDeadline.setObjectName("labelDeadline")
         self.progressBarExercise = NewProgressBar(self.frameExercise)
@@ -212,10 +212,16 @@ class Ui_windowMain(object):
         self.menubar = QtWidgets.QMenuBar(windowMain)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1080, 26))
         self.menubar.setObjectName("menubar")
+        self.menu = QtWidgets.QMenu(self.menubar)
+        self.menu.setObjectName("menu")
         windowMain.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(windowMain)
         self.statusbar.setObjectName("statusbar")
         windowMain.setStatusBar(self.statusbar)
+        self.actionAbout = QtWidgets.QAction(windowMain)
+        self.actionAbout.setObjectName("actionAbout")
+        self.menu.addAction(self.actionAbout)
+        self.menubar.addAction(self.menu.menuAction())
 
         self.retranslateUi(windowMain)
         QtCore.QMetaObject.connectSlotsByName(windowMain)
@@ -248,6 +254,6 @@ class Ui_windowMain(object):
         self.pushButtonCodeBack.setText(_translate("windowMain", "返回"))
         self.pushButtonShowCode.setText(_translate("windowMain", "代码"))
         self.pushButtonTestDataBack.setText(_translate("windowMain", "返回"))
-
-
+        self.menu.setTitle(_translate("windowMain", "帮助"))
+        self.actionAbout.setText(_translate("windowMain", "关于"))
 from codiaclientgui.utils import NewListWidget, NewProgressBar, NewPushButton
